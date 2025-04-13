@@ -1,0 +1,79 @@
+## Adding ENV
+
+Add (environment variables)[https://nextjs.org/docs/app/building-your-application/configuring/environment-variables] files
+
+- .env
+- .env.local
+- .env.development
+- .env.production
+
+## Folder structure
+
+- puclic
+- messages `Define internationalization data`
+- src
+  - assets
+  - api
+    - request `Base http requests setting`
+    - modules `Define apis for each module`
+  - app `Should be server render by default or masked as 'use server'`
+    - api
+      - auth
+        - [...nextauth]
+          - route.ts `Handle NextAuth configuration`
+      - ...handlers `Route handler if needed`
+    - ...pages
+    - layout.tsx
+    - loading.tsx
+    - templage.tsx
+    - page.tsx `Home page`
+  - components `Can be server component or client component`
+    - blocks
+      - ExampleBlock
+        - index.module.scss `Each component should accompany with it own style module`
+        - index.tsx
+      - ...others
+    - boundaries
+      - ErrorBoundary
+      - NextAuthProvider
+      - ..others
+    - elms `Elements with DOM event triger must to be client component masked as 'use client'`
+      - ExampleButtonElm
+        - index.module.scss
+        - index.tsx
+      - ...others
+    - layouts
+      - layouts.module.scss
+      - RootLayoutSample.tsx
+      - ...otherLayouts
+  - definitions
+    - constants `file need have prefix .constant`
+    - enums `file need have prefix .enum`
+    - interfaces `file need have prefix .interface`
+    - resources `JSON files`
+    - types `file need have prefix .type`
+    - index.ts `Only for exporting. All difinition inside above 4 folders must to export through one file`
+  - hooks
+    - ...useHooks.ts
+    - index.ts `Only for exporting. All hooks inside hooks folders must to export through this file`
+  - services
+    - helpers
+      - ...[helpers].helper.ts
+      - index.ts `Only for exporting. All helpers inside helpers folders must to export through this file`
+    - modules `For defining actions must to execute on server side need to seperate into a server.ts file or moduleName.server.ts file`
+      - locale
+      - ...modules
+      - index.ts `Only for exporting. All things inside modules folders must to export through this file`
+    - storages
+      - cookie.server.ts `Server actions use`
+      - index.ts `Only for exporting. All storages inside storages folders must to export through this file`
+      - webCookie.ts `Client actions use`
+      - webLocalStorage.ts `Client actions use`
+      - webSessionStorage.ts `Client actions use`
+      - ..others if needed
+  - theme
+    - styles
+      - ..common use files used by pages or components scss module
+  - i18n.ts
+  - middleware.ts
+- ...(configurations)

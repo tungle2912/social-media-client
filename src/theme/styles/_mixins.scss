@@ -1,0 +1,29 @@
+// refer: https://sass-lang.com/documentation/at-rules/mixin/
+@import './variables';
+@mixin theme($theme: DarkGray) {
+  background: $theme;
+  box-shadow: 0 0 5px rgba($theme, 0.45);
+  color: #fff;
+}
+@mixin customScrollBar($widthScrollBar: 8px, $borderRadius:4px, $backgroundScrollbar: transparent, $heightScrollBar: 4px) {
+  &::-webkit-scrollbar {
+    width: $widthScrollBar;
+    background-color: $backgroundScrollbar;
+    height: $heightScrollBar;
+  }
+
+  &::-webkit-scrollbar-track {
+    background-color: $backgroundScrollbar ;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $scrollbar-color;
+    border-radius: $borderRadius;
+  }
+
+  @media screen and (max-width: 768px) {
+    &::-webkit-scrollbar {
+      -webkit-appearance: none;
+    }
+  }
+}

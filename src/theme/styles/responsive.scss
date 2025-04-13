@@ -1,0 +1,36 @@
+/**
+  Usage:
+
+  @include sm {
+    // ... rules
+  }
+
+  @include md {
+    // ... rules
+  }
+
+*/
+
+@mixin sm {
+  @media screen and (max-width: 767px) {
+    @content;
+  }
+}
+
+@mixin md {
+  @media screen and (min-width: 768px) {
+    @content;
+  }
+}
+
+@mixin lg {
+  @media screen and (min-width: 1024px) {
+    @content;
+  }
+}
+
+@mixin xl {
+  @media screen and (min-width: 1440px) {
+    @content;
+  }
+}

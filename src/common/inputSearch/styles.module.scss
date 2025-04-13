@@ -1,0 +1,13 @@
+@import "~/theme/styles/_variables.scss";
+.inputSearch {
+  width: 100%;
+  max-width: 484px;
+  height: 48px;
+  border-radius: 100px;
+  background-color: #f8f8ff;
+  border: none;
+  padding: 0 20px;
+  :global(.ant-input ) {
+    padding-left: 10px !important;
+  }
+}

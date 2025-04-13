@@ -1,0 +1,8 @@
+/.husky
+/.next
+/coverage
+/helm
+/node_modules
+/public
+/*.json
+/*.md

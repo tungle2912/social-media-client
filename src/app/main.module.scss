@@ -1,0 +1,17 @@
+@import '@styles/variables';
+@import '@styles/mixins';
+@import '@styles/inheritances';
+@import '@styles/responsive';
+
+.homeWrapper {
+  .textBox {
+    font-size: $fontSizeSampleSP;
+    @extend %gray-bounded !optional;
+
+    @include theme(#ff7675);
+
+    @include lg {
+      font-size: $fontSizeSamplePC;
+    }
+  }
+}

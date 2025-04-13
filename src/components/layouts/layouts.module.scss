@@ -1,0 +1,53 @@
+@import '~/theme/styles/_mixins.scss';
+.layoutContainer {
+  background-color: #fff;
+  overflow-y: hidden;
+  height: 100vh;
+  :global {
+    .ant-layout-sider {
+      width: 260px !important;
+      max-width: 260px !important;
+      flex: 0 0 260px !important;
+    }
+    .ant-layout-sider-collapsed {
+      width: 100px !important;
+      max-width: 100px !important;
+      flex: 0 0 100px !important;
+    }
+  }
+}
+.spin {
+  position: fixed;
+  top: 100px; /* Cách mép trên 200px */
+  left: 50%; /* Nằm giữa màn hình */
+  transform: translateX(-50%); /* Căn giữa theo chiều ngang */
+  z-index: 1000; /* Đảm bảo nó nằm trên các thành phần khác */
+}
+
+.contentContainer {
+  padding: 10px;
+  margin-top: 73px;
+  overflow: auto;
+  @include customScrollBar();
+}
+@media (max-width: 576px) {
+  .layoutContainer {
+    overflow: hidden;
+    :global {
+      .ant-layout-sider {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+      }
+      .ant-layout-sider-collapsed {
+        width: 0px !important;
+        max-width: 0px !important;
+        flex: 0 0 0px !important;
+        min-width: 0px !important;
+        .contentContainer {
+          width: 0;
+        }
+      }
+    }
+  }
+}

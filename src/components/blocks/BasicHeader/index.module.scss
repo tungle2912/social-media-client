@@ -1,0 +1,42 @@
+.basicHeader {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 40px;
+
+  .logoText {
+    font-size: 24px;
+    color: white;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .rightMenu {
+    margin-left: auto;
+  }
+
+  .userText {
+    color: white;
+  }
+
+  .menu {
+    display: flex;
+    align-items: stretch;
+
+    .menuItem {
+      padding: 0 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+
+      &.active {
+        background: var(--ant-color-primary);
+      }
+    }
+  }
+}

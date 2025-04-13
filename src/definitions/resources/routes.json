@@ -1,0 +1,27 @@
+{
+  "/": {
+    "title": "Home",
+    "description": "This is home page",
+    "breadcrumb": ""
+  },
+  "/login": {
+    "title": "Login",
+    "description": "This is login page",
+    "breadcrumb": ""
+  },
+  "/dashboard": {
+    "title": "Dashboard",
+    "description": "This is dashboard page",
+    "breadcrumb": "/"
+  },
+  "/sampleModule": {
+    "title": "Sample Module",
+    "description": "This is sample module page",
+    "breadcrumb": "/"
+  },
+  "/sampleModule/samplePage1": {
+    "title": "Sample Page 1",
+    "description": "This is sample page 1",
+    "breadcrumb": "/,/sampleModule"
+  }
+}

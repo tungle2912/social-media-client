@@ -1,0 +1,68 @@
+@import "~/theme/styles/variables.scss";
+.sideBar {
+  background-color: #fff !important;
+  padding-top: 12px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1000;
+  :global {
+    .ant-menu .ant-menu-item {
+      height: 56px;
+      border-radius: 0 !important;
+      transition: none;
+      .ant-menu-title-content {
+        margin-left: 31px;
+        font-weight: 700;
+        font-size: 14px;
+        color: $black-color-3;
+      }
+      .ant-layout-sider-collapsed .ant-menu-item-icon {
+        font-size: 30px;
+      }
+    }
+    .ant-menu-item-selected {
+      &::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 6px;
+        height: 100%;
+        background-color: $primary-color;
+      }
+
+      span {
+        color: $primary-color !important;
+      }
+
+      svg {
+        path {
+          fill: $primary-color;
+        }
+      }
+    }
+    .ant-menu-inline-collapsed {
+      .ant-menu-item {
+        padding-top: 15px;
+      }
+    }
+  }
+}
+.logo {
+  margin-bottom: 32px;
+}
+@media (max-width: 576px) {
+  .sideBar {
+    margin-top: 0px;
+  }
+  .logo {
+    position: relative;
+    .btnCollapse {
+      position: absolute;
+      right: 15px;
+      top: 20px;
+    }
+  }
+}

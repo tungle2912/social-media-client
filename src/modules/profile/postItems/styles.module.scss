@@ -1,0 +1,90 @@
+@import "~/theme/styles/_variables.scss";
+.postItem {
+  background-color: white;
+  border-radius: 8px;
+  padding: 25px 55px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .userInfo {
+      display: flex;
+      align-items: center;
+
+      .avatar {
+        width: 55px;
+        height: 55px;
+        margin-right: 12px;
+      }
+
+      .details {
+        .nameRow {
+          display: flex;
+          align-items: center;
+
+          .name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+          }
+
+          .following {
+            margin-left: 8px;
+            color: #1890ff;
+            cursor: pointer;
+          }
+
+          .connected {
+            margin-left: 8px;
+            color: #999;
+          }
+        }
+
+        .jobTitle {
+          font-size: 14px;
+          color: #999;
+          margin: 4px 0;
+        }
+
+        .timeAgo {
+          font-size: 12px;
+          color: #ccc;
+        }
+      }
+    }
+  }
+
+  .content {
+    margin-top: 12px;
+    color: #333;
+  }
+
+  .actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 16px;
+
+    .actionButton {
+      display: flex;
+      align-items: center;
+      color: #555;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 24px;
+
+      &:hover {
+        color: $primary-color;
+        background-color: transparent;
+        svg {
+          path {
+            fill: $primary-color;
+          }
+        }
+      }
+    }
+  }
+}

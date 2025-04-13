@@ -1,0 +1,11 @@
+@import '@styles/variables';
+@import '@styles/mixins';
+@import '@styles/inheritances';
+@import '@styles/responsive';
+
+.errorBox {
+  font-size: $fontSizeSamplePC;
+  @extend %gray-bounded !optional;
+
+  @include theme(#ff7675);
+}

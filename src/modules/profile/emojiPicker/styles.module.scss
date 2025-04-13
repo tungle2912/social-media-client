@@ -1,0 +1,38 @@
+.emojiPicker {
+    position: relative;
+    display: inline-block;
+  
+    .emojiButton {
+      background-color: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+    }
+  
+    .emojiGrid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 8px;
+      position: absolute;
+      top: 40px;
+      left: 0;
+      background: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+    }
+  
+    .emojiItem {
+      font-size: 24px;
+      cursor: pointer;
+      &:hover {
+        background-color: #f0f0f0;
+        border-radius: 50%;
+      }
+    }
+  }
+  
