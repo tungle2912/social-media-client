@@ -12,13 +12,13 @@ export default async function HomePage() {
   //   setTimeout(resolve, 3000);
   // });
 
-  const tSample = await getTranslations('sample');
+ // const tSample = await getTranslations('sample');
 
   return (
     <Flex vertical align="stretch" gap={20} className={mainStyles.homeWrapper}>
-      <div className={mainStyles.textBox}>{tSample('sampleTitle')}</div>
+      <div className={mainStyles.textBox}>kkk</div>
       <div className={mainStyles.textBox}>
-        <TopSample />
+        {/* <TopSample /> */}
       </div>
     </Flex>
   );

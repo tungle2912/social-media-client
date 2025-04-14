@@ -33,11 +33,10 @@ export default function Header({ className }: HeaderProps) {
   const handleLogout = () => {
     setIsLoading(true);
     logoutMutation.mutateAsync(undefined, {
-      onSuccess: () => {
+      onSuccess: async () => {
         setIsLoading(false);
-        signOut({
-          callbackUrl: '/auth/login',
-        });
+        await signOut({ redirect: false });
+        router.push('/auth/login');
       },
       onError: () => {
         setIsLoading(false);

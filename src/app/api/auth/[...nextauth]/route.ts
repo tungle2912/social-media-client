@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-param-reassign */
-import { Result } from 'antd';
 import NextAuth, { AuthOptions } from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GitHubProvider from 'next-auth/providers/github';
@@ -8,10 +7,21 @@ import GoogleProvider from 'next-auth/providers/google';
 
 import { publicPost } from '~/api/request';
 
-/**
- * Config next-auth options protecting routes
- * Refer https://next-auth.js.org/configuration/providers/credentials#how-to
- */
+async function refreshAccessToken(refreshToken: string) {
+  try {
+    console.log('1')
+    const response = await publicPost('/api/auth/refresh-token', { refresh_token: refreshToken });
+    return {
+      accessToken: response.result.access_token,
+      accessTokenExpires: response.result.exp,
+      refreshToken: response.result.refresh_token,
+    };
+  } catch (error) {
+    console.error('Failed to refresh access token:', error);
+    return null; // Trả về null nếu refresh thất bại
+  }
+}
+
 const nextAuthOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
@@ -21,7 +31,7 @@ const nextAuthOptions: AuthOptions = {
         const { email, password } = credentials;
         const res = await publicPost('/api/auth/login', { email, password });
         if (res.result) {
-          return res.result;
+          return res.result; // Trả về { access_token, refresh_token, exp, role }
         }
         return null;
       },
@@ -35,6 +45,10 @@ const nextAuthOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET || '',
     }),
   ],
+  session:{
+    strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, 
+  },
   pages: {
     signIn: '/auth/login',
   },
@@ -44,93 +58,66 @@ const nextAuthOptions: AuthOptions = {
       if (account.provider === 'google') {
         return profile.email_verified;
       }
-      return true; // Do different verification for other providers that don't have `email_verified`
+      return true;
     },
-    /**
-     * The redirect callback is called anytime the user is redirected to a callback URL (e.g. on signin or signout)
-     */
     async redirect({ url, baseUrl }: any) {
-      // Allows relative callback URLs
       if (url.startsWith('/')) {
         return `${baseUrl}${url}`;
       }
-
-      // Allows callback URLs on the same origin
       if (new URL(url).origin === baseUrl) {
         return url;
       }
-
       return baseUrl;
     },
-    /**
-     * The session callback is called whenever a session is checked
-     * e.g.: calls to getSession(), useSession(), or request to /api/auth/session
-     * Refer: https://next-auth.js.org/configuration/callbacks#session-callback
-     */
-    async session({ session, token }: any) {
-      // Send properties to the client, like an access_token from a provider.
-      const currentTime = Date.now() / 1000;
-      if (token.accessTokenExpires && currentTime + 1800 >= token.accessTokenExpires) {  
-        session.isAuthenticated = false;
-      } else {
-        session.isAuthenticated = true;
-      }
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
-      session.accessTokenExpires = token.exp;
-      return session;
-    },
-    /**
-     * This callback is called whenever a JSON Web Token is created (i.e. at sign in) or updated (i.e whenever a session is accessed in the client)
-     * e.g.: requests to /api/auth/signin, /api/auth/session and calls to getSession(), getServerSession(), useSession()
-     * Refer: https://next-auth.js.org/configuration/callbacks#jwt-callback
-     */
     async jwt({ token, user, account }: any) {
-      const currentTime = Date.now() / 1000;
+      const currentTime = Date.now() / 1000; // Thời gian hiện tại tính bằng giây
+
+      // Xử lý khi đăng nhập lần đầu (Credentials)
       if (user) {
-        // Credential sign in
-        token.accessToken = user.access_token || user.accessToken;
-        token.refreshToken = user.refresh_token || user.refreshToken;
-        token.accessTokenExpires = user.exp;
-        if (currentTime >= user.exp) {
-          token.isAuthenticated = false;
-        } else {
-          token.isAuthenticated = true;
-        }
-      } else if (account) {
-        // SSO signin
-        token.accessToken = account.access_token || account.accessToken;
+        return {
+          ...token,
+          accessToken: user.access_token,
+          refreshToken: user.refresh_token,
+          accessTokenExpires: user.exp, // Sử dụng trực tiếp exp từ server
+          isAuthenticated: true
+        };
       }
-      if (token.accessTokenExpires && currentTime >= token.accessTokenExpires) {
-        try {
+      // Xử lý đăng nhập SSO (Google, GitHub)
+      else if (account) {
+        token.accessToken = account.access_token;
+        // Nếu SSO cung cấp exp, có thể thêm vào đây
+      }
+
+      // Kiểm tra và làm mới token nếu cần
+      if (token.accessTokenExpires) {
+        const threshold = 300; // 5 phút trước khi hết hạn
+        if (currentTime + threshold >= token.accessTokenExpires) {
           const refreshedTokens = await refreshAccessToken(token.refreshToken);
           if (refreshedTokens) {
             token.accessToken = refreshedTokens.accessToken;
             token.accessTokenExpires = refreshedTokens.accessTokenExpires;
             token.refreshToken = refreshedTokens.refreshToken;
           }
-        } catch (error) {
-          console.error('Error refreshing access token:', error);
         }
+        // Cập nhật trạng thái xác thực dựa trên token hiện tại
+        token.isAuthenticated = currentTime < token.accessTokenExpires;
+      } else {
+        // Với SSO không có exp, giả định luôn xác thực
+        token.isAuthenticated = true;
       }
+
       return token;
+    },
+    async session({ session, token }: any) {
+      // Truyền các giá trị từ token sang session để sử dụng phía client
+      session.accessToken = token.accessToken;
+      session.refreshToken = token.refreshToken;
+      session.accessTokenExpires = token.accessTokenExpires;
+      session.isAuthenticated = token.isAuthenticated;
+      return session;
     },
   },
 };
-
-async function refreshAccessToken(refreshToken: string) {
-  try {
-    const response = await publicPost('/api/auth/refresh-token', { refresh_token: refreshToken });
-    return {
-      accessToken: response.result.access_token,
-      accessTokenExpires: response.result.exp,
-      refreshToken: response.result.refresh_token,
-    };
-  } catch (error) {
-    console.error('Failed to refresh access token:', error);
-    // throw new Error('Failed to refresh access token');
-  }
-}
 
 const handler = NextAuth(nextAuthOptions);
 

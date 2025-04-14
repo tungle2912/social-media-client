@@ -1,12 +1,11 @@
 
-import { sendGet, sendPut } from "~/api/request";
+import { sendGet, sendPatch } from "~/api/request";
 
 export const userApi = {
   getProfile: () => {
-    return sendGet('/api/users/profile');
+    return sendGet('/api/users/me');
   },
   updateProfile: (data?: any) => {
-    console.log(data);
-    return sendPut('/api/users/profile', data);
+    return sendPatch('/api/users/me', data);
   },
 };
