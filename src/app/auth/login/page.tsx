@@ -8,15 +8,39 @@ import { useState } from 'react';
 import Input from '~/components/elms/Inputs/LoginInput';
 import { rules } from '~/lib/rules';
 import styles from './styles.module.scss';
-import { LoginValues } from '~/constants/enums';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { LoginValues } from '~/definitions/interfaces/response.interface';
 
+const users = [
+  {
+    id: 1,
+    name: 'Tùng lê',
+    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379264/vj25iadnxqwfs6hlq7ll.jpg',
+  },
+  {
+    id: 2,
+    name: 'Linh Chi',
+    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379303/ebkgudjuff83o69o1f6x.jpg',
+  },
+  {
+    id: 3,
+    name: 'Tùng lê',
+    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379286/brkxukdl77z00xhmeywe.jpg',
+  },
+  {
+    id: 4,
+    name: 'Tùng lê',
+    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379062/ealdnetlft6ftctbdjzq.jpg',
+  },
+];
 export default function Login() {
   const [form] = Form.useForm();
   const t = useTranslations();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const searchParams = useSearchParams();
+  const error = searchParams.get('error');
   const onSubmit = async (values: LoginValues) => {
     setLoading(true);
     const response = await signIn('credentials', {
@@ -28,13 +52,13 @@ export default function Login() {
       router.push('/dashboard');
     }
   };
-  const loginSSO = async (sso: string) => {
-    setLoading(true);
-    await signIn(sso, {
-      redirect: false,
-    });
-    setLoading(false);
-  };
+  // const loginSSO = async (sso: string) => {
+  //   setLoading(true);
+  //   await signIn(sso, {
+  //     redirect: false,
+  //   });
+  //   setLoading(false);
+  // };
   return (
     <div className={styles.loginContainer}>
       {loading && (
@@ -47,46 +71,13 @@ export default function Login() {
         <h2 className={styles.recentLoginsTittle}>{t('recentLogin')}</h2>
         <p className={styles.recentLoginsDes}>{t('clickYourPicture')}</p>
         <div className={styles.loginOptions}>
-          <div className={styles.loginOption}>
-            <Image
-              src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724148262/goftpolyqmy08gmpwmdn.jpg"
-              alt="Linh Chi"
-              width={80}
-              height={80}
-              className={styles.userImage}
-            />
-            <span>Tùng lê</span>
-          </div>
-          <div className={styles.loginOption}>
-            <Image
-              src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724208002/v9abgrbgsnnfex04kfbe.jpg"
-              alt="Tùng lê"
-              width={80}
-              height={80}
-              className={styles.userImage}
-            />
-            <span>Tùng lê</span>
-          </div>
-          <div className={styles.loginOption}>
-            <Image
-              src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724148806/hoxzt0qs76xnogsnnqpx.jpg"
-              alt="Linh Chi"
-              width={80}
-              height={80}
-              className={styles.userImage}
-            />
-            <span>Tùng lê</span>
-          </div>
-          <div className={styles.loginOption}>
-            <Image
-              src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724148251/dhtiiea1mtxkszszckkf.jpg"
-              alt="Linh Chi"
-              width={80}
-              height={80}
-              className={styles.userImage}
-            />
-            <span>Tùng lê</span>
-          </div>
+          {users.map((user) => (
+            <div key={user.id} className={styles.loginOption}>
+              <Image src={user.image} alt={user.name} width={80} height={80} className={styles.userImage} />
+              <span>{user.name}</span>
+            </div>
+          ))}
+
           <div className={styles.addAccount}>
             <div className={styles.addAccountIcon}>+</div>
             <span>{t('addAccount')}</span>
@@ -95,6 +86,7 @@ export default function Login() {
       </div>
       <div className={styles.formLogin}>
         <h1 className={styles.formLoginTittle}>{t('login')}</h1>
+        {error && <div className={styles.errorMessage}>{error}</div>}
         <Form form={form} requiredMark={false} onFinish={onSubmit} layout="vertical">
           <Input name="email" rules={rules.email} label="Email" placeholder={t('enterYourEmail')} />
           <Input

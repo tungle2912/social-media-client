@@ -1,6 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AxiosResponse } from 'axios';
-import { GetProfileResponse } from '~/definitions';
 import { userApi } from '~/services/api/user.api';
 
 export const useGetProfileQuery = () => {

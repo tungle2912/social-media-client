@@ -1,6 +1,6 @@
 'use client';
 
-import { UserType } from '~/definitions/types/types';
+import { UserType } from '~/definitions/types/index.type';
 import styles from './styles.module.scss';
 import { useTranslations } from 'next-intl';
 

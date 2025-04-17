@@ -1,4 +1,4 @@
-import { UserType } from "~/definitions/types/types";
+import { UserType } from '~/definitions/types/index.type';
 
 export type TSample = {
   attr: string;

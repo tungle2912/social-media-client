@@ -6,20 +6,17 @@ import { useContext, useEffect, useState } from 'react';
 import { LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
 import InputSearch from '~/common/inputSearch';
 import { AuthContext } from '~/components/layouts/RootLayoutWrapper';
-import { ELocale } from '~/definitions';
 import { useDimension } from '~/hooks';
 import { useLogoutMutation } from '~/hooks/data/auth.data';
 
+import { signOut } from 'next-auth/react';
 import { switchLocale } from '~/services/modules';
 import { useSideBarStore } from '~/stores/sidebar.store';
-import styles from './styles.module.scss';
-import { signOut } from 'next-auth/react';
 import { ETheme, useTheme } from '~/theme/ThemeProvider';
-interface HeaderProps {
-  className?: string;
-}
-const locales = [ELocale.EN, ELocale.VN];
-export default function Header({ className }: HeaderProps) {
+import styles from './styles.module.scss';
+
+//const locales = [ELocale.EN, ELocale.VN];
+export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
   const { isSM: isMobile } = useDimension();
   const logoutMutation = useLogoutMutation();

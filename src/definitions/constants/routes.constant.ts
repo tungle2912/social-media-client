@@ -1,5 +1,5 @@
-const AUTH_ROUTES = ['/auth/login'];
-const PROTECTED_ROUTES = ['/profile'];
+const AUTH_ROUTES = ["/auth/login", "/auth/register", "/auth/forgot-password"]
+const PROTECTED_ROUTES = ["/", "/profile"]
 const PUBLIC_ROUTES = ['/'];
 
 export const routes = {

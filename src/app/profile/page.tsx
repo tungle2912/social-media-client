@@ -1,22 +1,21 @@
 'use client';
 import { CameraOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
-import { Avatar, Button, Image, message, Modal, Spin, Tabs, Upload, UploadFile } from 'antd';
+import { Avatar, Button, Image, message, Tabs, Upload, UploadFile } from 'antd';
 
+import ImgCrop from 'antd-img-crop';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
+import { UserType } from '~/definitions/types/index.type';
 import { useGetProfileQuery, useUpdateProfileMutation } from '~/hooks/data/user.data';
 import InfoTab from '~/modules/profile/infoTab';
 import PostTab from '~/modules/profile/postTab';
-import image from '../../../public/static/image';
-import styles from './styles.module.scss';
-import { useTranslations } from 'next-intl';
-import { UserType } from '~/definitions/types/types';
-import { useState } from 'react';
-import ImgCrop from 'antd-img-crop';
 import useLoadingStore from '~/stores/loading.store';
+import styles from './styles.module.scss';
 
 export default function Profile() {
   const t = useTranslations();
   const response = useGetProfileQuery();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [fileList] = useState<UploadFile[]>([]);
   const userProfile: UserType = response?.data?.result || ({} as UserType);
   const items = [
     {
@@ -71,7 +70,7 @@ export default function Profile() {
       ),
     },
   ];
-  const [newAvatar, setNewAvatar] = useState<string | null>(null); // Avatar mới sau khi chọn
+  // const [newAvatar, setNewAvatar] = useState<string | null>(null); // Avatar mới sau khi chọn
   const setLoading = useLoadingStore((state) => state.setLoading);
   const updateProfileMutation = useUpdateProfileMutation();
   const handleUpdateAvatar = async (file: File) => {
@@ -82,7 +81,7 @@ export default function Profile() {
       await updateProfileMutation.mutateAsync(formData);
       const reader = new FileReader();
       reader.onload = () => {
-        setNewAvatar(reader.result as string); // Hiển thị preview của hình ảnh
+      //  setNewAvatar(reader.result as string); // Hiển thị preview của hình ảnh
       };
       reader.readAsDataURL(file);
       message.success(t('avatarUpdated'));
@@ -92,7 +91,7 @@ export default function Profile() {
       setLoading(false);
     }
   };
-  const handleUpdateCorverPhoto = async (file: File) => {
+  const handleUpdateCoverPhoto = async (file: File) => {
     const formData = new FormData();
     formData.append('cover_photo', file);
     setLoading(true);
@@ -100,7 +99,7 @@ export default function Profile() {
       await updateProfileMutation.mutateAsync(formData);
       const reader = new FileReader();
       reader.onload = () => {
-        setNewAvatar(reader.result as string);
+    //    setNewAvatar(reader.result as string);
       };
       reader.readAsDataURL(file);
       message.success(t('Cover photo updated'));
@@ -127,7 +126,7 @@ export default function Profile() {
         <ImgCrop aspect={24 / 9} rotationSlider>
           <Upload
             maxCount={1}
-            beforeUpload={handleUpdateCorverPhoto}
+            beforeUpload={handleUpdateCoverPhoto}
             fileList={fileList}
             className={styles.editAvatarButton}
           >
@@ -172,7 +171,7 @@ export default function Profile() {
               src="https://res.cloudinary.com/dflvvu32c/image/upload/v1738987278/koonctfibksbyt04gxxn.jpg"
               className={styles.friendImage}
             />
-             <Avatar
+            <Avatar
               size={40}
               src="https://res.cloudinary.com/dflvvu32c/image/upload/v1738987344/g9gc0pj3jhp7kaybtcqm.jpg"
               className={styles.friendImage}

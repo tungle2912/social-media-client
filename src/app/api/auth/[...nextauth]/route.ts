@@ -9,7 +9,7 @@ import { publicPost } from '~/api/request';
 
 async function refreshAccessToken(refreshToken: string) {
   try {
-    console.log('1')
+    console.log('1');
     const response = await publicPost('/api/auth/refresh-token', { refresh_token: refreshToken });
     return {
       accessToken: response.result.access_token,
@@ -32,8 +32,15 @@ const nextAuthOptions: AuthOptions = {
         const res = await publicPost('/api/auth/login', { email, password });
         if (res.result) {
           return res.result; // Trả về { access_token, refresh_token, exp, role }
+        } else {
+          // Nếu có lỗi từ server, tạo thông điệp lỗi
+          const errorMessage = res.errors
+            ? Object.values(res.errors)
+                .map((err: any) => err.msg)
+                .join(', ') // Ghép các thông điệp lỗi nếu có nhiều lỗi
+            : res.message || 'Authentication failed'; // Dùng message mặc định nếu không có errors
+          throw new Error(errorMessage);
         }
-        return null;
       },
     }),
     GoogleProvider({
@@ -45,9 +52,9 @@ const nextAuthOptions: AuthOptions = {
       clientSecret: process.env.GITHUB_SECRET || '',
     }),
   ],
-  session:{
+  session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, 
+    maxAge: 30 * 24 * 60 * 60,
   },
   pages: {
     signIn: '/auth/login',
@@ -79,7 +86,7 @@ const nextAuthOptions: AuthOptions = {
           accessToken: user.access_token,
           refreshToken: user.refresh_token,
           accessTokenExpires: user.exp, // Sử dụng trực tiếp exp từ server
-          isAuthenticated: true
+          isAuthenticated: true,
         };
       }
       // Xử lý đăng nhập SSO (Google, GitHub)

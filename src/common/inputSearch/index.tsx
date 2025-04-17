@@ -7,7 +7,7 @@ interface InputSearchProps {
   placeholder?: string;
   className?: string;
 }
-function InputSearch({ className, placeholder }: InputSearchProps) {
+function InputSearch({ className }: InputSearchProps) {
   const t = useTranslations();
   return (
     <Input

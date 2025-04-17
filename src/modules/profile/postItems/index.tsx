@@ -1,13 +1,9 @@
-import React from "react";
-import { Avatar, Button, Tooltip } from "antd";
 import {
-  LikeOutlined,
-  CommentOutlined,
-  MessageOutlined,
-  EllipsisOutlined,
+  EllipsisOutlined
 } from "@ant-design/icons";
-import styles from "./styles.module.scss";
+import { Avatar, Button, Tooltip } from "antd";
 import { CommentIcon, LikeIcon, MoreIcon, ShareIcon } from "~/common/icon";
+import styles from "./styles.module.scss";
 interface PostItemProps {
   name: string;
   timeAgo: string;

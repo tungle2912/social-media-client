@@ -1,7 +1,4 @@
-import { getTranslations } from 'next-intl/server';
-import React from 'react';
 
-import TopSample from '~/components/elms/Sample/TopSample';
 import { Flex } from '~/theme';
 
 import mainStyles from './main.module.scss';

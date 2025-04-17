@@ -1,5 +1,5 @@
 import { IconProps as IconPropsLib } from "@iconify/react";
-import React, { useMemo } from "react";
+import React from "react";
 export interface IConProps extends Omit<IconPropsLib, "icon"> {
   active?: boolean;
   fillOpacity?: string;

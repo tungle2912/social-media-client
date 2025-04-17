@@ -7,18 +7,14 @@ import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { useSession } from 'next-auth/react';
 import React, { useMemo } from 'react';
 
-import BasicFooter from '~/components/blocks/BasicFooter';
-import BasicHeader from '~/components/blocks/BasicHeader';
-import BasicMainWrapper from '~/components/blocks/BasicMainWrapper';
 import { ELocale } from '~/definitions';
-import { ThemeProvider, Layout, Skeleton, Spin } from '~/theme';
-import useAutoRefreshToken from '~/hooks/useAutoRefreshToken';
+import { Layout, Skeleton, Spin, ThemeProvider } from '~/theme';
 
-import styles from './layouts.module.scss';
 import { usePathname } from 'next/navigation';
 import Header from '~/components/header';
 import Sidebar from '~/components/sideBar';
 import useLoadingStore from '~/stores/loading.store';
+import styles from './layouts.module.scss';
 
 interface ILayoutProps {
   locale: ELocale;

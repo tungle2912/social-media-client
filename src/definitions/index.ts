@@ -31,4 +31,4 @@ export * from '~/definitions/enums/locale.enum';
  */
 export * from '~/definitions/types/sample.type';
 export * from '~/definitions/types/route.type';
-export * from '~/definitions/types/types.d';
+export * from '~/definitions/types/index.type';

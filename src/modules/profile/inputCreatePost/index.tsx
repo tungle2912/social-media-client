@@ -3,11 +3,11 @@ import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
 import styles from './styles.module.scss';
 
-interface IInputCreatPost {
+interface IInputCreatePost {
   className?: string;
   setIsOpenModal?: any;
 }
-function InputCreatPost({ className, setIsOpenModal }: IInputCreatPost) {
+function InputCreatePost({ className, setIsOpenModal }: IInputCreatePost) {
   const t = useTranslations();
   return (
     <Input
@@ -20,4 +20,4 @@ function InputCreatPost({ className, setIsOpenModal }: IInputCreatPost) {
     />
   );
 }
-export default InputCreatPost;
+export default InputCreatePost;
