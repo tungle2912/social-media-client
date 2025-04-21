@@ -8,7 +8,23 @@ export const useGetNewFeedsQuery = () => {
     enabled: true,
   });
 };
-
+export const useCreatePostMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: any) => postApi.createPost(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['POST'] });
+      queryClient.invalidateQueries({ queryKey: ['NEW_FEEDS'] });
+    },
+  });
+}
+export const useGetPostByUserIdQuery = (id: string) => {
+  return useQuery({
+    queryKey: ['POST_USER', id],
+    queryFn: () => postApi.getPostByUserId(id),
+    enabled: !!id,
+  });
+};
 export const useGetPostByIdQuery = (id: string) => {
   return useQuery({
     queryKey: ['POST', id],

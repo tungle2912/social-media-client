@@ -9,12 +9,11 @@ import { publicPost } from '~/api/request';
 
 async function refreshAccessToken(refreshToken: string) {
   try {
-    console.log('1');
     const response = await publicPost('/api/auth/refresh-token', { refresh_token: refreshToken });
     return {
-      accessToken: response.result.access_token,
-      accessTokenExpires: response.result.exp,
-      refreshToken: response.result.refresh_token,
+      accessToken: response.data.result.access_token,
+      accessTokenExpires: response.data.result.exp,
+      refreshToken: response.data.result.refresh_token,
     };
   } catch (error) {
     console.error('Failed to refresh access token:', error);
@@ -28,18 +27,23 @@ const nextAuthOptions: AuthOptions = {
       name: 'Credentials',
       credentials: {},
       async authorize(credentials: any) {
-        const { email, password } = credentials;
-        const res = await publicPost('/api/auth/login', { email, password });
-        if (res.result) {
-          return res.result; // Trả về { access_token, refresh_token, exp, role }
-        } else {
-          // Nếu có lỗi từ server, tạo thông điệp lỗi
-          const errorMessage = res.errors
-            ? Object.values(res.errors)
-                .map((err: any) => err.msg)
-                .join(', ') // Ghép các thông điệp lỗi nếu có nhiều lỗi
-            : res.message || 'Authentication failed'; // Dùng message mặc định nếu không có errors
-          throw new Error(errorMessage);
+        try {
+          const { email, password } = credentials;
+          const response = await publicPost('/api/auth/login', { email, password });
+
+          // Trả về dữ liệu người dùng nếu thành công
+          return response.data.result; // Giả sử dữ liệu trả về nằm trong result
+        } catch (error: any) {
+          // Xử lý lỗi từ server
+          const errorData = error.response?.data;
+
+          // Ném lỗi có cấu trúc để client xử lý
+          throw new Error(
+            JSON.stringify({
+              message: errorData?.message || 'Authentication failed',
+              errors: errorData?.errors,
+            })
+          );
         }
       },
     }),
@@ -85,6 +89,7 @@ const nextAuthOptions: AuthOptions = {
           ...token,
           accessToken: user.access_token,
           refreshToken: user.refresh_token,
+          user: user.user,
           accessTokenExpires: user.exp, // Sử dụng trực tiếp exp từ server
           isAuthenticated: true,
         };
@@ -121,6 +126,7 @@ const nextAuthOptions: AuthOptions = {
       session.refreshToken = token.refreshToken;
       session.accessTokenExpires = token.accessTokenExpires;
       session.isAuthenticated = token.isAuthenticated;
+      session.user = token.user; // Thêm thông tin người dùng vào session
       return session;
     },
   },

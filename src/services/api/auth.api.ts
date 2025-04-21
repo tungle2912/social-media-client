@@ -1,4 +1,4 @@
-import { publicPost, sendDelete } from "~/api/request";
+import { publicPost, publicPut, sendDelete } from "~/api/request";
 
 export const authApi = {
   register: (values: { email: string; password: string; confirm_password: string }) => {
@@ -17,6 +17,6 @@ export const authApi = {
     return publicPost("/api/auth/verify-otp-forgot-password", values)
   },
   resetPassword: (values: { email: string; password: string; otp_id: string }) => {
-    return publicPost("/api/auth/reset-password", values)
+    return publicPut("/api/auth/reset-password", values)
   }
 }

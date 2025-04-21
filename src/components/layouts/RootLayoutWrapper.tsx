@@ -5,14 +5,16 @@
 
 import { AntdRegistry } from '@ant-design/nextjs-registry';
 import { useSession } from 'next-auth/react';
-import React, { useMemo } from 'react';
+import React, { useEffect } from 'react';
 
-import { ELocale } from '~/definitions';
+import { ELocale, UserType } from '~/definitions';
 import { Layout, Skeleton, Spin, ThemeProvider } from '~/theme';
 
 import { usePathname } from 'next/navigation';
 import Header from '~/components/header';
+import { AuthLayout } from '~/components/layouts/authLayout';
 import Sidebar from '~/components/sideBar';
+import { useAuthStore } from '~/stores/auth.store';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './layouts.module.scss';
 
@@ -22,8 +24,6 @@ interface ILayoutProps {
 }
 
 const { Content } = Layout;
-
-export const AuthContext = React.createContext<any>({});
 
 /**
  * Basic layout sample
@@ -35,19 +35,18 @@ export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
   const isAuthPage = pathname.startsWith('/auth');
   const isLoading = useLoadingStore((state) => state.isLoading);
   //  useAutoRefreshToken(sessionData?.expires ? +sessionData.expires : 0);
-  const authProvider = useMemo(
-    () => ({
+  const {setAuth} = useAuthStore();
+  useEffect(() => {
+    setAuth({
       authenticated: status === 'authenticated',
-      user: sessionData?.user,
+      user: sessionData?.user as UserType,
       locale,
-    }),
-    [status, sessionData, locale]
-  );
+    });
+  }, [status, sessionData, locale, setAuth]);
 
   return (
     <AntdRegistry>
       <ThemeProvider>
-        <AuthContext.Provider value={authProvider}>
           {status === 'loading' ? (
             <Content
               style={{
@@ -62,7 +61,7 @@ export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
               <Skeleton loading active />
             </Content>
           ) : isAuthPage ? (
-            children
+            <AuthLayout>{children}</AuthLayout>
           ) : (
             <Layout className={styles.layoutContainer}>
               {isLoading && (
@@ -77,7 +76,6 @@ export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
               </Layout>
             </Layout>
           )}
-        </AuthContext.Provider>
       </ThemeProvider>
     </AntdRegistry>
   );

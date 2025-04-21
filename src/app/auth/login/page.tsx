@@ -1,57 +1,53 @@
 'use client';
-import image from '@/static/image';
-import { Button, Form, Spin } from 'antd';
-import { useTranslations } from 'next-intl';
+import { Form, message } from 'antd';
+import { signIn } from 'next-auth/react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import Input from '~/components/elms/Inputs/LoginInput';
-import { rules } from '~/lib/rules';
-import styles from './styles.module.scss';
-import { signIn } from 'next-auth/react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import Input from '~/common/input';
 import { LoginValues } from '~/definitions/interfaces/response.interface';
+import { rules } from '~/lib/rules';
+import AuthButton from '~/modules/auth/button';
+import styles from './styles.module.scss';
 
-const users = [
-  {
-    id: 1,
-    name: 'Tùng lê',
-    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379264/vj25iadnxqwfs6hlq7ll.jpg',
-  },
-  {
-    id: 2,
-    name: 'Linh Chi',
-    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379303/ebkgudjuff83o69o1f6x.jpg',
-  },
-  {
-    id: 3,
-    name: 'Tùng lê',
-    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379286/brkxukdl77z00xhmeywe.jpg',
-  },
-  {
-    id: 4,
-    name: 'Tùng lê',
-    image: 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739379062/ealdnetlft6ftctbdjzq.jpg',
-  },
-];
 export default function Login() {
   const [form] = Form.useForm();
-  const t = useTranslations();
+  // const t = useTranslations();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-  const searchParams = useSearchParams();
-  const error = searchParams.get('error');
   const onSubmit = async (values: LoginValues) => {
     setLoading(true);
-    const response = await signIn('credentials', {
+    const result = await signIn('credentials', {
       ...values,
       redirect: false,
     });
     setLoading(false);
-    if (response?.ok) {
+    if (result?.error) {
+      try {
+        // Parse thông tin lỗi từ chuỗi JSON
+        const parsedError = JSON.parse(result.error);
+        
+        // Hiển thị lỗi cho từng trường
+        if (parsedError.errors) {
+          const errorFields = Object.entries(parsedError.errors).map(([field, error]) => ({
+            name: field,
+            errors: [(error as any).msg],
+          }));
+          form.setFields(errorFields);
+        }
+        
+        // Hiển thị thông báo lỗi tổng
+        message.error(parsedError.message);
+      } catch (e) {
+        // Xử lý lỗi parse không thành công
+        message.error("An unexpected error occurred");
+      }
+    } else {
       router.push('/dashboard');
     }
   };
+
   // const loginSSO = async (sso: string) => {
   //   setLoading(true);
   //   await signIn(sso, {
@@ -61,56 +57,49 @@ export default function Login() {
   // };
   return (
     <div className={styles.loginContainer}>
-      {loading && (
-        <div className={styles.spinnerOverlay}>
-          <Spin size="large" />
-        </div>
-      )}
-      <div className={styles.recentLogins}>
-        <Image className={styles.loginLogo} alt="logo" src={image.logo} width={200} height={110}></Image>
-        <h2 className={styles.recentLoginsTittle}>{t('recentLogin')}</h2>
-        <p className={styles.recentLoginsDes}>{t('clickYourPicture')}</p>
-        <div className={styles.loginOptions}>
-          {users.map((user) => (
-            <div key={user.id} className={styles.loginOption}>
-              <Image src={user.image} alt={user.name} width={80} height={80} className={styles.userImage} />
-              <span>{user.name}</span>
-            </div>
-          ))}
+      <Image
+        alt="logo"
+        width={200}
+        height={100}
+        src="https://res.cloudinary.com/dflvvu32c/image/upload/v1745035787/logo_wjj1t5.png"
+        className={styles.logo}
+      />
+      <p className={styles.loginDescription}>Enter your credentials to access your account</p>
+      <Form
+        className={styles.loginFormContent}
+        layout="vertical"
+        requiredMark={false}
+        name="normal_login"
+        form={form}
+        initialValues={{
+          remember: true,
+        }}
+        onFinish={onSubmit}
+        onFinishFailed={(errorInfo) => {
+          console.log('Failed:', errorInfo);
+        }}
+      >
+        <Input name="email" autocomplete="username" label="Email" placeholder="Enter your email" rules={rules.email} />
+        <Input
+          type="password"
+          name="password"
+          label="Password"
+          placeholder="Enter your password"
+          autocomplete="current-password"
+          rules={rules.password}
+        />
 
-          <div className={styles.addAccount}>
-            <div className={styles.addAccountIcon}>+</div>
-            <span>{t('addAccount')}</span>
-          </div>
-        </div>
-      </div>
-      <div className={styles.formLogin}>
-        <h1 className={styles.formLoginTittle}>{t('login')}</h1>
-        {error && <div className={styles.errorMessage}>{error}</div>}
-        <Form form={form} requiredMark={false} onFinish={onSubmit} layout="vertical">
-          <Input name="email" rules={rules.email} label="Email" placeholder={t('enterYourEmail')} />
-          <Input
-            name="password"
-            type="password"
-            label="Password"
-            rules={rules.password}
-            placeholder={t('enterYourPassword')}
-          />
-          <Form.Item>
-            <Button type="primary" htmlType="submit" className={styles.loginButton}>
-              {t('login')}
-            </Button>
-          </Form.Item>
-        </Form>
-        <Link href={'/auth/forgot-password'}>
-          <p className={styles.forgotPassword}>{t('forgotPassword')}</p>
+        <Link href="/auth/forgot-password" className={styles.forgotPassword}>
+          Forgot Password?
         </Link>
-        <div className={styles.createAccount}>
-          <Link href={'/auth/register'}>
-            <Button type="default">{t('createAccount')}</Button>
-          </Link>
-        </div>
-      </div>
+
+        <Form.Item>
+          <AuthButton loading={loading}>Log in</AuthButton>
+        </Form.Item>
+      </Form>
+      <span style={{ color: '#6c6c6c' }}>
+        Don&lsquo;t have an account? <a onClick={() => router.push('/auth/signup')}>Sign up</a>
+      </span>
     </div>
   );
 }

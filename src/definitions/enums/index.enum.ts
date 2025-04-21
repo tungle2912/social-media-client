@@ -64,7 +64,7 @@ export enum PostType {
 
 export enum ViewScopeType {
   Public,
-  Followers,
+  Friend,
   SomeOne,
   Private,
   Group,
@@ -73,7 +73,7 @@ export enum ViewScopeType {
 
 export enum CommentScopeType {
   Public,
-  Followers,
+  Friend,
   Private
 }
 

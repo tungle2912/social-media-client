@@ -23,9 +23,7 @@ type RootLayoutProps = {
 
 export default async function RootLayout({ children }: RootLayoutProps) {
   const locale = (await getLocale()) as ELocale;
-
-  // Providing all messages to the client side is the easiest way to get started
-  const messages = await getMessages({ locale: 'ja' });
+  const messages = await getMessages({ locale: 'en' });
   return (
     <html lang="en">
       <body className={inter.className}>

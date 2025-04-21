@@ -3,14 +3,14 @@ import { Avatar, Button } from 'antd';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
 import { useState } from 'react';
-import { ModalCreatePost } from '~/components/modalCreatePost';
 import { UserType } from '~/definitions';
 import { useDimension } from '~/hooks';
 import InputCreatePost from '~/modules/profile/inputCreatePost';
 import PostItem from '~/modules/profile/postItems';
 import image from '../../../../public/static/image';
 import styles from './styles.module.scss';
-import { Posts } from '~/definitions/constants/post.contant';
+import { ModalCreatePost } from '~/modules/profile/modalCreatePost';
+import { useGetPostByUserIdQuery } from '~/hooks/data/post.data';
 interface iPostTab {
   userProfile: UserType;
 }
@@ -18,6 +18,7 @@ interface iPostTab {
 export default function PostTab({ userProfile }: iPostTab) {
   const t = useTranslations();
   const { isSM } = useDimension();
+  const { data: postData } = useGetPostByUserIdQuery(userProfile?._id ?? '');
   const [isOpenModal, setIsOpenModal] = useState(false);
   return (
     <div className={styles.postsTab}>
@@ -102,8 +103,14 @@ export default function PostTab({ userProfile }: iPostTab) {
           <Button className={styles.filterButton}>{t('filter')}</Button>
         </div>
         <div className={styles.postsList}>
-          {Posts.map((post) => (
-            <PostItem key={post.id} name={post.name} timeAgo={post.timeAgo} content={post.content} image={post.image} />
+          {postData?.result?.map((post) => (
+            <PostItem
+              key={post._id}
+              name={userProfile.user_name}
+              timeAgo={post?.createdAt}
+              content={post.content}
+              image={userProfile?.avatar}
+            />
           ))}
         </div>
       </div>

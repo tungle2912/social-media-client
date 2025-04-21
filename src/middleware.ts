@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
 import withAuth from 'next-auth/middleware';
+import { routes } from '~/definitions';
+
 
 interface NextAuthRequest extends NextRequest {
   nextauth?: any;
@@ -66,11 +68,4 @@ export const config = {
       ],
     },
   ],
-};
-
-// Định nghĩa routes (đặt trong file riêng, ví dụ: ~/definitions/routes.ts)
-export const routes = {
-  publicRoutes: ['/', '/about'],
-  authRoutes: ['/auth/login', '/auth/register'],
-  protectedRoutes: ['/profile', '/dashboard'],
 };

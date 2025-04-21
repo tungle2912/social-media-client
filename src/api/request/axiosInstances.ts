@@ -29,11 +29,11 @@ const protectedAxiosInstance = Axios.create({
 protectedAxiosInstance.interceptors.request.use(
   async (config) => {
     const session = await getSession();
-    if ((session as any)?.accessToken) {
-      config.headers!.Authorization = `Bearer ${(session as any)?.accessToken}`;
-    } else {
-      // Depends
+    if (Date.now() > (session as any)?.accessTokenExpires - 30000) {
+      // 30s trước khi hết hạn
+      await getSession({ event: 'storage' }); // Force update session
     }
+    config.headers!.Authorization = `Bearer ${(session as any)?.accessToken}`;
     return config;
   },
   (error) => Promise.reject(error)
@@ -45,7 +45,19 @@ protectedAxiosInstance.interceptors.request.use(
  */
 protectedAxiosInstance.interceptors.response.use(
   (response) => response,
-  (error: any) => Promise.reject(error)
+  async (error: any) => {
+    const originalRequest = error.config;
+    if (error.response.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const session = await getSession();
+      if (session) {
+        const accessToken = await getAccessToken();
+        originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+        return protectedAxiosInstance(originalRequest);
+      }
+    }
+    return Promise.reject(error);
+  }
 );
 
 /**
@@ -70,8 +82,10 @@ publicAxiosInstance.interceptors.request.use(
  * TODO: Catch errors
  */
 publicAxiosInstance.interceptors.response.use(
-  (response) => response,
-  (error: any) => Promise.reject(error)
+  (response) => response, // Trả về response.data cho phản hồi thành công
+  (error: any) => {
+    return Promise.reject(error); // Từ chối promise nếu không có phản hồi
+  }
 );
 
 export { protectedAxiosInstance, publicAxiosInstance, cancelTokenSource };

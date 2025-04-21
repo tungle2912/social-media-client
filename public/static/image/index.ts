@@ -1,9 +1,10 @@
-import imagelogin from "./imageLogin.jpg";
+import imagelogin from './imageLogin.jpg';
 import { StaticImageData } from 'next/image';
-import videoAndImage from "./photos-video.png"
-import attachment from "./attachment.png"
-import logo from "./logo.png";
-import coverPhoto from "./coverPhoto1jpg.jpg"
+import videoAndImage from './photos-video.png';
+import attachment from './attachment.png';
+import logo from './logo.png';
+import coverPhoto from './coverPhoto1jpg.jpg';
+import iconTick from './iconTick.png';
 
 interface IImage {
   [key: string]: string | StaticImageData;
@@ -13,6 +14,7 @@ const image: IImage = {
   logo,
   videoAndImage,
   attachment,
-  coverPhoto
+  coverPhoto,
+  iconTick
 };
 export default image;

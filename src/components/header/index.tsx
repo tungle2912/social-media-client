@@ -1,32 +1,31 @@
-'use client'
+'use client';
 import { DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Button, List, Menu, Popover, Spin, Switch } from 'antd';
+import { Avatar, Badge, Button, List, Menu, Popover, Spin } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useContext, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
 import InputSearch from '~/common/inputSearch';
-import { AuthContext } from '~/components/layouts/RootLayoutWrapper';
 import { useDimension } from '~/hooks';
 import { useLogoutMutation } from '~/hooks/data/auth.data';
 
 import { signOut } from 'next-auth/react';
 import { switchLocale } from '~/services/modules';
+import { useAuthStore } from '~/stores/auth.store';
 import { useSideBarStore } from '~/stores/sidebar.store';
-import { ETheme, useTheme } from '~/theme/ThemeProvider';
 import styles from './styles.module.scss';
 
-//const locales = [ELocale.EN, ELocale.VN];
 export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
   const { isSM: isMobile } = useDimension();
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const { theme, toggleTheme } = useTheme();
-  useEffect(() => {
-    document.body.setAttribute('prefers-color-scheme', theme);
-  }, [theme]);
-  const { locale } = useContext(AuthContext);
+  // const { theme, toggleTheme } = useTheme();
+  // useEffect(() => {
+  //   document.body.setAttribute('prefers-color-scheme', theme);
+  // }, [theme]);
+
+  const { user } = useAuthStore();
   const handleLogout = () => {
     setIsLoading(true);
     logoutMutation.mutateAsync(undefined, {
@@ -40,17 +39,20 @@ export default function Header() {
       },
     });
   };
- 
-  const handleMenuClick = (e: any) => {
-    switchLocale(e?.target?.value);
-  };
 
+  const handleMenuClick = (value: any) => {
+    switchLocale(value);
+  };
 
   const menu = () => {
     return (
-      <Menu className={styles.menuLanguage} onClick={handleMenuClick}>
-        <Menu.Item key={locale.en}>English</Menu.Item>
-        <Menu.Item key={locale.vi}>Vietnamese</Menu.Item>
+      <Menu className={styles.menuLanguage}>
+        <Menu.Item onClick={() => handleMenuClick('en')} key="en">
+          English
+        </Menu.Item>
+        <Menu.Item onClick={() => handleMenuClick('vn')} key="vn">
+          Vietnamese
+        </Menu.Item>
       </Menu>
     );
   };
@@ -63,9 +65,11 @@ export default function Header() {
             <Avatar
               size={'large'}
               className={styles.avatar}
-              src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724208002/v9abgrbgsnnfex04kfbe.jpg"
+              src={
+                user?.avatar ?? 'https://res.cloudinary.com/dflvvu32c/image/upload/v1739413637/kaz83swuhggnsi0exrk3.jpg'
+              }
             />
-            <span>Tung le</span>
+            <span>{user?.user_name}</span>
           </div>
           <div className={styles.notificationBadge}>
             <a href="#">See all accounts</a>
@@ -79,14 +83,12 @@ export default function Header() {
               <span>Languages</span>
             </List.Item>
           </Popover>
-          <List.Item className={styles.popoverListItem}>
+          {/* <List.Item className={styles.popoverListItem}>
             <div>
               <span>Dark Mode</span>
-              <Switch
-                checked={theme === ETheme.Dark}
-                onChange={toggleTheme}
-              />            </div>
-          </List.Item>
+              <Switch checked={theme === ETheme.Dark} onChange={toggleTheme} />{' '}
+            </div>
+          </List.Item> */}
           <List.Item onClick={handleLogout} className={styles.popoverListItem}>
             <LogoutIcon />
             <span>Sign out</span>
@@ -121,9 +123,12 @@ export default function Header() {
             <div className={styles.userProfile}>
               <Avatar
                 className={styles.avatar}
-                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1739413637/kaz83swuhggnsi0exrk3.jpg"
+                src={
+                  user?.avatar ??
+                  'https://res.cloudinary.com/dflvvu32c/image/upload/v1739413637/kaz83swuhggnsi0exrk3.jpg'
+                }
               ></Avatar>
-              {!isMobile && <span>Hi Tungle</span>}
+              {!isMobile && <span>Hi {user?.user_name}</span>}
               <DownOutlined />
             </div>
           </Popover>

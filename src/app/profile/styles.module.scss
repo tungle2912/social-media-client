@@ -1,6 +1,5 @@
 @import '~/theme/styles/_variables.scss';
 
-
 .profileContainer {
   background-color: $background-primary;
   color: #e4e6eb;
@@ -56,7 +55,7 @@
     border-radius: 50%;
     z-index: 1;
     :global {
-      .ant-upload-wrapper{
+      .ant-upload-wrapper {
         background-color: transparent !important;
       }
       .ant-image-mask {
@@ -116,6 +115,7 @@
 }
 .friendList {
   display: flex;
+  align-items: center;
   margin-left: 30px;
   margin-top: 20px;
 
@@ -153,6 +153,10 @@
   z-index: 1000;
 }
 
+.profileInfoContent {
+  margin-left: 30px;
+}
+
 @media (max-width: 576px) {
   .profileContainer {
     padding: 0;
@@ -177,11 +181,14 @@
     }
   }
   .profileInfoContent {
+    left: 60px;
     display: flex;
     width: 100%;
+    margin-left: 0px;
     margin-bottom: 10px;
   }
   .friendList {
     margin-top: 0px;
+    margin-left: 15px;
   }
 }

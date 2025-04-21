@@ -1,6 +1,13 @@
 import { sendGet, sendPatch, sendPost } from '~/api/request';
+import { IPost } from '~/definitions';
 
 export const postApi = {
+  createPost: (data: IPost) => {
+    return sendPost('/api/posts', data);
+  },
+  getPostByUserId: (id: string): Promise<{ result: IPost[]; message: string }> => {
+    return sendGet(`/api/posts/user/${id}`);
+  },
   getNewFeeds: () => {
     return sendGet('api/posts/new-feeds');
   },
@@ -18,5 +25,5 @@ export const postApi = {
   },
   createHashTag: (data: any) => {
     return sendPost('/api/hashtags', data);
-  }
+  },
 };

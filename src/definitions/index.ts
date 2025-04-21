@@ -5,9 +5,7 @@
 /**
  * Resources
  */
-import ROUTES_DATA from '~/definitions/resources/routes.json';
 
-export const ROUTES = ROUTES_DATA;
 
 /**
  * Constants
@@ -23,7 +21,6 @@ export * from '~/definitions/interfaces/sample.interface';
 /**
  * Enums
  */
-export * from '~/definitions/enums/sample.enum';
 export * from '~/definitions/enums/locale.enum';
 
 /**

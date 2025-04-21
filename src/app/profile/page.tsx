@@ -3,6 +3,7 @@ import { CameraOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
 import { Avatar, Button, Image, message, Tabs, Upload, UploadFile } from 'antd';
 
 import ImgCrop from 'antd-img-crop';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { UserType } from '~/definitions/types/index.type';
@@ -12,11 +13,16 @@ import PostTab from '~/modules/profile/postTab';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './styles.module.scss';
 
+
 export default function Profile() {
   const t = useTranslations();
   const response = useGetProfileQuery();
+  const { data: session } = useSession();
+  const user = session?.user;
+  
+  console.log('User:', user);
   const [fileList] = useState<UploadFile[]>([]);
-  const userProfile: UserType = response?.data?.result || ({} as UserType);
+  const userProfile: UserType = response?.data?.result ?? ({} as UserType);
   const items = [
     {
       key: '1',
@@ -81,7 +87,7 @@ export default function Profile() {
       await updateProfileMutation.mutateAsync(formData);
       const reader = new FileReader();
       reader.onload = () => {
-      //  setNewAvatar(reader.result as string); // Hiển thị preview của hình ảnh
+        //  setNewAvatar(reader.result as string); // Hiển thị preview của hình ảnh
       };
       reader.readAsDataURL(file);
       message.success(t('avatarUpdated'));
@@ -99,7 +105,7 @@ export default function Profile() {
       await updateProfileMutation.mutateAsync(formData);
       const reader = new FileReader();
       reader.onload = () => {
-    //    setNewAvatar(reader.result as string);
+        //    setNewAvatar(reader.result as string);
       };
       reader.readAsDataURL(file);
       message.success(t('Cover photo updated'));
@@ -115,7 +121,7 @@ export default function Profile() {
       <div className={styles.profileImage}>
         <Image
           className={styles.coverPhoto}
-          alt={t('coverPhotoAlt')}
+          alt={'coverPhotoAlt'}
           src={
             userProfile?.cover_photo ||
             'https://res.cloudinary.com/dflvvu32c/image/upload/v1736065110/24a3bc7f939ba49ecc054061dccbac61_nye58p.jpg'
@@ -142,6 +148,7 @@ export default function Profile() {
           <Image
             width={150}
             height={150}
+            alt="avatarAlt"
             src={
               userProfile?.avatar ||
               'https://res.cloudinary.com/dflvvu32c/image/upload/v1734688174/cd4bd9b0ea2807611ba3a67c331bff0b_z1i7ls.png'
@@ -164,7 +171,7 @@ export default function Profile() {
       </div>
       <div className={styles.profileInfo}>
         <div className={styles.profileInfoContent}>
-          <h2>{userProfile?.username || t('notUpdated')}</h2>
+          <h2>{userProfile?.user_name || t('notUpdated')}</h2>
           <div className={styles.friendList}>
             <Avatar
               size={40}

@@ -6,7 +6,7 @@ import { CommentIcon, LikeIcon, MoreIcon, ShareIcon } from "~/common/icon";
 import styles from "./styles.module.scss";
 interface PostItemProps {
   name: string;
-  timeAgo: string;
+  timeAgo: string |Date;
   content: string;
   image?: string;
 }

@@ -3,9 +3,9 @@ import { CommentScopeType, MessageStatus, PostType, ReactionTargetType, Reaction
 
 export interface UserType {
   _id?: string;
-  firstName: string;
-  lastName: string;
-  username: string;
+  first_name: string;
+  last_name: string;
+  user_name: string;
   email: string;
   password: string;
   email_verify_token?: string;
