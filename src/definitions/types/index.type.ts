@@ -58,8 +58,8 @@ export interface IPost {
   content: string;
   media?: string[];
   attachments?: string[];
-  createdAt: Date; // Thay number bằng Date
-  updatedAt: Date; // Thay number bằng Date
+  createdAt: number; 
+  updatedAt: number; 
   viewScope: ViewScopeType;
   commentScope: CommentScopeType;
   groupId?: string;

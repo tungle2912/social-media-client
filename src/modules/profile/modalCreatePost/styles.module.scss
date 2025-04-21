@@ -270,3 +270,65 @@
   font-weight: 400;
   color: #8f90a6;
 }
+.mediaPreview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+
+  .previewItem {
+    position: relative;
+    width: 672px;
+    margin-bottom: 8px;
+    border-radius: 4px;
+    padding: 8px;
+    img,
+    video {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+
+    .removeButton {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border: none;
+      border-radius: 50%;
+      padding: 4px;
+      cursor: pointer;
+      &:hover {
+        background: rgba(0, 0, 0, 0.7);
+      }
+    }
+  }
+
+  // Style cho document files
+  .documentItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 4px;
+    margin-bottom: 8px;
+
+    .fileInfo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      .fileName {
+        font-weight: 500;
+        color: #333;
+      }
+
+      .fileType {
+        color: #666;
+        font-size: 12px;
+      }
+    }
+  }
+}

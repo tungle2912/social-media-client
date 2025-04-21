@@ -83,11 +83,10 @@ export enum ReactionTargetType {
 }
 
 export enum MediaType {
-  Image,
-  Video,
-  HLS
+  IMAGE = 'IMAGE',
+  FILE = 'FILE',
+  VIDEO = 'VIDEO',
 }
-
 export enum ReactionType {
   Like = 'like',
   Love = 'love',

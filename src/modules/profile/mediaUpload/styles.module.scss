@@ -1,0 +1,151 @@
+@import '~/theme/styles/_variables.scss';
+@import '~/theme/styles/_mixins.scss';
+
+.customUpload {
+  :global {
+    .ant-upload {
+      padding: 25px !important;
+    }
+
+    .ant-upload-drag {
+      border: 1px solid #c7c9d9;
+      background: #f7f7f7;
+    }
+  }
+}
+
+.closeIcon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #ffffff;
+  position: absolute;
+  top: 16px;
+  z-index: 1;
+  right: 16px;
+  height: 32px;
+  width: 32px;
+  border-radius: 5px;
+}
+
+.customModalConfirm {
+  :global {
+    .ant-modal-content {
+      max-height: 352px;
+      padding: 50px 45px 25px;
+    }
+    .ant-modal-footer {
+      display: none !important;
+    }
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.customLightBox {
+  & > div {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+  }
+  img {
+    border-radius: 10px !important;
+    height: 485px;
+    width: auto;
+  }
+}
+
+.uploadHeader {
+  color: #3e3e3e;
+  font-weight: bold;
+  font-size: 16px;
+  margin-top: 20px;
+}
+
+.uploadSubtitle {
+  color: #3e3e3e;
+  font-size: 16px;
+  margin-top: 5px;
+}
+
+.uploadNote {
+  color: #8f90a6;
+  font-size: 14px;
+  margin-top: 10px;
+
+  &Small {
+    @extend .uploadNote;
+    margin-top: 4px;
+  }
+}
+
+.modalContent {
+  text-align: center;
+}
+
+.modalTitle {
+  color: #3e3e3e;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.modalMessage {
+  color: #636363;
+  line-height: 24px;
+  margin-top: 61px;
+}
+
+.modalActions {
+  margin-top: 61px;
+}
+
+.modalButton {
+  height: 48px;
+  min-width: 170px;
+}
+.uploadHeader {
+  font-size: 22px;
+  font-weight: 700;
+  color: #000;
+}
+.uploadSubtitle {
+  font-size: 16px;
+  font-weight: 500;
+  color: #000;
+}
+.uploadNote {
+  font-size: 14px;
+  font-weight: 400;
+  color: #8f90a6;
+}
+.customUpload {
+  width: 672px;
+  height: 260px;
+  border: 2px dashed #d9d9d9;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fafafa;
+  margin-bottom: 16px;
+
+  .container {
+    text-align: center;
+    padding: 24px;
+
+    .uploadHeader {
+      margin: 12px 0 8px;
+    }
+
+    .uploadSubtitle {
+      margin-bottom: 4px;
+    }
+
+    .uploadNote {
+      margin: 0;
+      font-size: 12px;
+    }
+  }
+}
