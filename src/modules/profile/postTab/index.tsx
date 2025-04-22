@@ -11,6 +11,7 @@ import image from '../../../../public/static/image';
 import styles from './styles.module.scss';
 import { ModalCreatePost } from '~/modules/profile/modalCreatePost';
 import { useGetPostByUserIdQuery } from '~/hooks/data/post.data';
+import { MediaType } from '~/definitions/enums/index.enum';
 interface iPostTab {
   userProfile: UserType;
 }
@@ -20,6 +21,13 @@ export default function PostTab({ userProfile }: iPostTab) {
   const { isSM } = useDimension();
   const { data: postData } = useGetPostByUserIdQuery(userProfile?._id ?? '');
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [typeModal, setTypeModal] = useState<MediaType>();
+  const [showUpload, setShowUpload] = useState(false);
+  const handleClickAttach = (type: MediaType) => {
+    setTypeModal(type);
+    setShowUpload(true)
+    setIsOpenModal(true);
+  };
   return (
     <div className={styles.postsTab}>
       {!isSM && (
@@ -27,23 +35,6 @@ export default function PostTab({ userProfile }: iPostTab) {
           <div className={styles.aboutSection}>
             <h3>{t('about')}</h3>
             <button className={styles.addButton}>{t('addBio')}</button>
-            {/* <ul className={styles.infoList}>
-              <li>
-                {t('studiedAt', {
-                  school: userProfile?.school || t('notUpdated'),
-                })}
-              </li>
-              <li>
-                {t('livesAt', {
-                  location: userProfile?.location || t('notUpdated'),
-                })}
-              </li>
-              <li>
-                {t('from', {
-                  hometown: userProfile?.hometown || t('notUpdated'),
-                })}
-              </li>
-            </ul> */}
             <button className={styles.editButton}>{t('editDetails')}</button>
           </div>
           <div className={styles.imagesSection}>
@@ -89,11 +80,21 @@ export default function PostTab({ userProfile }: iPostTab) {
             <InputCreatePost setIsOpenModal={setIsOpenModal} />
           </div>
           <div className={styles.listAttach}>
-            <div className={styles.item}>
+            <div
+              className={styles.item}
+              onClick={() => {
+                handleClickAttach(MediaType.IMAGE);
+              }}
+            >
               <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
               <span>{t('photoVideo')}</span>
             </div>
-            <div className={styles.item}>
+            <div
+              className={styles.item}
+              onClick={() => {
+                handleClickAttach(MediaType.FILE);
+              }}
+            >
               <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
               <span>{t('attachment')}</span>
             </div>
@@ -114,7 +115,12 @@ export default function PostTab({ userProfile }: iPostTab) {
           ))}
         </div>
       </div>
-      <ModalCreatePost isOpenModal={isOpenModal} setIsOpenModal={setIsOpenModal} />
+      <ModalCreatePost
+        type={typeModal}
+        showUpload={showUpload}
+        isOpenModal={isOpenModal}
+        setIsOpenModal={setIsOpenModal}
+      />
     </div>
   );
 }

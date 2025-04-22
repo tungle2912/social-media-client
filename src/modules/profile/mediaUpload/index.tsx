@@ -5,15 +5,15 @@ import classNames from 'classnames';
 import { useState } from 'react';
 import ModalBasic from '~/components/modal/modalBasic';
 import {
-    acceptDocumentFiles,
-    acceptFilesImage,
-    acceptFilesVideo,
-    LIMIT_UPLOAD_FILE,
-    LIMIT_UPLOAD_IMAGE,
-    LIMIT_UPLOAD_VIDEO,
-    MAX_FILE_SIZE_DOCUMENT_MB,
-    MAX_FILE_SIZE_IMAGE_MB,
-    MAX_FILE_SIZE_VIDEOS_MB,
+  acceptDocumentFiles,
+  acceptFilesImage,
+  acceptFilesVideo,
+  LIMIT_UPLOAD_FILE,
+  LIMIT_UPLOAD_IMAGE,
+  LIMIT_UPLOAD_VIDEO,
+  MAX_FILE_SIZE_DOCUMENT_MB,
+  MAX_FILE_SIZE_IMAGE_MB,
+  MAX_FILE_SIZE_VIDEOS_MB,
 } from '~/definitions/constants/index.constant';
 import { MediaType } from '~/definitions/enums/index.enum';
 import styles from './styles.module.scss';
@@ -24,11 +24,19 @@ interface Props {
   documentFiles?: File[];
   setFiles?: React.Dispatch<React.SetStateAction<File[]>>;
   setDocumentFiles?: React.Dispatch<React.SetStateAction<File[]>>;
+  setShowUpload: (arg0: boolean) => void;
 }
 
 const { Dragger } = Upload;
 
-const MediaUpload: React.FC<Props> = ({ mediaUpload, files, documentFiles, setFiles, setDocumentFiles }) => {
+const MediaUpload: React.FC<Props> = ({
+  mediaUpload,
+  files,
+  setShowUpload,
+  documentFiles,
+  setFiles,
+  setDocumentFiles,
+}) => {
   const [openNoticeFile, setOpenNoticeFile] = useState<{ isOpen: boolean; type: MediaType }>({
     isOpen: false,
     type: MediaType.IMAGE,
@@ -122,6 +130,7 @@ const MediaUpload: React.FC<Props> = ({ mediaUpload, files, documentFiles, setFi
     } else {
       setFiles!([...(files || []), ...validFiles]);
     }
+    setShowUpload(false);
   };
 
   const props: UploadProps = {

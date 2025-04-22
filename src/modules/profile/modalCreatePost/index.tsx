@@ -18,6 +18,8 @@ const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 interface props {
   isOpenModal: boolean;
   setIsOpenModal: (value: boolean) => void;
+  type?: MediaType;
+  showUpload?: boolean;
 }
 const viewScopeOptions = [
   {
@@ -88,7 +90,12 @@ const commentScopeOptions = [
   },
 ];
 
-export function ModalCreatePost({ isOpenModal, setIsOpenModal }: Readonly<props>) {
+export function ModalCreatePost({
+  isOpenModal,
+  setIsOpenModal,
+  type = MediaType.IMAGE,
+  showUpload = false,
+}: Readonly<props>) {
   const t = useTranslations();
   const { user } = useAuthStore();
   const [content, setContent] = useState('');
@@ -96,6 +103,7 @@ export function ModalCreatePost({ isOpenModal, setIsOpenModal }: Readonly<props>
   const createPostMutation = useCreatePostMutation();
   const [documentFiles, setDocumentFiles] = useState<File[]>([]);
   const { setLoading } = useLoadingStore();
+  const [isShowUpload, setIsShowUpload] = useState(showUpload);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [viewScope, setViewScope] = useState<ViewScopeType>(ViewScopeType.Public);
   const [commentScope, setCommentScope] = useState<CommentScopeType>(CommentScopeType.Public);
@@ -103,12 +111,16 @@ export function ModalCreatePost({ isOpenModal, setIsOpenModal }: Readonly<props>
     setContent((prev) => prev + emojiData.emoji);
     setShowEmojiPicker(false);
   };
-  const [currentUploadType, setCurrentUploadType] = useState<MediaType>(MediaType.IMAGE);
+  const [currentUploadType, setCurrentUploadType] = useState<MediaType>(type);
   const handleClose = () => {
     setContent('');
     setViewScope(ViewScopeType.Public);
     setCommentScope(CommentScopeType.Public);
     setIsOpenModal(false);
+  };
+  const handleClickAttach = (type: MediaType) => {
+    setIsShowUpload(true);
+    setCurrentUploadType(type);
   };
   const handleCreatePost = async () => {
     if (!content.trim()) {
@@ -119,12 +131,13 @@ export function ModalCreatePost({ isOpenModal, setIsOpenModal }: Readonly<props>
     formData.append('content', content.trim());
     formData.append('viewScope', viewScope.toString());
     formData.append('commentScope', commentScope.toString());
+    console.log('media',mediaFiles)
     mediaFiles.forEach((file) => {
       if (file.originFileObj) {
         formData.append('media', file.originFileObj);
       }
     });
-    documentFiles.forEach((file) => formData.append('documents', file));
+    documentFiles.forEach((file) => formData.append('attachment', file));
     try {
       setLoading(true);
       await createPostMutation.mutateAsync(formData);
@@ -195,58 +208,64 @@ export function ModalCreatePost({ isOpenModal, setIsOpenModal }: Readonly<props>
             </div>
           </div>
         </div>
-        <div className={styles.uploadSection}>
-          <MediaUpload
-            mediaUpload={currentUploadType}
-            files={mediaFiles}
-            setFiles={setMediaFiles}
-            documentFiles={documentFiles}
-            setDocumentFiles={setDocumentFiles}
-          />
-        </div>
-        <div className={styles.documentPreview}>
-          {documentFiles.map((file) => (
-            <div key={file.name} className={styles.documentItem}>
-              <Image src={image.fileIcon} alt="File Icon" width={20} height={20} />
-              <span>{file.name}</span>
-              <button
-                onClick={() => setDocumentFiles((prev) => prev.filter((f) => f.name !== file.name))}
-                className={styles.removeButton}
-              >
-                <XCloseIcon />
-              </button>
+        <div className={styles.uploadContainer}>
+          {isShowUpload && (
+            <div className={styles.uploadSection}>
+              <MediaUpload
+                mediaUpload={currentUploadType}
+                files={mediaFiles}
+                setShowUpload={setIsShowUpload}
+                setFiles={setMediaFiles}
+                documentFiles={documentFiles}
+                setDocumentFiles={setDocumentFiles}
+              />
             </div>
-          ))}
+          )}
+          <div className={styles.documentPreview}>
+            {documentFiles.map((file) => (
+              <div key={file.name} className={styles.documentItem}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: '10px' }}>
+                  <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                  <span>{file.name}</span>
+                </div>
+                <button
+                  onClick={() => setDocumentFiles((prev) => prev.filter((f) => f.name !== file.name))}
+                  className={styles.removeButton}
+                >
+                  <XCloseIcon />
+                </button>
+              </div>
+            ))}
+          </div>
+          <div className={styles.mediaPreview}>
+            {mediaFiles.map((file) => (
+              <div key={file.name} className={styles.previewItem}>
+                {file.type.startsWith('image/') ? (
+                  <Image src={URL.createObjectURL(file)} alt="Preview" width={100} height={100} />
+                ) : (
+                  <video controls src={URL.createObjectURL(file)} />
+                )}
+                <button
+                  onClick={() => setMediaFiles((prev) => prev.filter((f) => f.name !== file.name))}
+                  className={styles.removeButton}
+                >
+                  <XCloseIcon />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className={styles.mediaPreview}>
-          {mediaFiles.map((file) => (
-            <div key={file.name} className={styles.previewItem}>
-              {file.type.startsWith('image/') ? (
-                <Image src={URL.createObjectURL(file)} alt="Preview" width={100} height={100} />
-              ) : (
-                <video controls src={URL.createObjectURL(file)} />
-              )}
-              <button
-                onClick={() => setMediaFiles((prev) => prev.filter((f) => f.name !== file.name))}
-                className={styles.removeButton}
-              >
-                <XCloseIcon />
-              </button>
-            </div>
-          ))}
-        </div>
-
         <div className={styles.createPostFooter}>
           <div className={styles.divider}>
             <span className={styles.dividerText}>Add to your post</span>
           </div>
           <div className={styles.attach}>
-            <div className={styles.item} onClick={() => setCurrentUploadType(MediaType.IMAGE)}>
+            <div className={styles.item} onClick={() => handleClickAttach(MediaType.IMAGE)}>
               <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
               <span>{t('photoVideo')}</span>
             </div>
 
-            <div className={styles.item} onClick={() => setCurrentUploadType(MediaType.FILE)}>
+            <div className={styles.item} onClick={() => handleClickAttach(MediaType.FILE)}>
               <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
               <span>{t('attachment')}</span>
             </div>
