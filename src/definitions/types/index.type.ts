@@ -1,5 +1,5 @@
 
-import { CommentScopeType, MessageStatus, PostType, ReactionTargetType, ReactionType, UserActivityStatus, UserRole, UserVerifyStatus, ViewScopeType } from "~/definitions/enums/index.enum";
+import { MessageStatus, UserActivityStatus, UserRole, UserVerifyStatus } from "~/definitions/enums/index.enum";
 
 export interface UserType {
   _id?: string;
@@ -41,71 +41,6 @@ export interface RefreshTokenType {
   created_At: Date; // Thay number bằng Date
 }
 
-// Interface cho Reaction
-export interface IReaction {
-  _id?: string;
-  targetId: string;
-  targetType?: ReactionTargetType;
-  userId: string;
-  reactionType: ReactionType;
-  createdAt?: Date; // Thay number bằng Date
-}
-
-// Interface cho Post
-export interface IPost {
-  _id?: string;
-  authorId: string;
-  content: string;
-  media?: string[];
-  attachments?: string[];
-  createdAt: number; 
-  updatedAt: number; 
-  viewScope: ViewScopeType;
-  commentScope: CommentScopeType;
-  groupId?: string;
-  courseId?: string;
-  specificFriends?: string[];
-  mentions?: string[];
-  reactsCount?: number;
-  commentsCount?: number;
-  type: PostType;
-}
-
-// Interface cho Hashtag
-export interface HashtagType {
-  _id?: string;
-  name: string;
-  created_at?: Date;
-}
-
-// Interface cho Follower
-export interface FollowerType {
-  _id?: string;
-  user_id: string;
-  followed_user_id: string;
-  created_at?: Date;
-}
-
-// Interface cho Comment
-export interface CommentType {
-  _id?: string;
-  postId: string;
-  authorId: string;
-  content: string;
-  mentions: string[];
-  parentId?: string;
-  reactsCount: number;
-  createdAt?: Date; // Thay number bằng Date
-  updatedAt?: Date; // Thay number bằng Date
-}
-
-// Interface cho Bookmark
-export interface BookmarkType {
-  _id?: string;
-  user_id: string;
-  post_id: string;
-  created_at?: Date;
-}
 
 // Interface cho Conversation
 export interface ConversationType {

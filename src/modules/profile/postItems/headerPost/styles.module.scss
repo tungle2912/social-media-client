@@ -1,0 +1,73 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .following {
+    margin-left: 8px;
+    color: #1890ff;
+    cursor: pointer;
+  }
+
+  .connected {
+    margin-left: 8px;
+    color: #999;
+  }
+}
+
+.jobTitle {
+  font-size: 14px;
+  color: #999;
+  margin: 4px 0;
+}
+
+.timeAgo {
+  font-size: 12px;
+  color: #ccc;
+}
+.wrapInfo {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+}
+.wrapName {
+  display: flex;
+  column-gap: 16px;
+  align-items: center;
+  flex-wrap: nowrap;
+  max-width: 600px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  cursor: pointer;
+  :global {
+    .ant-avatar {
+      background-color: #fff0f6;
+      color: #eb2f96;
+      .ant-avatar-string {
+        font-weight: 700;
+        font-size: 16px;
+      }
+    }
+  }
+}
+.friendStatus {
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.iconTime {
+  display: flex;
+  align-items: center;
+  color: #636363;
+  gap: 4px;
+}

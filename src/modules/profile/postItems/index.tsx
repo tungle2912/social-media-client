@@ -1,42 +1,19 @@
-import { EllipsisOutlined } from '@ant-design/icons';
-import { Avatar, Button, Tooltip } from 'antd';
+import { Button } from 'antd';
 import { CommentIcon, LikeIcon, MoreIcon, ShareIcon } from '~/common/icon';
+import { IPost } from '~/definitions/interfaces/post.interface';
+import HeaderPost from '~/modules/profile/postItems/headerPost';
 import styles from './styles.module.scss';
-import { convertTimeStampToStringDate } from '~/lib/utils';
+import { useAuthStore } from '~/stores/auth.store';
 interface PostItemProps {
-  name: string;
-  timeAgo: number;
-  content: string;
-  image?: string;
+  post: IPost;
 }
-function PostItem({ name, image, timeAgo, content }: PostItemProps) {
-  const time = convertTimeStampToStringDate(timeAgo);
+function PostItem({ post }: PostItemProps) {
+  const { user } = useAuthStore();
   return (
     <div className={styles.postItem}>
-      <div className={styles.header}>
-        <div className={styles.userInfo}>
-          <Avatar
-            src={
-              image ||
-              'https://res.cloudinary.com/dflvvu32c/image/upload/v1724205205/cd4bd9b0ea2807611ba3a67c331bff0b_pjwbyx.png'
-            }
-            className={styles.avatar}
-          ></Avatar>
-          <div className={styles.details}>
-            <div className={styles.nameRow}>
-              <h3 className={styles.name}>{name}</h3>
-              <span className={styles.following}>Following</span>
-              <span className={styles.connected}>• Connected</span>
-            </div>
-            <p className={styles.timeAgo}>{time}</p>
-          </div>
-        </div>
-        <Tooltip title="More options">
-          <Button shape="circle" icon={<EllipsisOutlined />} />
-        </Tooltip>
-      </div>
+      <HeaderPost isMyPost={post.authorId === user?._id} post={post}></HeaderPost>
       <div className={styles.content}>
-        <p>{content}</p>
+        <p>{post.content}</p>
       </div>
       <div className={styles.actions}>
         <Button type="text" icon={<LikeIcon />} className={styles.actionButton}>

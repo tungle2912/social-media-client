@@ -19,13 +19,13 @@ interface iPostTab {
 export default function PostTab({ userProfile }: iPostTab) {
   const t = useTranslations();
   const { isSM } = useDimension();
-  const { data: postData } = useGetPostByUserIdQuery(userProfile?._id ?? '');
+  const { data: postData, refetch } = useGetPostByUserIdQuery(userProfile?._id ?? '');
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [typeModal, setTypeModal] = useState<MediaType>();
   const [showUpload, setShowUpload] = useState(false);
   const handleClickAttach = (type: MediaType) => {
     setTypeModal(type);
-    setShowUpload(true)
+    setShowUpload(true);
     setIsOpenModal(true);
   };
   return (
@@ -107,10 +107,7 @@ export default function PostTab({ userProfile }: iPostTab) {
           {postData?.result?.map((post) => (
             <PostItem
               key={post._id}
-              name={userProfile.user_name}
-              timeAgo={post?.createdAt}
-              content={post.content}
-              image={userProfile?.avatar}
+              post={post}
             />
           ))}
         </div>
@@ -120,6 +117,7 @@ export default function PostTab({ userProfile }: iPostTab) {
         showUpload={showUpload}
         isOpenModal={isOpenModal}
         setIsOpenModal={setIsOpenModal}
+        refetch={refetch}
       />
     </div>
   );

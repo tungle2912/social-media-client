@@ -1,5 +1,6 @@
 import { sendGet, sendPatch, sendPost } from '~/api/request';
-import { IPost } from '~/definitions';
+import { IPost } from '~/definitions/interfaces/post.interface';
+
 
 export const postApi = {
   createPost: (data: IPost) => {

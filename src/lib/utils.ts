@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import dayjs from 'dayjs';
 
 export const handleError = (error: any) => {
   if (error?.response?.data?.message) {
@@ -40,3 +41,6 @@ export const convertTimeStampToStringDate = (timestamp: number) => {
   const diffInYears = Math.floor(diffInMonths / 12);
   return `${diffInYears}y ago`;
 };
+export function convertTimestampToString(timestamp: number) {
+  return `${dayjs(timestamp).format('MMMM DD, YYYY')} at ${dayjs(timestamp).format('HH:mm A')}`;
+}

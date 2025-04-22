@@ -13,6 +13,8 @@ import MediaUpload from '~/modules/profile/mediaUpload';
 import { useAuthStore } from '~/stores/auth.store';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './styles.module.scss';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { IPost } from '~/definitions/interfaces/post.interface';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 interface props {
@@ -20,6 +22,15 @@ interface props {
   setIsOpenModal: (value: boolean) => void;
   type?: MediaType;
   showUpload?: boolean;
+  refetch: (options?: RefetchOptions) => Promise<
+    QueryObserverResult<
+      {
+        result: IPost[];
+        message: string;
+      },
+      Error
+    >
+  >;
 }
 const viewScopeOptions = [
   {
@@ -95,11 +106,12 @@ export function ModalCreatePost({
   setIsOpenModal,
   type = MediaType.IMAGE,
   showUpload = false,
+  refetch,
 }: Readonly<props>) {
   const t = useTranslations();
   const { user } = useAuthStore();
   const [content, setContent] = useState('');
-  const [mediaFiles, setMediaFiles] = useState<any[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<File[]>([]);
   const createPostMutation = useCreatePostMutation();
   const [documentFiles, setDocumentFiles] = useState<File[]>([]);
   const { setLoading } = useLoadingStore();
@@ -131,17 +143,18 @@ export function ModalCreatePost({
     formData.append('content', content.trim());
     formData.append('viewScope', viewScope.toString());
     formData.append('commentScope', commentScope.toString());
-    console.log('media',mediaFiles)
+    console.log('media', mediaFiles);
     mediaFiles.forEach((file) => {
-      if (file.originFileObj) {
-        formData.append('media', file.originFileObj);
-      }
+      formData.append('media', file);
     });
+
     documentFiles.forEach((file) => formData.append('attachment', file));
+    console.log('documentFiles', documentFiles);
     try {
       setLoading(true);
       await createPostMutation.mutateAsync(formData);
       message.success('Post created successfully!');
+      refetch();
       handleClose();
     } catch (error) {
       message.error('Failed to create post');

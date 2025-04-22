@@ -13,8 +13,7 @@ export const useCreatePostMutation = () => {
   return useMutation({
     mutationFn: (data: any) => postApi.createPost(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['POST'] });
-      queryClient.invalidateQueries({ queryKey: ['NEW_FEEDS'] });
+      queryClient.invalidateQueries({ queryKey: ['POSTS'] })
     },
   });
 }
@@ -27,7 +26,7 @@ export const useGetPostByUserIdQuery = (id: string) => {
 };
 export const useGetPostByIdQuery = (id: string) => {
   return useQuery({
-    queryKey: ['POST', id],
+    queryKey: ['POSTS', id],
     queryFn: () => postApi.getPostById(id),
     enabled: !!id,
   });
@@ -38,8 +37,7 @@ export const useUpdatePostMutation = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data?: any }) => postApi.updatePost(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['POST'] });
-      queryClient.invalidateQueries({ queryKey: ['NEW_FEEDS'] });
+      queryClient.invalidateQueries({ queryKey: ['POSTS'] })
     },
   });
 };
