@@ -23,8 +23,8 @@ interface IPropsContentPost {
 }
 
 const EXT_IMAGE = ['gif', 'png', 'jpeg', 'jpg'];
-const EXT_MEDIA = ['gif', 'png', 'jpeg', 'jpg', 'mp4', 'mpeg4', 'mpe', 'mpeg', 'mpg', 'wmv', 'mov'];
-const EXT_ATTACHMENT = ['pdf', 'pptx', 'ppt', 'xlsx', 'xls', 'docx', 'doc'];
+// const EXT_MEDIA = ['gif', 'png', 'jpeg', 'jpg', 'mp4', 'mpeg4', 'mpe', 'mpeg', 'mpg', 'wmv', 'mov'];
+// const EXT_ATTACHMENT = ['pdf', 'pptx', 'ppt', 'xlsx', 'xls', 'docx', 'doc'];
 
 const ContentPost = ({ content, postMedias, onShowDetail, isDetail, isRepost }: IPropsContentPost) => {
   const t = useTranslations();

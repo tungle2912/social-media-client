@@ -1,10 +1,11 @@
-import { Button } from 'antd';
-import { CommentIcon, LikeIcon, MoreIcon, ShareIcon } from '~/common/icon';
+import { Button, Divider } from 'antd';
+import { CommentIcon, LikeIconButton, MoreIcon, ShareIcon } from '~/common/icon';
 import { IPost, PostMedia } from '~/definitions/interfaces/post.interface';
-import HeaderPost from '~/modules/profile/postItems/headerPost';
-import styles from './styles.module.scss';
-import { useAuthStore } from '~/stores/auth.store';
 import ContentPost from '~/modules/profile/postItems/contentPost';
+import HeaderPost from '~/modules/profile/postItems/headerPost';
+import ReactCount from '~/modules/profile/postItems/reactCount';
+import { useAuthStore } from '~/stores/auth.store';
+import styles from './styles.module.scss';
 interface PostItemProps {
   post: IPost;
 }
@@ -32,8 +33,12 @@ function PostItem({ post }: PostItemProps) {
         content={post.content}
         postMedias={[...(post.media?.map(parseMedia) || []), ...(post.attachments?.map(parseMedia) || [])]}
       />
+      <div className={styles.metaDataPost}>
+        <ReactCount reactions={post.reactions || []} />
+      </div>
+      <Divider/>
       <div className={styles.actions}>
-        <Button type="text" icon={<LikeIcon />} className={styles.actionButton}>
+        <Button type="text" icon={<LikeIconButton />} className={styles.actionButton}>
           Like
         </Button>
         <Button type="text" icon={<CommentIcon />} className={styles.actionButton}>

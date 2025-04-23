@@ -1,0 +1,21 @@
+.reactionCount {
+  display: flex;
+  align-items: center;
+}
+.iconReact {
+  margin-right: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tooltip {
+  width: 70px;
+}
+
+.userName {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; 
+}

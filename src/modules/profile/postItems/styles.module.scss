@@ -5,6 +5,9 @@
   padding: 25px 55px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
+  :global(.ant-divider) {
+    margin: 5px 0;
+  }
 
   .content {
     margin-top: 12px;

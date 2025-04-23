@@ -8,7 +8,7 @@ export interface IReaction {
   targetType?: ReactionTargetType;
   userId: string;
   reactionType: ReactionType;
-  createdAt?: Date; // Thay number bằng Date
+  createdAt?: Date;
 }
 
 // Interface cho Post
@@ -26,7 +26,11 @@ export interface IPost {
   courseId?: string;
   hashtags: string[];
   mentions?: string[];
-  reactions?: IReaction[];
+  reactions?: {
+    _id: string;
+    user_name: string;
+    reactionType: string;
+  }[]
   specificFriends?: string[];
   reactsCount?: number;
   commentsCount?: number;
@@ -40,6 +44,9 @@ export interface IPost {
   canEdit?: boolean;
   isFriend?: boolean;
   type: PostType;
+  embeddedPost?: string;
+  currentUserReaction?: string;
+  canComment?: boolean;
 }
 
 // Interface cho Hashtag
