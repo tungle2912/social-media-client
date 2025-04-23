@@ -1,3 +1,4 @@
+import { Key } from "react";
 import { CommentScopeType, PostType, ReactionTargetType, ReactionType, ViewScopeType } from "~/definitions/enums/index.enum";
 
 // Interface cho Reaction
@@ -23,7 +24,7 @@ export interface IPost {
   commentScope: CommentScopeType;
   groupId?: string;
   courseId?: string;
-  hashtags?: string[];
+  hashtags: string[];
   mentions?: string[];
   reactions?: IReaction[];
   specificFriends?: string[];
@@ -75,4 +76,18 @@ export interface BookmarkType {
   user_id: string;
   post_id: string;
   created_at?: Date;
+}
+export interface PostMedia {
+  id: Key | null | undefined;
+  url: string;          // URL của file
+  type?: 'image' | 'video' | 'file'; // Loại file (tự động xác định)
+  name?: string;        // Tên file (tự động trích xuất từ URL)
+}
+
+export interface PostTag {
+  id?: number;
+  tagId?: number;
+  name?: string;
+  type?: string;
+  createdBy?: string;
 }

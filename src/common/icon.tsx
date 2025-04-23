@@ -269,3 +269,40 @@ export const addImageIcon: React.FC<IConProps> = () => {
     </svg>
   );
 };
+export const DownloadFileIcon: React.FC<IConProps> = () => {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M7.4869 4.86043V2.18775C7.4869 1.90357 7.71356 1.66675 8.00023 1.66675C8.2569 1.66675 8.47435 1.86574 8.50881 2.1178L8.51356 2.18775V4.86043L11.7002 4.86063C13.2868 4.86063 14.5904 6.15994 14.6636 7.78035L14.6668 7.92414V11.2837C14.6668 12.9154 13.4086 14.2549 11.8455 14.3301L11.7068 14.3334H4.2935C2.70683 14.3334 1.40956 13.0406 1.33672 11.4142L1.3335 11.2699L1.3335 7.91726C1.3335 6.28548 2.58544 4.93956 4.14816 4.86398L4.28683 4.86063H7.48683V9.12889L6.42016 8.02741C6.22016 7.82088 5.8935 7.82088 5.6935 8.02741C5.5935 8.13067 5.54683 8.26836 5.54683 8.40604C5.54683 8.51068 5.5767 8.61973 5.63984 8.71203L5.6935 8.77779L7.6335 10.788C7.72683 10.8913 7.86016 10.9463 8.00016 10.9463C8.11127 10.9463 8.22238 10.9081 8.31035 10.8356L8.36016 10.788L10.3002 8.77779C10.5002 8.57126 10.5002 8.23393 10.3002 8.02741C10.1183 7.83965 9.83184 7.82258 9.63099 7.9762L9.5735 8.02741L8.5135 9.12889V4.86063L7.4869 4.86043Z" fill="#1C1C28"/>
+    </svg>
+    
+  );
+};
+export const VideoButtonIcon = () => {
+  return (
+    <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <g filter="url(#filter0_b_6021_129177)">
+        <circle cx="44" cy="44" r="44" fill="#FEFEFF" />
+      </g>
+      <path
+        d="M62.4942 42.683C63.2395 43.0942 63.2382 44.1659 62.492 44.5756L35.7957 59.2329C35.0753 59.6284 34.1948 59.1067 34.1957 58.285L34.229 28.9153C34.23 28.0935 35.1117 27.5736 35.8312 27.9706L62.4942 42.683Z"
+        fill="#2B59FF"
+      />
+      <defs>
+        <filter
+          id="filter0_b_6021_129177"
+          x="-21.6036"
+          y="-21.6036"
+          width="131.207"
+          height="131.207"
+          filterUnits="userSpaceOnUse"
+          colorInterpolationFilters="sRGB"
+        >
+          <feFlood floodOpacity="0" result="BackgroundImageFix" />
+          <feGaussianBlur in="BackgroundImageFix" stdDeviation="10.8018" />
+          <feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_6021_129177" />
+          <feBlend mode="normal" in="SourceGraphic" in2="effect1_backgroundBlur_6021_129177" result="shape" />
+        </filter>
+      </defs>
+    </svg>
+  );
+};

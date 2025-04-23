@@ -128,7 +128,7 @@ export default function Header() {
                   'https://res.cloudinary.com/dflvvu32c/image/upload/v1739413637/kaz83swuhggnsi0exrk3.jpg'
                 }
               ></Avatar>
-              {!isMobile && <span>Hi {user?.user_name}</span>}
+              {!isMobile && <span>{user?.user_name}</span>}
               <DownOutlined />
             </div>
           </Popover>

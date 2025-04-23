@@ -1,21 +1,19 @@
-import { Avatar, Button, Tooltip } from 'antd';
-import styles from './styles.module.scss';
 import { EllipsisOutlined } from '@ant-design/icons';
-import { IPost } from '~/definitions/interfaces/post.interface';
-import { convertTimestampToString, convertTimeStampToStringDate } from '~/lib/utils';
-import { usePathname, useRouter } from 'next/navigation';
+import { Avatar, Button, Tooltip } from 'antd';
+import { useRouter } from 'next/navigation';
+import { AllConnectedIcon, OnlyMeIcon, PublicIcon, SomePeopleIcon } from '~/common/icon';
 import SmartTooltip from '~/common/smartTooltip';
 import { ViewScopeType } from '~/definitions/enums/index.enum';
-import { AllConnectedIcon, OnlyMeIcon, PublicIcon, SomePeopleIcon } from '~/common/icon';
+import { IPost } from '~/definitions/interfaces/post.interface';
+import { convertTimestampToString, convertTimeStampToStringDate } from '~/lib/utils';
+import styles from './styles.module.scss';
 interface Props {
   post: IPost;
   isMyPost: boolean;
 }
-export default function HeaderPost({ post, isMyPost }: Props) {
+export default function HeaderPost({ post }: Props) {
   const time = convertTimeStampToStringDate(post.createdAt);
   const router = useRouter();
-  const pathname = usePathname();
-  const isProfilePage = pathname?.includes('/profile/');
   const handleClickAvatar = (id: string) => {
     router.push(`/profile/${id}`);
   };
@@ -48,9 +46,9 @@ export default function HeaderPost({ post, isMyPost }: Props) {
         <div className={styles.details}>
           <div className={styles.wrapName}>
             <SmartTooltip onClick={() => handleClickAvatar} text={post.author?.user_name ?? ''} />
-            {!isProfilePage && !isMyPost && (
+            {/* {!isProfilePage && !isMyPost && (
               <div className={styles.friendStatus}>{post.isFriend ? 'Friend' : 'Add friend'}</div>
-            )}
+            )} */}
           </div>
           {renderTime()}
         </div>

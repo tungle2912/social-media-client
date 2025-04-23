@@ -33,15 +33,28 @@
 }
 .wrapInfo {
   display: flex;
+  align-items: center;
   gap: 12px;
   width: 100%;
 }
 .wrapName {
   display: flex;
   column-gap: 16px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #3E3E3E;
   align-items: center;
   flex-wrap: nowrap;
   max-width: 600px;
+
+}
+.wrapName p{
+  margin: 0;
+}
+.details{
+  display: flex;
+  gap: 4px;
+  flex-direction: column;
 }
 
 .avatar {

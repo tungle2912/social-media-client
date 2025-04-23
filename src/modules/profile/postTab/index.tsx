@@ -79,7 +79,7 @@ export default function PostTab({ userProfile }: iPostTab) {
             <Avatar size={50} src={userProfile?.avatar || ''} className={styles.userAvatar} />
             <InputCreatePost setIsOpenModal={setIsOpenModal} />
           </div>
-          <div className={styles.listAttach}>
+          <div className={styles.attach}>
             <div
               className={styles.item}
               onClick={() => {

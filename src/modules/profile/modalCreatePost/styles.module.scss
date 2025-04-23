@@ -229,6 +229,7 @@
 .emojiPickerContainer {
   position: absolute;
   top: 50px;
+  z-index: 2;
 }
 .upload {
   width: 100%;
@@ -270,46 +271,46 @@
   font-weight: 400;
   color: #8f90a6;
 }
-.mediaPreview {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  align-items: center;
-  justify-content: center;
+// .mediaPreview {
+//   display: flex;
+//   flex-direction: column;
+//   gap: 20px;
+//   align-items: center;
+//   justify-content: center;
 
-  .previewItem {
-    position: relative;
-    width: 100%;
-    margin-bottom: 8px;
-    border-radius: 4px;
-    img,
-    video {
-      width: 100%;
-      height: auto;
-      border-radius: 4px;
-    }
+//   .previewItem {
+//     position: relative;
+//     width: 100%;
+//     margin-bottom: 8px;
+//     border-radius: 4px;
+//     img,
+//     video {
+//       width: 100%;
+//       height: auto;
+//       border-radius: 4px;
+//     }
 
-    .removeButton {
-      position: absolute;
-      top: 15px;
-      right: 15px;
-      background: rgba(227, 226, 226, 0.4);
-      border: none;
-      border-radius: 50%;
-      width: 32px; /* Matches SVG size + padding */
-      height: 32px;
-      cursor: pointer;
-      display: flex; /* Centers SVG */
-      align-items: center;
-      justify-content: center;
-      &:hover {
-        background: rgba(205, 197, 197, 0.7);
-      }
-    }
-  }
+//     .removeButton {
+//       position: absolute;
+//       top: 15px;
+//       right: 15px;
+//       background: rgba(227, 226, 226, 0.4);
+//       border: none;
+//       border-radius: 50%;
+//       width: 32px; /* Matches SVG size + padding */
+//       height: 32px;
+//       cursor: pointer;
+//       display: flex; /* Centers SVG */
+//       align-items: center;
+//       justify-content: center;
+//       &:hover {
+//         background: rgba(205, 197, 197, 0.7);
+//       }
+//     }
+//   }
 
-  // Style cho document files
-}
+//   // Style cho document files
+// }
 .documentPreview {
   display: flex;
   flex-direction: column;
@@ -352,9 +353,104 @@
     }
   }
 }
-.uploadContainer{
-  overflow-x:hidden;
-  overflow-y: auto;
-  max-height: 500px;
-  scrollbar-width: thin;
+.uploadContainer {
+  // overflow-x: hidden;
+  // overflow-y: auto;
+  // max-height: 500px;
+  // scrollbar-width: thin;
+}
+.mediaPreview {
+  position: relative;
+  display: flex;
+  flex-wrap: nowrap;
+  max-height: 350px;
+  gap: 10px;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.previewItem {
+  position: relative;
+  height: 350px;
+}
+
+.previewItem img,
+.previewItem video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.removeButton {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(227, 226, 226, 0.4);
+  border: none;
+  border-radius: 50%;
+  width: 32px; /* Matches SVG size + padding */
+  height: 32px;
+  cursor: pointer;
+  display: flex; /* Centers SVG */
+  align-items: center;
+  justify-content: center;
+  &:hover {
+    background: rgba(205, 197, 197, 0.7);
+  }
+}
+/* Bố cục cho 1 tệp */
+.oneFile {
+  width: 100%;
+}
+
+/* Bố cục cho 2 tệp */
+.twoFiles {
+  width: 50%;
+}
+
+
+/* Bố cục cho 3 tệp */
+.threeFilesContainer{
+  width: 50%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.threeFilesFirst {
+  width: 50%;
+}
+
+.threeFilesSecond,
+.threeFilesThird {
+  width: 100%;
+  height: 170px
+}
+
+/* Bố cục cho hơn 3 tệp */
+.moreThanThreeFirst {
+  width: 50%;
+}
+
+.moreThanThreeSecond {
+  width: 25%;
+}
+
+.moreThanThreeThird {
+  width: 25%;
+  position: relative;
+}
+
+.moreFilesOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 24px;
 }

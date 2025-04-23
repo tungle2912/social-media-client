@@ -42,29 +42,6 @@
         border: none;
       }
     }
-
-    .listAttach {
-      border-top: 1px solid #e8e9ee;
-      padding-top: 24px;
-      display: flex;
-      gap: 24px;
-      .item {
-        cursor: pointer;
-        border-radius: 10px;
-        width: max-content;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        border: 1px solid #e8e9ee;
-        padding: 8px 16px;
-
-        &:hover {
-          border: 1px solid #8951ff;
-          background: #f8f8ff;
-        }
-      }
-    }
   }
 
   .managePosts {
@@ -132,6 +109,27 @@
         color: #1877f2;
         font-size: 20px;
       }
+    }
+  }
+}
+.attach {
+  display: flex;
+  gap: 24px;
+  margin: 5px 0;
+  width: 100%;
+  .item {
+    cursor: pointer;
+    border-radius: 10px;
+    width: max-content;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e8e9ee;
+    padding: 8px 16px;
+
+    &:hover {
+      border: 1px solid #8951ff;
+      background: #f8f8ff;
     }
   }
 }
