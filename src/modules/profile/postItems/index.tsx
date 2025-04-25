@@ -1,6 +1,6 @@
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { Button, Divider, Popover } from 'antd';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   AngryIcon,
   CommentIcon,
@@ -64,42 +64,49 @@ function PostItem({ post, refetch }: PostItemProps) {
       }
     };
   }, []);
-  const reactionIcons: Record<string, React.ReactNode> = {
-    like: <LikeIcon />,
-    love: <LoveIcon />,
-    haha: <HahaIcon />,
-    wow: <WowIcon />,
-    sad: <SadIcon />,
-    angry: <AngryIcon />,
-  };
-  const handleReactionClick = (reactionType: string) => {
-    const previousReaction = localReaction;
-    const newReaction = reactionType === previousReaction ? '' : reactionType;
-    setLocalReaction(newReaction);
-    setPopoverVisible(false);
+  const reactionIcons: Record<string, React.ReactNode> = useMemo(
+    () => ({
+      like: <LikeIcon />,
+      love: <LoveIcon />,
+      haha: <HahaIcon />,
+      wow: <WowIcon />,
+      sad: <SadIcon />,
+      angry: <AngryIcon />,
+    }),
+    []
+  );
 
-    if (timeoutId.current) {
-      clearTimeout(timeoutId.current);
-    }
+  const handleReactionClick = useCallback(
+    (reactionType: string) => {
+      const previousReaction = localReaction;
+      const newReaction = reactionType === previousReaction ? '' : reactionType;
+      setLocalReaction(newReaction);
+      setPopoverVisible(false);
 
-    timeoutId.current = setTimeout(() => {
-      reactPostMutation.mutate(
-        {
-          targetId: post._id,
-          reactionType: reactionType,
-          targetType: 0,
-        },
-        {
-          onSuccess: async () => {
-            await refetch();
+      if (timeoutId.current) {
+        clearTimeout(timeoutId.current);
+      }
+
+      timeoutId.current = setTimeout(() => {
+        reactPostMutation.mutate(
+          {
+            targetId: post._id,
+            reactionType: reactionType,
+            targetType: 0,
           },
-          onError: () => {
-            setLocalReaction(previousReaction);
-          },
-        }
-      );
-    }, 500);
-  };
+          {
+            onSuccess: async () => {
+              await refetch();
+            },
+            onError: () => {
+              setLocalReaction(previousReaction);
+            },
+          }
+        );
+      }, 500);
+    },
+    [post._id, reactPostMutation, refetch]
+  );
 
   const reactionPopoverContent = (
     <div className={styles.reactionPopover}>

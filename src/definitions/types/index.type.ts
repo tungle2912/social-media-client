@@ -29,6 +29,7 @@ export interface UserType {
   coursesEnrolled: string[];
   coursesTeaching: string[];
   date_of_birth?: Date;
+  isOnBoard: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

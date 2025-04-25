@@ -21,7 +21,7 @@ async function refreshAccessToken(refreshToken: string) {
   }
 }
 
-const nextAuthOptions: AuthOptions = {
+export const nextAuthOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
@@ -63,6 +63,18 @@ const nextAuthOptions: AuthOptions = {
   pages: {
     signIn: '/auth/login',
   },
+  cookies: {
+    sessionToken: {
+      name: `next-auth.session-token`,
+      options: {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        secure: process.env.NODE_ENV === 'production', // false khi dev
+        domain: 'localhost', // ← Quan trọng khi dev local
+      },
+    },
+  },
   secret: process.env.NEXTAUTH_SECRET || '',
   callbacks: {
     async signIn({ account, profile }: any) {
@@ -80,9 +92,11 @@ const nextAuthOptions: AuthOptions = {
       }
       return baseUrl;
     },
-    async jwt({ token, user, account }: any) {
+    async jwt({ token, user, account, trigger, session }: any) {
       const currentTime = Date.now() / 1000; // Thời gian hiện tại tính bằng giây
-
+      if (trigger === 'update' && session?.user) {
+        token.user = { ...token.user, ...session.user };
+      }
       // Xử lý khi đăng nhập lần đầu (Credentials)
       if (user) {
         return {
@@ -122,11 +136,13 @@ const nextAuthOptions: AuthOptions = {
     },
     async session({ session, token }: any) {
       // Truyền các giá trị từ token sang session để sử dụng phía client
-      session.accessToken = token.accessToken;
-      session.refreshToken = token.refreshToken;
-      session.accessTokenExpires = token.accessTokenExpires;
-      session.isAuthenticated = token.isAuthenticated;
-      session.user = token.user; // Thêm thông tin người dùng vào session
+      if (token) {
+        session.accessToken = token.accessToken;
+        session.refreshToken = token.refreshToken;
+        session.accessTokenExpires = token.accessTokenExpires;
+        session.isAuthenticated = token.isAuthenticated;
+        session.user = token.user; // Thêm thông tin người dùng vào session
+      }
       return session;
     },
   },

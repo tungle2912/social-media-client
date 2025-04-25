@@ -1,7 +1,9 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Axios from 'axios';
-import { getSession } from 'next-auth/react';
+import { getSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { publicPost } from '~/api/request/base-axios-public-request';
 
 const cancelTokenSource = Axios.CancelToken.source();
 
@@ -14,7 +16,23 @@ export async function getAccessToken() {
   const session = await getSession();
   return (session as any)?.accessToken || '';
 }
-
+async function refreshTokenIfNeeded() {
+  const session = await getSession();
+  if (session && (session as any).refreshToken) {
+    try {
+      const response = await publicPost('/api/auth/refresh-token', { refresh_token: (session as any).refreshToken });
+      return {
+        accessToken: response.data.result.access_token,
+        accessTokenExpires: response.data.result.exp,
+        refreshToken: response.data.result.refresh_token,
+      };
+    } catch (error) {
+      console.error('Failed to refresh token:', error);
+      return null;
+    }
+  }
+  return null;
+}
 /**
  * Protected axios instance
  */
@@ -45,15 +63,20 @@ protectedAxiosInstance.interceptors.request.use(
  */
 protectedAxiosInstance.interceptors.response.use(
   (response) => response,
-  async (error: any) => {
+  async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const session = await getSession();
-      if (session) {
-        const accessToken = await getAccessToken();
-        originalRequest.headers['Authorization'] = `Bearer ${accessToken}`;
+      const refreshedTokens = await refreshTokenIfNeeded();
+      console.log('Refreshed tokens:', refreshedTokens);
+      if (refreshedTokens) {
+        originalRequest.headers.Authorization = `Bearer ${refreshedTokens.accessToken}`;
         return protectedAxiosInstance(originalRequest);
+      } else {
+        console.log('Failed to refresh token, signing out:', error);
+        await signOut({ redirect: false });
+        const route = useRouter();
+        await route.push('/auth/login');
       }
     }
     return Promise.reject(error);

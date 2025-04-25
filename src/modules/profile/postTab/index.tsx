@@ -49,7 +49,7 @@ export default function PostTab({ userProfile }: iPostTab) {
                 width={100}
                 height={100}
                 alt={t('imageAlt')}
-                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724148262/goftpolyqmy08gmpwmdn.jpg"
+                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1745508584/jrqdhn9f8rqwwb2h9xr7.jpg"
                 className={styles.imageAvatar}
               />
             </div>
@@ -66,7 +66,7 @@ export default function PostTab({ userProfile }: iPostTab) {
                 width={100}
                 height={100}
                 alt={t('friendAvatarAlt')}
-                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1724148262/goftpolyqmy08gmpwmdn.jpg"
+                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1745508584/f8fskez0fk3dcax6xmek.jpg"
                 className={styles.friendAvatar}
               />
             </div>

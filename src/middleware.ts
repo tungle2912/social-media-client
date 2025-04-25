@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import withAuth from 'next-auth/middleware';
 import { routes } from '~/definitions';
 
-
 interface NextAuthRequest extends NextRequest {
   nextauth?: any;
 }
@@ -42,10 +41,10 @@ export default withAuth(
     if (isAuthRoutes && isAuthenticated) {
       return NextResponse.redirect(new URL('/profile', request.url));
     }
-
     if (isProtectedRoutes && !isAuthenticated) {
       response = NextResponse.redirect(new URL('/auth/login', request.url));
-      response.cookies.delete('accessToken');
+      response.cookies.delete('next-auth.session-token');
+      response.cookies.delete('next-auth.csrf-token');
       return response;
     }
 

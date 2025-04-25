@@ -19,14 +19,13 @@ interface IPropsContentPost {
   postMedias: PostMedia[];
   onShowDetail?: () => void;
   isDetail?: boolean;
-  isRepost?: boolean;
 }
 
 const EXT_IMAGE = ['gif', 'png', 'jpeg', 'jpg'];
 // const EXT_MEDIA = ['gif', 'png', 'jpeg', 'jpg', 'mp4', 'mpeg4', 'mpe', 'mpeg', 'mpg', 'wmv', 'mov'];
 // const EXT_ATTACHMENT = ['pdf', 'pptx', 'ppt', 'xlsx', 'xls', 'docx', 'doc'];
 
-const ContentPost = ({ content, postMedias, onShowDetail, isDetail, isRepost }: IPropsContentPost) => {
+const ContentPost = ({ content, postMedias, onShowDetail, isDetail }: IPropsContentPost) => {
   const t = useTranslations();
   // const { profile } = useProfile(true);
 
@@ -74,13 +73,7 @@ const ContentPost = ({ content, postMedias, onShowDetail, isDetail, isRepost }: 
     <div className={styles.wrapContentPost}>
       {content && (
         <>
-          <div
-            className={classNames(styles.content, {
-              [styles.contentDetail]: isDetail,
-              [styles.contentRepost]: isRepost,
-            })}
-            dangerouslySetInnerHTML={{ __html: content }}
-          />
+          <div className={styles.contentText}>{content}</div>
           {content.length > 500 && (
             <button className={styles.seeMore} onClick={onShowDetail}>
               {isDetail ? '' : t('seeMore')}
@@ -216,7 +209,7 @@ const ContentPost = ({ content, postMedias, onShowDetail, isDetail, isRepost }: 
           {listAttachment.map((item, index) => (
             <div key={index} className={styles.attachmentItem}>
               <div className={styles.attachmentInfo}>
-              <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
                 <span className={styles.attachmentName}>{item.name}</span>
               </div>
               <a href={item.url} download className={styles.attachmentDownload}>

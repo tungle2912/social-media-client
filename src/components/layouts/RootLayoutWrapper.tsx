@@ -10,14 +10,13 @@ import React, { useEffect } from 'react';
 import { ELocale, UserType } from '~/definitions';
 import { Layout, Skeleton, Spin, ThemeProvider } from '~/theme';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import Header from '~/components/header';
 import { AuthLayout } from '~/components/layouts/authLayout';
 import Sidebar from '~/components/sideBar';
 import { useAuthStore } from '~/stores/auth.store';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './layouts.module.scss';
-import { useGetProfileQuery } from '~/hooks/data/user.data';
 
 interface ILayoutProps {
   locale: ELocale;
@@ -32,20 +31,28 @@ const { Content } = Layout;
  */
 export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
   const { data: sessionData, status } = useSession();
-  const { data } = useGetProfileQuery();
   const pathname = usePathname();
-  const isAuthPage = pathname.startsWith('/auth');
+  const router = useRouter();
+  const isAuthPage = pathname.startsWith('/auth') || pathname.startsWith('/onBoard');
+  // const { data } = useGetProfileQuery(!pathname.startsWith('/auth'));
   const isLoading = useLoadingStore((state) => state.isLoading);
+
   //  useAutoRefreshToken(sessionData?.expires ? +sessionData.expires : 0);
   const { setAuth } = useAuthStore();
   useEffect(() => {
-    setAuth({
-      authenticated: status === 'authenticated',
-      user: data?.result as UserType,
-      locale,
-    });
-    console.log('data', data);
-  }, [status, sessionData, locale, setAuth, data]);
+    if (sessionData?.user) {
+      setAuth({
+        authenticated: status === 'authenticated',
+        user: sessionData?.user as UserType,
+        locale,
+      });
+      if (!(sessionData?.user as UserType)?.isOnBoard) {
+        router.push('/onBoard');
+      } else if (pathname.startsWith('/onBoard')) {
+        router.push('/profile');
+      }
+    }
+  }, [status, sessionData, locale, setAuth]);
 
   return (
     <AntdRegistry>
