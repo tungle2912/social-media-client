@@ -1,0 +1,396 @@
+@import '~/theme/styles/_variables.scss';
+
+.customButton {
+  border-radius: 25px;
+  min-width: 120px;
+  border-radius: 100px;
+  color: $white-color;
+  font-weight: bold;
+
+  &.sizeXl {
+    height: 56px;
+  }
+  &.sizeLarge {
+    height: 48px;
+  }
+
+  &.sizeMedium {
+    height: 40px;
+  }
+
+  &.sizeSmall {
+    height: 32px;
+  }
+
+  &.roundedMedium {
+    border-radius: 10px;
+  }
+
+  &.roundedSmall {
+    border-radius: 5px;
+  }
+  &.roundedMedium {
+    border-radius: 10px;
+  }
+  &.roundedLarge {
+    border-radius: 25px;
+  }
+
+  &.dashed {
+    color: $black-color-1;
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        border-color: $primary-color;
+        svg path {
+          fill: $primary-color;
+        }
+      }
+    }
+
+    &:disabled {
+      border-color: $disabled-color;
+      color: $disabled-color;
+      svg {
+        path {
+          fill: $disabled-color;
+        }
+      }
+    }
+  }
+
+  &.gradient {
+    color: white;
+    background: linear-gradient(93.82deg, #f15a2d 0%, #b6004c 100%);
+    border: none;
+
+    &:not(:disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: $white-color;
+        outline: none;
+        background: $orange-color;
+        .iconShowOnHover {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &.white {
+    color: $blue-color-1;
+    background-color: $white-color;
+    border: 1px solid $black-color-5;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: white;
+        outline: none;
+        border-color: $primary-color;
+        background-color: $primary-color;
+
+        .iconShowOnHover {
+          display: block;
+        }
+
+        svg path {
+          fill: $white-color;
+        }
+      }
+    }
+
+    &:disabled {
+      border-color: $disabled-color;
+      color: $disabled-color;
+      svg {
+        path {
+          fill: $disabled-color;
+        }
+      }
+    }
+
+    .tagButtonSpace {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+    }
+  }
+
+  &.coral {
+    color: #f15a2d;
+    background-color: white;
+    border: 1px solid $orange-color;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: white;
+        outline: none;
+        border-color: $orange-color;
+        background-color: $orange-color;
+
+        .iconShowOnHover {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &.tag {
+    color: $blue-color-1;
+    border: 1px solid #e2e2e2;
+    background: rgba(16, 0, 75, 0.05);
+    border-radius: 15px;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: $blue-color-1;
+        outline: none;
+        border-color: $white-color;
+
+        .iconShowOnHover {
+          display: block;
+        }
+      }
+    }
+
+    .tagButtonSpace {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+    }
+  }
+
+  &.orange {
+    background: $orange-gradient;
+    color: $white-color;
+    font-weight: 700;
+    border-radius: 25px;
+    border: none;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: $white-color;
+        outline: none;
+        background: $orange-color !important;
+
+        span {
+          color: $white-color;
+        }
+
+        .iconShowOnHover {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &.ghost {
+    color: $white-color;
+    font-weight: 700;
+    border-radius: 25px;
+    border: 1px solid $white-color;
+    background: transparent;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: $white-color;
+        outline: none;
+        border: 1px solid $white-color;
+        border-color: transparent;
+
+        span {
+          color: $white-color;
+        }
+
+        .iconShowOnHover {
+          display: block;
+        }
+      }
+    }
+  }
+
+  &.textViolet {
+    color: $blue-color-1;
+    background-color: white;
+    border: 1px solid #e2e2e2;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        color: $primary-color;
+        outline: none;
+        border-color: $primary-color;
+        background-color: white;
+
+        .iconShowOnHover {
+          display: block;
+        }
+
+        svg path {
+          fill: $blue-color-1;
+        }
+      }
+    }
+  }
+
+  &.text {
+    box-shadow: none;
+    outline: none;
+    color: $black-color-2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-color: transparent;
+    background-color: transparent;
+
+    &:not(:disabled):not(.ant-btn-disabled) {
+      &:hover,
+      &:active,
+      &:focus-visible {
+        outline: none;
+        border: 1px solid $primary-color;
+      }
+    }
+
+    &:disabled {
+      color: $disabled-color;
+      background-color: transparent;
+      border-color: transparent;
+
+      &:hover {
+        color: $disabled-color;
+        background-color: transparent;
+      }
+
+      :global {
+        .ant-btn-icon {
+          svg {
+            path {
+              fill: $disabled-color;
+            }
+          }
+        }
+      }
+    }
+
+    // &:not(:disabled):not(.ant-btn-disabled) {
+    &:hover {
+      color: $primary-color;
+      background-color: $secondary-color-1;
+
+      svg {
+        path {
+          fill: $primary-color;
+        }
+      }
+    }
+    // }
+  }
+
+  &:hover {
+    color: $white-color;
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    color: $black-color-1;
+  }
+
+  &.typePrimary:disabled {
+    background-color: $background-disable;
+    border-color: $background-disable;
+    color: $white-color;
+  }
+
+  &.typePrimary {
+    background-color: $primary-color;
+    border-color: $primary-color;
+    color: $white-color;
+  }
+
+  &.typePrimary:not(:disabled):not(.ant-btn-disabled):hover,
+  &.typePrimary:not(:disabled):not(.ant-btn-disabled):active {
+    background-color: $secondary-color;
+    border-color: $secondary-color;
+    color: $white-color;
+  }
+
+  &.typeSecondary:disabled {
+    background-color: $white-color;
+    color: $disabled-color;
+    border-color: $disabled-color;
+  }
+
+  // &.typeSecondary:focus {
+  //   background-color: $white-colo;
+  //   color: $primary-color;
+  //   border-color: $secondary-color;
+  // }
+
+  &.typeSecondary {
+    background-color: $white-color;
+    color: #3e3e3e;
+    border-color: #c7c9d9;
+  }
+
+  &.typeSecondary:not(:disabled):not(.ant-btn-disabled):hover,
+  &.typeSecondary:not(:disabled):not(.ant-btn-disabled):active {
+    background-color: $secondary-color;
+    color: $white-color;
+    border-color: $secondary-color;
+  }
+
+  &.typeNegative:disabled {
+    background-color: $white-color;
+    color: $disabled-color;
+    border-color: $disabled-color;
+  }
+
+  // &.typeNegative:focus {
+  //   background-color: $white-colo;
+  //   color: #FF3B3B;
+  //   border-color: #FF3B3B;
+  // }
+
+  &.typeNegative {
+    background-color: $white-color;
+    color: #ff3b3b;
+    border-color: #ff3b3b;
+  }
+
+  &.typeNegative:hover,
+  &.typeNegative:active {
+    background-color: #ff3b3b;
+    color: $white-color;
+    border-color: #ff3b3b;
+  }
+
+  .iconSearch {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .iconShowOnHover {
+    display: none;
+  }
+}

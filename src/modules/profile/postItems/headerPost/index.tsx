@@ -1,19 +1,35 @@
+'use client';
 import { EllipsisOutlined } from '@ant-design/icons';
-import { Avatar, Button, Tooltip } from 'antd';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
+import { Avatar, Button, message, Popover, Tooltip } from 'antd';
 import { useRouter } from 'next/navigation';
-import { AllConnectedIcon, OnlyMeIcon, PublicIcon, SomePeopleIcon } from '~/common/icon';
+import { useState } from 'react';
+import { AllConnectedIcon, DeleteIcon, OnlyMeIcon, PublicIcon, SomePeopleIcon } from '~/common/icon';
 import SmartTooltip from '~/common/smartTooltip';
+import ModalConfirm from '~/components/modal/modalConfirm';
 import { ViewScopeType } from '~/definitions/enums/index.enum';
 import { IPost } from '~/definitions/interfaces/post.interface';
+import { useDeletePostMutation } from '~/hooks/data/post.data';
 import { convertTimestampToString, convertTimeStampToStringDate } from '~/lib/utils';
 import styles from './styles.module.scss';
 interface Props {
   post: IPost;
   isMyPost: boolean;
+  refetch: (options?: RefetchOptions) => Promise<
+    QueryObserverResult<
+      {
+        result: IPost[];
+        message: string;
+      },
+      Error
+    >
+  >;
 }
-export default function HeaderPost({ post }: Props) {
+export default function HeaderPost({ post, refetch }: Props) {
   const time = convertTimeStampToStringDate(post.createdAt);
   const router = useRouter();
+  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+  const deletePostMutation = useDeletePostMutation();
   const handleClickAvatar = (id: string) => {
     router.push(`/profile/${id}`);
   };
@@ -37,6 +53,28 @@ export default function HeaderPost({ post }: Props) {
       </div>
     );
   };
+  const renderOptions = () => {
+    return (
+      <div className={styles.options}>
+        <div onClick={() => setShowConfirmDelete(true)} className={styles.optionItem}>
+          <DeleteIcon />
+          <span className={styles.optionText}>Delete</span>
+        </div>
+      </div>
+    );
+  };
+  const handleDeletePost = async () => {
+    try {
+      await deletePostMutation.mutateAsync(post._id, {
+        onSuccess: async () => {
+          await refetch();
+          message.success('Delete post successfully', 3);
+        },
+      });
+    } catch (error) {
+      console.error('Error deleting post:', error);
+    }
+  };
   return (
     <div className={styles.header}>
       <div className={styles.wrapInfo}>
@@ -53,9 +91,19 @@ export default function HeaderPost({ post }: Props) {
           {renderTime()}
         </div>
       </div>
-      <Tooltip title="More options">
+      <Popover  content={renderOptions} trigger={'click'} placement="bottomRight">
         <Button shape="circle" icon={<EllipsisOutlined />} />
-      </Tooltip>
+      </Popover>
+      <ModalConfirm
+        onOk={handleDeletePost}
+        visible={showConfirmDelete}
+        onCancel={() => setShowConfirmDelete(false)}
+        onClosed={() => setShowConfirmDelete(false)}
+        title='Message'
+        description='Are you sure you want to delete this post?'
+        textOk='Delete'
+        textCancel='Cancel'
+      />
     </div>
   );
 }

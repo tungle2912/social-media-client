@@ -9,7 +9,7 @@ import { rules } from '~/lib/rules';
 import AuthButton from '~/modules/auth/button';
 import styles from './styles.module.scss';
 
-export default function Login() {
+export default function Signup() {
   const [form] = Form.useForm();
   const router = useRouter();
   const registerMutation = useRegisterMutation();
@@ -24,11 +24,11 @@ export default function Login() {
   const onSubmit = async (values: RegisterValues) => {
     await registerMutateAsync(values, {
       onSuccess(data: any) {
-        message.success(data?.response?.data?.message,5);
+        message.success(data?.data?.message, 5);
         router.push('/auth/login');
       },
       onError(error: any) {
-        handleError(error?.response?.data?.errors);
+        handleError(error?.data?.errors);
       },
     });
   };

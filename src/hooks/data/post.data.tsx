@@ -13,13 +13,13 @@ export const useCreatePostMutation = () => {
   return useMutation({
     mutationFn: (data: any) => postApi.createPost(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['POSTS'] })
+      queryClient.invalidateQueries({ queryKey: ['POSTS'] });
     },
   });
-}
+};
 export const useGetPostByUserIdQuery = (id: string) => {
   return useQuery({
-    queryKey: ['POST_USER', id],
+    queryKey: ['POSTS'],
     queryFn: () => postApi.getPostByUserId(id),
     enabled: !!id,
   });
@@ -37,7 +37,7 @@ export const useUpdatePostMutation = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data?: any }) => postApi.updatePost(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['POSTS'] })
+      queryClient.invalidateQueries({ queryKey: ['POSTS'] });
     },
   });
 };
@@ -47,7 +47,7 @@ export const useReactPostMutation = () => {
   return useMutation({
     mutationFn: (data: any) => postApi.reactPost(data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['POST'] });
+      queryClient.invalidateQueries({ queryKey: ['REACT_POST'] });
     },
   });
 };
@@ -71,3 +71,12 @@ export const useCreateHashTagMutation = () => {
     },
   });
 };
+export const useDeletePostMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => postApi.deletePost(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['POSTS'] });
+    },
+  });
+}

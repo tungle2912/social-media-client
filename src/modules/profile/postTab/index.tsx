@@ -104,12 +104,7 @@ export default function PostTab({ userProfile }: iPostTab) {
           <Button className={styles.filterButton}>{t('filter')}</Button>
         </div>
         <div className={styles.postsList}>
-          {postData?.result?.map((post) => (
-            <PostItem
-              key={post._id}
-              post={post}
-            />
-          ))}
+          {postData?.result?.map((post) => <PostItem refetch={refetch} key={post._id} post={post} />)}
         </div>
       </div>
       <ModalCreatePost

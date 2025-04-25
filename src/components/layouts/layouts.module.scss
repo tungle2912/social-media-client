@@ -21,7 +21,7 @@
   top: 100px; /* Cách mép trên 200px */
   left: 50%; /* Nằm giữa màn hình */
   transform: translateX(-50%); /* Căn giữa theo chiều ngang */
-  z-index: 1000; /* Đảm bảo nó nằm trên các thành phần khác */
+  z-index: 1001; /* Đảm bảo nó nằm trên các thành phần khác */
 }
 
 .contentContainer {

@@ -122,7 +122,8 @@ export default function ReactCount({ reactions }: Props) {
         onClosed={closeModal}
         onCancel={closeModal}
         footer={null}
-        width={400}
+        width={600}
+        height={400}
       >
         {renderModalContent()}
       </ModalBasic>

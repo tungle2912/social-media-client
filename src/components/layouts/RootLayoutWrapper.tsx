@@ -17,6 +17,7 @@ import Sidebar from '~/components/sideBar';
 import { useAuthStore } from '~/stores/auth.store';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './layouts.module.scss';
+import { useGetProfileQuery } from '~/hooks/data/user.data';
 
 interface ILayoutProps {
   locale: ELocale;
@@ -31,51 +32,53 @@ const { Content } = Layout;
  */
 export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
   const { data: sessionData, status } = useSession();
+  const { data } = useGetProfileQuery();
   const pathname = usePathname();
   const isAuthPage = pathname.startsWith('/auth');
   const isLoading = useLoadingStore((state) => state.isLoading);
   //  useAutoRefreshToken(sessionData?.expires ? +sessionData.expires : 0);
-  const {setAuth} = useAuthStore();
+  const { setAuth } = useAuthStore();
   useEffect(() => {
     setAuth({
       authenticated: status === 'authenticated',
-      user: sessionData?.user as UserType,
+      user: data?.result as UserType,
       locale,
     });
-  }, [status, sessionData, locale, setAuth]);
+    console.log('data', data);
+  }, [status, sessionData, locale, setAuth, data]);
 
   return (
     <AntdRegistry>
       <ThemeProvider>
-          {status === 'loading' ? (
-            <Content
-              style={{
-                padding: '48px',
-                flexGrow: '1',
-                display: 'flex',
-                alignItems: 'stretch',
-                flexDirection: 'column',
-                gap: 20,
-              }}
-            >
-              <Skeleton loading active />
-            </Content>
-          ) : isAuthPage ? (
-            <AuthLayout>{children}</AuthLayout>
-          ) : (
-            <Layout className={styles.layoutContainer}>
-              {isLoading && (
-                <div className={styles.spin}>
-                  <Spin size="large" tip="Loading..." />
-                </div>
-              )}
-              <Sidebar />
-              <Layout>
-                <Header />
-                <Content className={styles.contentContainer}>{children}</Content>
-              </Layout>
+        {status === 'loading' ? (
+          <Content
+            style={{
+              padding: '48px',
+              flexGrow: '1',
+              display: 'flex',
+              alignItems: 'stretch',
+              flexDirection: 'column',
+              gap: 20,
+            }}
+          >
+            <Skeleton loading active />
+          </Content>
+        ) : isAuthPage ? (
+          <AuthLayout>{children}</AuthLayout>
+        ) : (
+          <Layout className={styles.layoutContainer}>
+            {isLoading && (
+              <div className={styles.spin}>
+                <Spin size="large" tip="Loading..." />
+              </div>
+            )}
+            <Sidebar />
+            <Layout>
+              <Header />
+              <Content className={styles.contentContainer}>{children}</Content>
             </Layout>
-          )}
+          </Layout>
+        )}
       </ThemeProvider>
     </AntdRegistry>
   );

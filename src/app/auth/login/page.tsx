@@ -44,7 +44,7 @@ export default function Login() {
         message.error("An unexpected error occurred");
       }
     } else {
-      router.push('/dashboard');
+      router.push('/profile');
     }
   };
 

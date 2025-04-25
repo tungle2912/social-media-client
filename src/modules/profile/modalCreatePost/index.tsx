@@ -1,22 +1,15 @@
 import XCloseIcon from '@/static/icon/xCloseIcon';
 import image from '@/static/image';
+import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
 import { Avatar, message, Modal, Select, Upload } from 'antd';
+import { UploadProps } from 'antd/lib';
+import classNames from 'classnames';
 import { EmojiClickData } from 'emoji-picker-react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { AllConnectedIcon, OnlyMeIcon, PublicIcon, SmileIcon, SomePeopleIcon, TagIcon } from '~/common/icon';
-import { CommentScopeType, MediaType, ViewScopeType } from '~/definitions/enums/index.enum';
-import { useCreatePostMutation } from '~/hooks/data/post.data';
-import MediaUpload from '~/modules/profile/mediaUpload';
-import { useAuthStore } from '~/stores/auth.store';
-import useLoadingStore from '~/stores/loading.store';
-import styles from './styles.module.scss';
-import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
-import { IPost } from '~/definitions/interfaces/post.interface';
-import classNames from 'classnames';
-import { UploadProps } from 'antd/lib';
 import {
   acceptDocumentFiles,
   acceptFilesImage,
@@ -28,6 +21,13 @@ import {
   MAX_FILE_SIZE_IMAGE_MB,
   MAX_FILE_SIZE_VIDEOS_MB,
 } from '~/definitions/constants/index.constant';
+import { CommentScopeType, MediaType, ViewScopeType } from '~/definitions/enums/index.enum';
+import { IPost } from '~/definitions/interfaces/post.interface';
+import { useCreatePostMutation } from '~/hooks/data/post.data';
+import MediaUpload from '~/modules/profile/mediaUpload';
+import { useAuthStore } from '~/stores/auth.store';
+import useLoadingStore from '~/stores/loading.store';
+import styles from './styles.module.scss';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 interface props {
@@ -159,19 +159,20 @@ export function ModalCreatePost({
     formData.append('content', content.trim());
     formData.append('viewScope', viewScope.toString());
     formData.append('commentScope', commentScope.toString());
-    console.log('media', mediaFiles);
     mediaFiles.forEach((file) => {
       formData.append('media', file);
     });
 
     documentFiles.forEach((file) => formData.append('attachment', file));
-    console.log('documentFiles', documentFiles);
     try {
       setLoading(true);
-      await createPostMutation.mutateAsync(formData);
-      message.success('Post created successfully!');
-      refetch();
-      handleClose();
+      await createPostMutation.mutateAsync(formData, {
+        onSuccess: async () => {
+          message.success('Post created successfully!');
+          await refetch();
+          await handleClose();
+        },
+      });
     } catch (error) {
       message.error('Failed to create post');
       console.error('Post creation error:', error);
@@ -188,20 +189,20 @@ export function ModalCreatePost({
       if (type === MediaType.FILE) {
         if (!acceptDocumentFiles.includes(fileType)) {
           message.error(`Invalid file type: ${file.name}`);
-          continue;
+          return;
         }
         if (documentFiles.length + validFiles.length >= LIMIT_UPLOAD_FILE) {
           message.error(`Maximum ${LIMIT_UPLOAD_FILE} documents allowed`);
-          break;
+          return;
         }
         if (file.size > MAX_FILE_SIZE_DOCUMENT_MB * 1024 * 1024) {
           message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_DOCUMENT_MB}MB`);
-          continue;
+          return;
         }
       } else {
         if (![...acceptFilesImage, ...acceptFilesVideo].includes(fileType)) {
           message.error(`Invalid file type: ${file.name}`);
-          continue;
+          return;
         }
         const isImage = acceptFilesImage.includes(fileType);
         const isVideo = acceptFilesVideo.includes(fileType);
@@ -212,11 +213,11 @@ export function ModalCreatePost({
             LIMIT_UPLOAD_IMAGE
           ) {
             message.error(`Maximum ${LIMIT_UPLOAD_IMAGE} images allowed`);
-            continue;
+            return;
           }
           if (file.size > MAX_FILE_SIZE_IMAGE_MB * 1024 * 1024) {
             message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_IMAGE_MB}MB`);
-            continue;
+            return;
           }
         } else if (isVideo) {
           const currentVideos = mediaFiles.filter((f) => acceptFilesVideo.includes(f.type));
@@ -225,11 +226,11 @@ export function ModalCreatePost({
             LIMIT_UPLOAD_VIDEO
           ) {
             message.error(`Maximum ${LIMIT_UPLOAD_VIDEO} videos allowed`);
-            continue;
+            return;
           }
           if (file.size > MAX_FILE_SIZE_VIDEOS_MB * 1024 * 1024) {
             message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_VIDEOS_MB}MB`);
-            continue;
+            return;
           }
         }
       }
@@ -400,9 +401,9 @@ export function ModalCreatePost({
                   </div>
                   <div className={classNames(styles.previewItem, styles.threeFilesThird)}>
                     {mediaFiles[2].type.startsWith('image/') ? (
-                      <Image src={URL.createObjectURL(mediaFiles[2])} alt="Preview" width={100} height={100} />
+                      <Image src={URL.createObjectURL(mediaFiles[3])} alt="Preview" width={100} height={100} />
                     ) : (
-                      <video controls src={URL.createObjectURL(mediaFiles[2])} />
+                      <video controls src={URL.createObjectURL(mediaFiles[3])} />
                     )}
 
                     {numberOfFiles > 3 && <div className={styles.moreFilesOverlay}>+{numberOfFiles - 3}</div>}
@@ -410,10 +411,7 @@ export function ModalCreatePost({
                 </div>
               </>
             )}
-            <button
-              onClick={() => setMediaFiles((prev) => prev.filter((f) => f.name !== mediaFiles[0].name))}
-              className={styles.removeButton}
-            >
+            <button onClick={() => setMediaFiles([])} className={styles.removeButton}>
               <XCloseIcon />
             </button>
           </div>
@@ -460,7 +458,7 @@ export function ModalCreatePost({
             >
               Cancel
             </button>
-            <button onClick={handleCreatePost} className={styles.postButton}>
+            <button disabled={createPostMutation.isPending} onClick={handleCreatePost} className={styles.postButton}>
               Post
             </button>
           </div>

@@ -42,16 +42,15 @@
   column-gap: 16px;
   font-size: 16px;
   font-weight: 700;
-  color: #3E3E3E;
+  color: #3e3e3e;
   align-items: center;
   flex-wrap: nowrap;
   max-width: 600px;
-
 }
-.wrapName p{
+.wrapName p {
   margin: 0;
 }
-.details{
+.details {
   display: flex;
   gap: 4px;
   flex-direction: column;
@@ -83,4 +82,27 @@
   align-items: center;
   color: #636363;
   gap: 4px;
+}
+.options {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 237px;
+}
+.optionItem {
+  width: 100%;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  gap: 20px;
+  padding: 5px 10px;
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+.optionText {
+  font-size: 16px;
 }

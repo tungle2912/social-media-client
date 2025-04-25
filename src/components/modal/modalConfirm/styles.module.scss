@@ -1,0 +1,31 @@
+.modalStyle {
+    // Add any modal-related styles here if needed.
+  }
+  
+  .centerContent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .description {
+    margin-top: 3rem;
+    margin-bottom: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  
+  .button {
+    min-width: 170px;
+  }
+  

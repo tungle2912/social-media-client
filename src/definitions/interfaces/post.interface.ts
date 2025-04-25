@@ -13,7 +13,7 @@ export interface IReaction {
 
 // Interface cho Post
 export interface IPost {
-  _id?: string;
+  _id: string;
   authorId: string;
   content: string;
   media?: string[];

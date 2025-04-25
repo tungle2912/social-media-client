@@ -1,4 +1,4 @@
-import { sendGet, sendPatch, sendPost } from '~/api/request';
+import { sendDelete, sendGet, sendPatch, sendPost } from '~/api/request';
 import { IPost } from '~/definitions/interfaces/post.interface';
 
 
@@ -27,4 +27,7 @@ export const postApi = {
   createHashTag: (data: any) => {
     return sendPost('/api/hashtags', data);
   },
+  deletePost: (id: string) => {
+    return sendDelete(`/api/posts/${id}`);
+  }
 };
