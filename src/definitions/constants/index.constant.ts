@@ -52,3 +52,15 @@ export const acceptDocumentFiles = [
   'vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
   'msword',
 ];
+export const SOCKET_EVENT_KEY = {
+  CONNECT: 'connection',
+  FIRE_MESSAGE: 'message',
+  DELETE_MESSAGE: 'message-deletion',
+  MESSAGE_READ: 'message-read',
+  NOTIFICATION: 'notification',
+  NEWSLETTER: 'newsletter',
+  SYNCHRONIZE: 'synchronize',
+  ADD_MEMBER: 'add-member',
+  REMOVE_MEMBER: 'remove-member',
+  MEMBER_EXIT: 'member-exit',
+};
