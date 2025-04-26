@@ -12,7 +12,7 @@ export const HTTP_STATUS = {
   PARTIAL_CONTENT: 206,
 } as const;
 
-export const MAX_FILE_SIZE_DOCUMENT_MB = 5;
+export const MAX_FILE_SIZE_DOCUMENT_MB = 2;
 export const MAX_FILE_SIZE_IMAGE_MB = 5;
 export const MAX_FILE_SIZE_VIDEOS_MESSAGE_MB = 30;
 export const MAX_FILE_SIZE_VIDEO_COMMENT = 30;

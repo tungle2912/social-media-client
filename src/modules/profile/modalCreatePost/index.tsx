@@ -1,3 +1,5 @@
+import AddDocumentIcon from '@/static/icon/addDocumentIcon';
+import AddImageIcon from '@/static/icon/addImageIcon';
 import XCloseIcon from '@/static/icon/xCloseIcon';
 import image from '@/static/image';
 import { QueryObserverResult, RefetchOptions } from '@tanstack/react-query';
@@ -24,7 +26,6 @@ import {
 import { CommentScopeType, MediaType, ViewScopeType } from '~/definitions/enums/index.enum';
 import { IPost } from '~/definitions/interfaces/post.interface';
 import { useCreatePostMutation } from '~/hooks/data/post.data';
-import MediaUpload from '~/modules/profile/mediaUpload';
 import { useAuthStore } from '~/stores/auth.store';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './styles.module.scss';
@@ -182,91 +183,90 @@ export function ModalCreatePost({
     }
   };
   const numberOfFiles = mediaFiles.length;
-  const handleFileSelection = (newFiles: File[], type: MediaType) => {
-    const validFiles: File[] = [];
-    for (const file of newFiles) {
-      const fileType = file.type;
-      if (type === MediaType.FILE) {
-        if (!acceptDocumentFiles.includes(fileType)) {
-          message.error(`Invalid file type: ${file.name}`);
+  const handleFileSelection = (file: any, type: MediaType) => {
+    const fileType = file.type;
+    if (type === MediaType.FILE) {
+      const documentFile: File[] = [...documentFiles, ...[file]];
+      if (!acceptDocumentFiles.includes(fileType)) {
+        message.error(`Invalid file type: ${file.name}`);
+        return;
+      }
+      if (documentFile.length > LIMIT_UPLOAD_FILE) {
+        message.error(`Maximum ${LIMIT_UPLOAD_FILE} documents allowed`);
+        return;
+      }
+      if (file.size > MAX_FILE_SIZE_DOCUMENT_MB * 1024 * 1024) {
+        message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_DOCUMENT_MB}MB`);
+        return;
+      }
+      setDocumentFiles(() => [...documentFile]);
+    } else {
+      const mediaFile: File[] = [...mediaFiles, ...[file]];
+      if (![...acceptFilesImage, ...acceptFilesVideo].includes(fileType)) {
+        message.error(`Invalid file type: ${file.name}`);
+        return;
+      }
+      const isImage = acceptFilesImage.includes(fileType);
+      const isVideo = acceptFilesVideo.includes(fileType);
+      if (isImage) {
+        if (mediaFile.filter((f) => acceptFilesImage.includes(f.type)).length > LIMIT_UPLOAD_IMAGE) {
+          message.error(`Maximum ${LIMIT_UPLOAD_IMAGE} images allowed`);
           return;
         }
-        if (documentFiles.length + validFiles.length >= LIMIT_UPLOAD_FILE) {
-          message.error(`Maximum ${LIMIT_UPLOAD_FILE} documents allowed`);
+        if (file.size > MAX_FILE_SIZE_IMAGE_MB * 1024 * 1024) {
+          message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_IMAGE_MB}MB`);
           return;
         }
-        if (file.size > MAX_FILE_SIZE_DOCUMENT_MB * 1024 * 1024) {
-          message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_DOCUMENT_MB}MB`);
+      } else if (isVideo) {
+        const currentVideos = mediaFiles.filter((f) => acceptFilesVideo.includes(f.type));
+        if (
+          currentVideos.length + mediaFile.filter((f) => acceptFilesVideo.includes(f.type)).length >=
+          LIMIT_UPLOAD_VIDEO
+        ) {
+          message.error(`Maximum ${LIMIT_UPLOAD_VIDEO} videos allowed`);
           return;
         }
-      } else {
-        if (![...acceptFilesImage, ...acceptFilesVideo].includes(fileType)) {
-          message.error(`Invalid file type: ${file.name}`);
+        if (file.size > MAX_FILE_SIZE_VIDEOS_MB * 1024 * 1024) {
+          message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_VIDEOS_MB}MB`);
           return;
-        }
-        const isImage = acceptFilesImage.includes(fileType);
-        const isVideo = acceptFilesVideo.includes(fileType);
-        if (isImage) {
-          const currentImages = mediaFiles.filter((f) => acceptFilesImage.includes(f.type));
-          if (
-            currentImages.length + validFiles.filter((f) => acceptFilesImage.includes(f.type)).length >=
-            LIMIT_UPLOAD_IMAGE
-          ) {
-            message.error(`Maximum ${LIMIT_UPLOAD_IMAGE} images allowed`);
-            return;
-          }
-          if (file.size > MAX_FILE_SIZE_IMAGE_MB * 1024 * 1024) {
-            message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_IMAGE_MB}MB`);
-            return;
-          }
-        } else if (isVideo) {
-          const currentVideos = mediaFiles.filter((f) => acceptFilesVideo.includes(f.type));
-          if (
-            currentVideos.length + validFiles.filter((f) => acceptFilesVideo.includes(f.type)).length >=
-            LIMIT_UPLOAD_VIDEO
-          ) {
-            message.error(`Maximum ${LIMIT_UPLOAD_VIDEO} videos allowed`);
-            return;
-          }
-          if (file.size > MAX_FILE_SIZE_VIDEOS_MB * 1024 * 1024) {
-            message.error(`File ${file.name} exceeds ${MAX_FILE_SIZE_VIDEOS_MB}MB`);
-            return;
-          }
         }
       }
-      validFiles.push(file);
+
+      setMediaFiles(() => [...mediaFile]);
     }
-    if (type === MediaType.FILE) {
-      setDocumentFiles((prev) => [...prev, ...validFiles]);
-    } else {
-      setMediaFiles((prev) => [...prev, ...validFiles]);
-    }
+    setIsShowUpload(false);
   };
 
   const mediaUploadProps: UploadProps = {
     multiple: true,
     accept: [...acceptFilesImage, ...acceptFilesVideo].join(', '),
     onChange: (info) => {
-      const fileList = info.fileList.map((file) => file.originFileObj as File);
-      handleFileSelection(fileList, MediaType.IMAGE);
+      if (info.file.status === 'done') {
+        handleFileSelection(info?.file?.originFileObj, MediaType.IMAGE);
+      }
     },
     showUploadList: false,
-    beforeUpload: () => false,
+    beforeUpload: () => true,
   };
 
   const documentUploadProps: UploadProps = {
     multiple: true,
     accept: acceptDocumentFiles.join(', '),
     onChange: (info) => {
-      const fileList = info.fileList.map((file) => file.originFileObj as File);
-      handleFileSelection(fileList, MediaType.FILE);
+      if (info.file.status === 'done') {
+        console.log(info?.file);
+        handleFileSelection(info?.file?.originFileObj, MediaType.FILE);
+      }
+      // const fileList = info.fileList.map((file) => file.originFileObj as File);
+      // handleFileSelection(fileList, MediaType.FILE);
     },
     showUploadList: false,
-    beforeUpload: () => false,
+    beforeUpload: () => true,
   };
   useEffect(() => {
     setIsShowUpload(showUpload);
-  }, [showUpload]);
+    setCurrentUploadType(type);
+  }, [showUpload,type]);
   return (
     <Modal title="Create a post" centered onCancel={handleClose} open={isOpenModal} className={styles.modalCreatePost}>
       <div className={styles.createPostContainer}>
@@ -318,14 +318,26 @@ export function ModalCreatePost({
         <div className={styles.uploadContainer}>
           {isShowUpload && (
             <div className={styles.uploadSection}>
-              <MediaUpload
-                mediaUpload={currentUploadType}
-                files={mediaFiles}
-                setShowUpload={setIsShowUpload}
-                setFiles={setMediaFiles}
-                documentFiles={documentFiles}
-                setDocumentFiles={setDocumentFiles}
-              />
+              {currentUploadType === MediaType.IMAGE ? (
+                <Upload className={classNames(styles.customUpload)} {...mediaUploadProps}>
+                  <div className={styles.container}>
+                    <AddDocumentIcon />
+                    <p className={styles.uploadHeader}>Add Photo/Video</p>
+                    <p className={styles.uploadSubtitle}>Drag and drop files here</p>
+                    <p className={styles.uploadNote}>Maximum photo size: {MAX_FILE_SIZE_IMAGE_MB}MB</p>
+                    <p className={styles.uploadNote}>Maximum video size: {MAX_FILE_SIZE_VIDEOS_MB}MB</p>
+                  </div>
+                </Upload>
+              ) : (
+                <Upload className={classNames(styles.customUpload)} {...documentUploadProps}>
+                  <div className={styles.container}>
+                    <AddImageIcon />
+                    <p className={styles.uploadHeader}>Upload Document</p>
+                    <p className={styles.uploadSubtitle}>Drag and drop files here</p>
+                    <p className={styles.uploadNote}>Maximum document size: {MAX_FILE_SIZE_DOCUMENT_MB}MB</p>
+                  </div>
+                </Upload>
+              )}
             </div>
           )}
           <div className={styles.documentPreview}>
@@ -378,12 +390,6 @@ export function ModalCreatePost({
                   ) : (
                     <video controls src={URL.createObjectURL(mediaFiles[0])} />
                   )}
-                  <button
-                    onClick={() => setMediaFiles((prev) => prev.filter((f) => f.name !== mediaFiles[0].name))}
-                    className={styles.removeButton}
-                  >
-                    <XCloseIcon />
-                  </button>
                 </div>
                 <div className={styles.threeFilesContainer}>
                   <div className={classNames(styles.previewItem, styles.threeFilesSecond)}>
@@ -392,18 +398,12 @@ export function ModalCreatePost({
                     ) : (
                       <video controls src={URL.createObjectURL(mediaFiles[1])} />
                     )}
-                    <button
-                      onClick={() => setMediaFiles((prev) => prev.filter((f) => f.name !== mediaFiles[1].name))}
-                      className={styles.removeButton}
-                    >
-                      <XCloseIcon />
-                    </button>
                   </div>
                   <div className={classNames(styles.previewItem, styles.threeFilesThird)}>
                     {mediaFiles[2].type.startsWith('image/') ? (
-                      <Image src={URL.createObjectURL(mediaFiles[3])} alt="Preview" width={100} height={100} />
+                      <Image src={URL.createObjectURL(mediaFiles[2])} alt="Preview" width={100} height={100} />
                     ) : (
-                      <video controls src={URL.createObjectURL(mediaFiles[3])} />
+                      <video controls src={URL.createObjectURL(mediaFiles[2])} />
                     )}
 
                     {numberOfFiles > 3 && <div className={styles.moreFilesOverlay}>+{numberOfFiles - 3}</div>}
@@ -411,9 +411,11 @@ export function ModalCreatePost({
                 </div>
               </>
             )}
-            <button onClick={() => setMediaFiles([])} className={styles.removeButton}>
-              <XCloseIcon />
-            </button>
+            {numberOfFiles > 0 && (
+              <button onClick={() => setMediaFiles([])} className={styles.removeButton}>
+                <XCloseIcon />
+              </button>
+            )}
           </div>
         </div>
         <div className={styles.createPostFooter}>

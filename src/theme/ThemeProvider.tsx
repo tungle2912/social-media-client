@@ -3,7 +3,6 @@ import { ConfigProvider, theme as antdTheme } from 'antd';
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { WebLocalStorage } from '~/services/storages';
 
-
 // Định nghĩa các giá trị theme (light/dark)
 export enum ETheme {
   Light = 'light',
@@ -41,6 +40,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Cấu hình theme cho Ant Design
   const antdThemeConfig = {
     algorithm: theme === ETheme.Dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
+    hashed: false,
   };
 
   return (
