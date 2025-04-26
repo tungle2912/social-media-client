@@ -7,19 +7,21 @@ import { useDimension } from "~/hooks";
 import { useSideBarStore } from "~/stores/sidebar.store";
 import image from "../../../public/static/image";
 import styles from "./styles.module.scss";
-;
+import { useTheme } from "~/theme/ThemeProvider";
+import classNames from "classnames";
 
 const { Sider } = Layout;
 
 export default function Sidebar() {
   const { isSM } = useDimension();
   const { collapsed, setCollapsed } = useSideBarStore();
+  const { theme } = useTheme();
   return (
     <Sider
       trigger={null}
-      className={styles.sideBar}
+      className={classNames(styles.sideBar, 'dark:bg-gray-900')}
       collapsible
-      theme="light"
+      theme={theme}
       collapsed={collapsed}
     >
       <div className={styles.logo}>

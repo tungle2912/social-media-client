@@ -42,6 +42,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     algorithm: theme === ETheme.Dark ? antdTheme.darkAlgorithm : antdTheme.defaultAlgorithm,
     hashed: false,
   };
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, toggleTheme }}>

@@ -9,7 +9,7 @@ import { ELocale } from '~/definitions';
 
 import QueryProvider from '~/provider/query-provider';
 import { ThemeProvider } from '~/theme';
-import '~/theme/globals.css';
+import '~/theme/global.css';
 
 const inter = Inter({ subsets: ['latin'] });
 

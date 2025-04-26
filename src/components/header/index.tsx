@@ -1,8 +1,8 @@
 'use client';
 import { DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
-import { Avatar, Badge, Button, List, Menu, Popover, Spin } from 'antd';
+import { Avatar, Badge, Button, List, Menu, Popover, Spin, Switch } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
 import InputSearch from '~/common/inputSearch';
 import { useDimension } from '~/hooks';
@@ -13,17 +13,19 @@ import { switchLocale } from '~/services/modules';
 import { useAuthStore } from '~/stores/auth.store';
 import { useSideBarStore } from '~/stores/sidebar.store';
 import styles from './styles.module.scss';
-
+import { useTheme } from '~/theme/ThemeProvider';
+import { ETheme } from '~/theme/ThemeProvider';
+import classNames from 'classnames';
 export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
   const { isSM: isMobile } = useDimension();
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  // const { theme, toggleTheme } = useTheme();
-  // useEffect(() => {
-  //   document.body.setAttribute('prefers-color-scheme', theme);
-  // }, [theme]);
+  const { theme, toggleTheme } = useTheme();
+  useEffect(() => {
+    document.body.setAttribute('prefers-color-scheme', theme);
+  }, [theme]);
 
   const { user } = useAuthStore();
   const handleLogout = () => {
@@ -83,12 +85,12 @@ export default function Header() {
               <span>Languages</span>
             </List.Item>
           </Popover>
-          {/* <List.Item className={styles.popoverListItem}>
+          <List.Item className={styles.popoverListItem}>
             <div>
               <span>Dark Mode</span>
               <Switch checked={theme === ETheme.Dark} onChange={toggleTheme} />{' '}
             </div>
-          </List.Item> */}
+          </List.Item>
           <List.Item onClick={handleLogout} className={styles.popoverListItem}>
             <LogoutIcon />
             <span>Sign out</span>
@@ -99,7 +101,7 @@ export default function Header() {
   };
 
   return (
-    <div className={styles.header} style={{ marginLeft: collapsed ? (isMobile ? '0px' : '100px') : '260px' }}>
+    <div className={classNames(styles.header, 'dark:bg-gray-900')} style={{ marginLeft: collapsed ? (isMobile ? '0px' : '100px') : '260px' }}>
       {isLoading && (
         <div className={styles.spinnerOverlay}>
           <Spin size="large" />
@@ -110,10 +112,10 @@ export default function Header() {
           type="text"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
           onClick={() => setCollapsed && setCollapsed(!collapsed)}
-          className={styles.btnCollapse}
+          className={classNames(styles.btnCollapse, 'ant-btn-variant-text dark:text-white dark:bg-gray-900 dark:rounded-none dark:hover:bg-gray-800')}
         />
       )}
-      <div className={styles.headerContainer}>
+      <div className={classNames(styles.headerContainer, 'dark:bg-gray-900')}>
         <InputSearch className={styles.headerSearch} />
         <div className={styles.headerContent}>
           <Badge count={5} className={styles.badge}>

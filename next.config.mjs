@@ -16,6 +16,9 @@ const nextConfig = {
   output: 'standalone',
   // Use the CDN in production and localhost for development. https://nextjs.org/docs/app/api-reference/next-config-js/assetPrefix
   assetPrefix: isProd ? process.env.CDN_HOST : undefined,
+  experimental: {
+    appDir: true, // Nếu bạn đang sử dụng App Directory trong Next.js 14
+  },
   images: {
     // Learn more NextJS's remotePatterns: https://nextjs.org/docs/app/api-reference/components/image#remotepatterns
     remotePatterns: [
