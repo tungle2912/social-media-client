@@ -1,0 +1,134 @@
+@import '~/theme/styles/_variables.scss';
+.msgOptionPopover {
+  :global {
+    .ant-popover {
+      padding: 0 !important;
+    }
+  }
+}
+.iconDropdown .avatarUser {
+  width: 66px;
+  height: 66px;
+  background-color: #fff0f6;
+  color: #eb2f96;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.avatarUserSmall {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background-color: #fff0f6;
+  color: #eb2f96;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+
+  :global {
+    .ant-avatar {
+      background-color: #fff0f6;
+      color: #eb2f96;
+
+      .ant-avatar-string {
+        font-weight: 700;
+        font-size: 16px;
+      }
+    }
+  }
+}
+.btnAction {
+  border-radius: 5px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+.documentFile {
+  max-width: 100%;
+  border: 1px solid rgba(232, 233, 238, 1);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+  height: 48px;
+  padding-left: 18px;
+  padding-right: 18px;
+  border-radius: 10px;
+  gap: 9px;
+  margin-bottom: 10px;
+
+  .name {
+    width: 100%;
+    font-family: 'Noto Sans HK', sans-serif !important;
+    font-weight: 400 !important;
+    color: #3e3e3e !important;
+  }
+}
+.avatar {
+  width: 42px;
+  height: 42px;
+  background-color: #fff0f6;
+  color: #eb2f96;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+.status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #b5b5b5;
+  }
+}
+.online .msgOption {
+  visibility: hidden;
+}
+.msg:hover .msgOption {
+  visibility: visible;
+}
+.avatarUserIcon {
+  width: 24px;
+  height: 24px;
+  background-color: #fff0f6;
+  color: #eb2f96;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  margin-right: 4px;
+  flex-shrink: 0;
+}

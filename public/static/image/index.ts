@@ -7,7 +7,7 @@ import coverPhoto from './coverPhoto1jpg.jpg';
 import iconTick from './iconTick.png';
 
 interface IImage {
-  [key: string]: string | StaticImageData;
+  [key: string]: any;
 }
 const image: IImage = {
   imagelogin,

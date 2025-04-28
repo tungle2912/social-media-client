@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Flex, Skeleton, Tabs } from 'antd';
+import { Flex, message, Skeleton, Tabs } from 'antd';
 import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
@@ -12,15 +13,26 @@ import { messageApi } from '~/services/api/message.api';
 import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
 import { useSocket } from '~/provider/socketProvider';
+import MessageItem from '~/modules/message/listMessage/messageItem';
+import useConfirm from '~/hooks/useConfirm';
+
+import { useDeleteConservationMutation } from '~/hooks/data/conservation.data';
+import { useRouter } from 'next/navigation';
+import useActivityAccountInfo from '~/stores/activityAccountInfo.store';
 const INIT_PARAMS = { pageIndex: 1, pageSize: 10 };
 export default function ListMessage() {
   const t = useTranslations();
+  const router = useRouter();
   const socket: any = useSocket();
+  const { mutate, isPending: isLoadingDeleteConservation } = useDeleteConservationMutation();
   const listOnline = useListOnline((state) => state.listOnline);
   const [params, setParams] = useState<SearchParams>(INIT_PARAMS);
   const [openMoreMessage, setOpenMoreMessage] = useState<boolean>(false);
-  const [moveEnterUuid, setMoveEnterUuid] = useState<string>('');
+  const [moveEnter_id, setMoveEnter_id] = useState<string>('');
   const [activeKey, setActiveKey] = useState<string>(ConversationFilterType.ALL);
+  const [activeRoom, setActiveRoom] = useState<string | undefined>(undefined);
+  const setActivityAccountInfo = useActivityAccountInfo((state) => state.setUserInfo);
+  const setActivityAccountType = useActivityAccountInfo((state) => state.setType);
   const {
     data: listMessages,
     fetchNextPage,
@@ -46,16 +58,49 @@ export default function ListMessage() {
     },
     // cacheTime: 5 * 60 * 1000,
     staleTime: 60 * 1000,
-    initialPageParam: INIT_PARAMS.pageIndex, 
+    initialPageParam: INIT_PARAMS.pageIndex,
   });
   const flatListMessages = useMemo(() => {
     const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
     const oldData = listMessages?.pages.flatMap((page: any) => page.data) || [];
     return oldData?.map((item) => {
-      item.isOnline = onlineUsers.has(item?.userInfo?.uuid) || false;
+      item.isOnline = onlineUsers.has(item?.userInfo?._id) || false;
       return item;
     });
   }, [listMessages?.pages, listOnline]);
+  const settingConfirm = {
+    width: 560,
+    textCancel: t('modalConfirm.no'),
+    textOk: t('modalConfirm.yes'),
+    title: t('modalConfirm.message'),
+    description: (
+      <div>
+        <p className="text-[#636363]">{t('conversation.deleteConfirmation.title')}</p>
+        <p className="text-[#636363]">{t('conversation.deleteConfirmation.description')}</p>
+      </div>
+    ),
+    isLoadingOk: isLoadingDeleteConservation,
+  };
+  const onDeleteConservation = (event: any, conservation_id: string) => {
+    event.stopPropagation();
+    useConfirm({
+      ...settingConfirm,
+      onOk: async () =>
+        mutate(conservation_id, {
+          onSuccess: () => {
+            message.success(t('messageLocale.deleteConversationSuccess'));
+            refetchListMessage();
+            router.replace('/connect/message');
+          },
+        }),
+    });
+  };
+  const renderPreviewMsg = (lastMsg: any) => {
+    if (lastMsg?.message === '') {
+      return `<i>${t('conversation.sendMediaMsg')}</i>`;
+    }
+    return lastMsg?.message?.replace(/\r\n|\n/g, '<br>');
+  };
   const renderListMessage = () => {
     if (isLoadingListMessages) {
       return (
@@ -70,14 +115,14 @@ export default function ListMessage() {
       }
       fetchNextPage();
     };
-    const onMouseMoveChatMessage = (action: string, uuid: string) => {
-        if (action === 'enter') {
-          setMoveEnterUuid(uuid);
-        } else {
-          setMoveEnterUuid('');
-          setOpenMoreMessage(false);
-        }
-      };
+    const onMouseMoveChatMessage = (action: string, _id: string) => {
+      if (action === 'enter') {
+        setMoveEnter_id(_id);
+      } else {
+        setMoveEnter_id('');
+        setOpenMoreMessage(false);
+      }
+    };
     return (
       <InfiniteScroll
         dataLength={flatListMessages.length}
@@ -94,15 +139,14 @@ export default function ListMessage() {
         className="scroll-bar pl-[10px] pr-[6px] mr-[5px] pb-[5px]"
       >
         <div></div>
-        {/* {flatListMessages.map((item: any, index: number) => (
+        {flatListMessages.map((item: any, index: number) => (
           <MessageItem
             activeRoom={activeRoom}
-            disableDeleteConversation={disableDeleteConversation}
             flatListMessagesLength={flatListMessages?.length}
             index={index}
             isLoadingDeleteConservation={isLoadingDeleteConservation}
             item={item}
-            moveEnterUuid={moveEnterUuid}
+            moveEnter_id={moveEnter_id}
             onDeleteConservation={onDeleteConservation}
             onMouseMoveChatMessage={onMouseMoveChatMessage}
             openMoreMessage={openMoreMessage}
@@ -111,31 +155,32 @@ export default function ListMessage() {
             setActivityAccountInfo={setActivityAccountInfo}
             setActivityAccountType={setActivityAccountType}
             setOpenMoreMessage={setOpenMoreMessage}
-            key={item.uuid}
+            key={item._id}
+            disableDeleteConversation={false}
           />
-        ))} */}
+        ))}
       </InfiniteScroll>
     );
   };
   const tabs = [
     {
       key: ConversationFilterType.ALL,
-      label: t('messageLocale.all'),
+      label: t('conversation.all'),
       element: renderListMessage(),
     },
     {
       key: ConversationFilterType.CONNECTED,
-      label: t('messageLocale.connected'),
+      label: t('conversation.connected'),
       element: renderListMessage(),
     },
     {
       key: ConversationFilterType.NON_CONNECTED,
-      label: t('messageLocale.non-connected'),
+      label: t('conversation.non-connected'),
       element: renderListMessage(),
     },
     {
       key: ConversationFilterType.GROUP,
-      label: t('messageLocale.group'),
+      label: t('conversation.group'),
       element: renderListMessage(),
     },
   ];
@@ -150,7 +195,7 @@ export default function ListMessage() {
           <Flex align="center" className="max-lg:gap-[16px]">
             {/* <MobileMenu /> */}
             <span className="text-base-black font-bold text-[20px] max-md:text-[16px]">
-              {t('messageLocale.message')}
+              {t('conversation.message')}
             </span>
           </Flex>
           <div
@@ -158,7 +203,7 @@ export default function ListMessage() {
             // onClick={() => markAllAsReadMessage.mutate(undefined)}
           >
             <IconTick />
-            <span className="text-black-200 text-[12px] whitespace-nowrap">{t('messageLocale.markAllRead')}</span>
+            <span className="text-black-200 text-[12px] whitespace-nowrap">{t('conversation.markAllRead')}</span>
           </div>
         </Flex>
         <div className="mt-[8px]">

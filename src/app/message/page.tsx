@@ -1,11 +1,15 @@
+'use client';
 import { useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/router';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useDimension } from '~/hooks';
 import styles from './styles.module.scss';
+import ListMessage from '~/modules/message/listMessage';
+import ChatMessage from '~/modules/message/chatMessage';
 
 export default function MessageContainer() {
   const router = useRouter();
-  const { roomId } = router.query;
+  const searchParams = useSearchParams();
+  const roomId = searchParams.get('roomId');
   const { isSM } = useDimension();
   const queryClient = useQueryClient();
 //   useEffect(() => {
@@ -16,12 +20,12 @@ export default function MessageContainer() {
     <div className="flex h-full">
       {(!isSM || !roomId) && (
         <div className={styles.messageList}>
-          {/* <ListMessage /> */}
+          <ListMessage />
         </div>
       )}
       {(!isSM || roomId) && (
         <div className={styles.messageDetail}>
-          {/* <ChatMessage listMessage={undefined} /> */}
+          <ChatMessage  />
         </div>
       )}
     </div>

@@ -1,10 +1,16 @@
-import { sendGet, sendPatch } from '~/api/request';
+import { sendDelete, sendGet, sendPost } from '~/api/request';
 
 export const messageApi = {
   getConversationRecentMessage: (data?: any) => {
     return sendGet('/api/conversations/recent-message', data);
   },
-  updateProfile: (data?: any) => {
-    return sendPatch('/api/users/me', data);
+  getConversationsDetailMessage: (_id: string | null, data?: any) => {
+    return sendGet(`/api/conversations/detail-message/${_id}`, data);
   },
+  deleteConservation: (id: string) => {
+    return sendDelete(`/api/conversations/${id}`);
+  },
+  createConversationMessage: (data: any) => {
+    return sendPost('/api/conversations/message', data);
+  }
 };

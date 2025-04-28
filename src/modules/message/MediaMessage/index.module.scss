@@ -1,0 +1,131 @@
+.wrapMedia {
+  display: flex;
+  width: 100%;
+  max-width: 390px;
+  height: 253px;
+  gap: 5px;
+  // margin-bottom: 12px;
+  &.oneMedia {
+    height: 188px;
+  }
+
+  .item {
+    height: 100%;
+    border-radius: 10px;
+    cursor: pointer;
+    flex: 1;
+    img {
+      height: 253px;
+      object-fit: cover;
+    }
+    .oneMedia {
+      max-width: 390px;
+      width: 100%;
+      height: 188px;
+    }
+  }
+
+  .wrapVideo {
+    max-width: 390px;
+    width: 100%;
+    max-height: 253px;
+    border-radius: 10px;
+    position: relative;
+    > video {
+      width: 390px;
+      height: 253px;
+      aspect-ratio: 16 / 9;
+      background-color: #000;
+      object-fit: cover;
+      border-radius: 10px;
+    }
+
+    &.oneMedia {
+      > video {
+        height: 188px;
+        width: 100%;
+      }
+    }
+
+    .videoButton {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      svg {
+        width: 50px;
+        height: 50px;
+      }
+    }
+  }
+
+  .listItem {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    > .itemSecond {
+      flex: 1;
+      height: 253px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      cursor: pointer;
+      &.more::after {
+        content: '';
+        position: absolute;
+        display: block;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #000;
+        opacity: 0.3;
+      }
+      &.more > span {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #fff;
+        font-size: 32px;
+        font-weight: 700;
+        z-index: 1;
+      }
+      > img {
+        height: 124px;
+      }
+      .wrapVideo {
+        height: 124px;
+        > video {
+          height: 124px;
+        }
+      }
+    }
+  }
+}
+
+.wrapBtnAction {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  z-index: 2;
+}
+
+.btnAction {
+  border-radius: 5px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}

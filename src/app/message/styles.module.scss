@@ -1,0 +1,19 @@
+@import '~/theme/styles/_variables.scss';
+
+.messageList {
+  width: 30%;
+
+  @media screen and (max-width: 767px) {
+    width: 100%;
+  }
+}
+
+.messageDetail {
+  width: 70%;
+  border-left: 1px solid #e8e9ee;
+
+  @media screen and (max-width: 767px) {
+    width: 100%;
+    border-left: none;
+  }
+}

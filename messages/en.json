@@ -51,5 +51,26 @@
   "lifeEvents": "Life Events",
   "coverPhotoAlt": "cover photo",
   "editCover": "Edit Cover Photo",
-  "addToStory":"Add To Story"
+  "addToStory": "Add To Story",
+  "conversation": {
+    "all": "All",
+    "connected": "Connected",
+    "non-connected": "Non-connected",
+    "group": "Group",
+    "message": "Message",
+    "markAllRead": "Mark all as read",
+    "deleteConfirmation": {
+      "title": "Delete conversation",
+      "description": "Are you sure you want to delete this conversation?"
+    },
+    "sendMediaMsg": "Sent a multimedia message"
+  },
+  "modalConfirm": {
+    "no": "No",
+    "yes": "Yes",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "message": "Are you sure you want to delete this?"
+  }
 }

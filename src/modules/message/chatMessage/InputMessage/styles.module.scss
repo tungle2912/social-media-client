@@ -1,0 +1,72 @@
+.inputMsgContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: column;
+  padding: 10px 20px;
+  background-color: white;
+  .avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    background: #fff0f6;
+    color: #eb2f96;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: 50%;
+  }
+  :global {
+    textarea {
+      padding: 5px;
+    }
+  }
+  .inputMessage {    
+      &::-webkit-scrollbar {
+        height: 10px;
+        width: 4px;
+      }
+  
+      &::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+  
+      &::-webkit-scrollbar-thumb {
+        background: #d9d9d9;
+        border-radius: 5px;
+      }
+  
+      ::-webkit-scrollbar-thumb:hover {
+        background: #c7c6c6;
+      }
+    background-color: #F8F8FF;
+    font-size: 14px;
+    border: none;
+  }
+  .inputMessage:active, inputMessage:focus {
+    border: none;
+  }
+  .cursorNotAllow{
+    cursor: not-allowed !important;
+  }
+}
+.documentFile {
+  border: 1px solid rgba(232, 233, 238, 1);
+  background: rgba(247, 247, 247, 1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+  height: 48px;
+  padding-left: 18px;
+  border-radius: 10px;
+  gap: 9px;
+  margin-bottom: 10px;
+
+  .name {
+    font-family: 'Noto Sans HK', sans-serif !important;
+    font-weight: 400 !important;
+    color: #3e3e3e !important;
+  }
+}
