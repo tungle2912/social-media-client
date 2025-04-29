@@ -1,19 +1,28 @@
-import { getSession } from 'next-auth/react';
+// src/utils/socketClient.ts
+'use client';
+
 import io, { Socket } from 'socket.io-client';
 
-const socketClient = async (): Promise<Socket | null> => {
-  const session = await getSession();
-  const token = (session as any)?.access_token;
+const socketUrl = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:4000';
 
-  if (!token) return null;
-
-  const options = {
-    extraHeaders: {
-      Authorization: `Bearer ${token}`,
+// Sửa lại socketClient.ts
+export const socketClient = (token: string): Socket => {
+  const socket = io(socketUrl, {
+    auth: { 
+      token // Server cần xử lý token không có Bearer
     },
-  };
-  const socketUrl = process.env.SOCKET_URL || 'http://localhost:4000';
-  return io(socketUrl, options);
-};
+    autoConnect: true,
+    transports: ['websocket', 'polling'] // Thêm polling để dự phòng
+  });
 
-export default socketClient;
+  // Thêm log để debug
+  socket.on('connect', () => {
+    console.log('Connected to socket with ID:', socket.id);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Disconnected from socket');
+  });
+
+  return socket;
+};

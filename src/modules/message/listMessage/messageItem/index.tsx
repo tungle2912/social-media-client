@@ -28,7 +28,7 @@ interface itemProps {
   onDeleteConservation: (event: any, conservation_id: string) => void;
   disableDeleteConversation: boolean;
 }
-export default function MessageItem({
+export default function ListMessageItem({
   item,
   onMouseMoveChatMessage,
   flatListMessagesLength,

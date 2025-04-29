@@ -21,7 +21,7 @@ const MediaMessage = ({ listMedia, handleDownload }: IPropsMediaMessage) => {
     const secondMedia = listMedia?.slice(1);
     const lengthMore = listMedia?.slice(2)?.length;
 
-    const checkFirstImage = firstMedia?.type === 'IMAGE';
+    const checkFirstImage = firstMedia?.type === 'image';
 
     return {
       firstMedia,

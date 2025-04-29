@@ -70,3 +70,12 @@
     color: #3e3e3e !important;
   }
 }
+.btnAddEmoji{
+  position: relative;
+}
+.emojiPickerContainer{
+  position: absolute;
+  bottom: 50px;
+  left: 0;
+  z-index: 1001;
+}

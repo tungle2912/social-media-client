@@ -1,6 +1,8 @@
+'use client';
 import { Flex } from '~/theme';
 
 import mainStyles from './main.module.scss';
+import ListPost from '~/modules/dashboard/listPost';
 
 export default async function HomePage() {
   // Open this to test Suspense boundary used in template
@@ -12,9 +14,10 @@ export default async function HomePage() {
 
   return (
     <Flex vertical align="stretch" gap={20} className={mainStyles.homeWrapper}>
-      <div className={mainStyles.textBox}>kkk</div>
-      <div className={mainStyles.textBox}>{/* <TopSample /> */}</div>
-      <div className="text-3xl font-bold underline">Hello TailwindCSS + PostCSS + Next.js 14</div>
+      <div className={mainStyles.homeContent}>
+        <ListPost />
+      </div>
+      <div className={mainStyles.contact}></div>
     </Flex>
   );
 }

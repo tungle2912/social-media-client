@@ -1,13 +1,9 @@
-.tooltipTime {
-    :global {
-      .ant-tooltip-content .ant-tooltip-inner {
-        padding: 3px 8px;
-        background-color: #636363 !important;
-        border-radius: 4px;
-        color: #fff !important;
-      }
-    }
-  }
+@import '~/theme/styles/_variables.scss';
+@import '~/theme/styles/_mixins.scss';
+
+.customScrollBar {
+  margin-right: 4px;
+
   .avatar {
     width: 42px;
     height: 42px;
@@ -20,9 +16,33 @@
     font-weight: bold;
     font-size: 14px;
   }
-  .avatarSeenUser {
-    width: 30px;
-    height: 30px;
+
+  @include customScrollBar();
+}
+
+.status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #B5B5B5;
+  }
+}
+
+.contentMessage {
+  .avatarUser {
+    width: 66px;
+    height: 66px;
     background-color: #fff0f6;
     color: #eb2f96;
     border-radius: 50%;
@@ -30,6 +50,193 @@
     justify-content: center;
     align-items: center;
     font-weight: bold;
-    font-size: 10px;
-    margin: 2px 0;
+    font-size: 20px;
+    flex-shrink: 0;
   }
+
+  .avatarUserSmall {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    background-color: #fff0f6;
+    color: #eb2f96;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 20px;
+
+    :global {
+      .ant-avatar {
+        background-color: #fff0f6;
+        color: #eb2f96;
+
+        .ant-avatar-string {
+          font-weight: 700;
+          font-size: 16px;
+        }
+      }
+    }
+  }
+
+  .avatarUserIcon {
+    width: 24px;
+    height: 24px;
+    background-color: #fff0f6;
+    color: #eb2f96;
+    border-radius: 50%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 20px;
+    margin-right: 4px;
+    flex-shrink: 0;
+  }
+
+  .iconAction {
+    cursor: pointer;
+
+    svg {
+      width: 22px;
+      height: 22px;
+    }
+
+    &:hover {
+      svg {
+        path {
+          fill: $primary-color;
+        }
+      }
+    }
+  }
+
+  .msgOption {
+    visibility: hidden;
+  }
+
+  .msg:hover .msgOption {
+    visibility: visible;
+  }
+
+  .btnAction {
+    border-radius: 5px;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+}
+
+.backButton {
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+  display: none;
+  
+  @media screen and (max-width: 767px) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.msgOptionPopover {
+  :global {
+    .ant-popover {
+      padding: 0 !important;
+    }
+  }
+}
+
+.tooltipTime {
+  :global {
+    .ant-tooltip-content .ant-tooltip-inner {
+      padding: 3px 8px;
+      background-color: #636363 !important;
+      border-radius: 4px;
+      color: #fff !important;
+    }
+  }
+}
+
+.documentFile {
+  max-width: 100%;
+  border: 1px solid rgba(232, 233, 238, 1);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 5px;
+  height: 48px;
+  padding-left: 18px;
+  padding-right: 18px;
+  border-radius: 10px;
+  gap: 9px;
+  margin-bottom: 10px;
+
+  .name {
+    width: 100%;
+    font-family: 'Noto Sans HK', sans-serif !important;
+    font-weight: 400 !important;
+    color: #3e3e3e !important;
+  }
+}
+
+.avatarSeenUser {
+  width: 30px;
+  height: 30px;
+  background-color: #fff0f6;
+  color: #eb2f96;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 10px;
+  margin: 2px 0;
+}
+
+.btnEdit {
+  &:hover {
+    svg {
+      path {
+        fill: $primary-color;
+      }
+    }
+  }
+}
+
+.dropdown {
+  :global {
+    .ant-dropdown-menu {
+      width: 200px;
+    }
+
+    .ant-dropdown-menu-title-content {
+      color: $black-color-1 ;
+    }
+
+    .ant-dropdown-menu-item:hover {
+      background-color: $white-color !important;
+    }
+
+    .ant-dropdown-menu-item-active {
+
+      .ant-dropdown-menu-title-content {
+        color: $primary-color !important;
+
+      }
+    }
+  }
+}

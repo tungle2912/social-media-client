@@ -5,6 +5,57 @@
   box-shadow: 0 0 5px rgba($theme, 0.45);
   color: #fff;
 }
+$breakpoints: (
+  xs: (min: 0px, max: 575px),
+  sm: (min: 576px, max: 767px),
+  md: (min: 768px, max: 1023px),
+  lg: (min: 1024px, max: 1365px),
+  xl: (min: 1366px, max: 1599px),
+  xxl: (min: 1600px),
+);
+
+@mixin breakpoint($breakpoint, $direction: min) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    $breakpoint-values: map-get($breakpoints, $breakpoint);
+    $breakpoint-min: map-get($breakpoint-values, min);
+    $breakpoint-max: map-get($breakpoint-values, max);
+
+    @if $direction ==min {
+      @media (min-width: $breakpoint-min) {
+        @content;
+      }
+    }
+
+    @else {
+      @media (max-width: $breakpoint-max) {
+        @content;
+      }
+    }
+  }
+
+  @else {
+
+    @if $direction ==min {
+      @media (min-width: $breakpoint) {
+        @content;
+      }
+    }
+
+    @else {
+      @media (max-width: $breakpoint) {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin breakpoints($from, $to) {
+  $getFrom: inexplicit($breakpointsUp, $from);
+  $getTo: inexplicit($breakpointsUp, $to);
+  @media screen and (min-width: $getFrom) and (max-width: $getTo) {
+    @content;
+  }
+}
 @mixin customScrollBar($widthScrollBar: 8px, $borderRadius:4px, $backgroundScrollbar: transparent, $heightScrollBar: 4px) {
   &::-webkit-scrollbar {
     width: $widthScrollBar;

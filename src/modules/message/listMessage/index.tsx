@@ -3,27 +3,28 @@ import { useInfiniteQuery } from '@tanstack/react-query';
 import { Flex, message, Skeleton, Tabs } from 'antd';
 import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { IconTick } from '~/common/icon';
 import { SearchParams } from '~/definitions/interfaces/interface';
 import { QUERY_KEY } from '~/definitions/models';
 import { ConversationFilterType } from '~/definitions/models/message';
+import useConfirm from '~/hooks/useConfirm';
+import { useSocket } from '~/provider/socketProvider';
 import { messageApi } from '~/services/api/message.api';
 import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
-import { useSocket } from '~/provider/socketProvider';
-import MessageItem from '~/modules/message/listMessage/messageItem';
-import useConfirm from '~/hooks/useConfirm';
 
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useDeleteConservationMutation } from '~/hooks/data/conservation.data';
-import { useRouter } from 'next/navigation';
+import ListMessageItem from '~/modules/message/listMessage/messageItem';
 import useActivityAccountInfo from '~/stores/activityAccountInfo.store';
 const INIT_PARAMS = { pageIndex: 1, pageSize: 10 };
 export default function ListMessage() {
   const t = useTranslations();
   const router = useRouter();
   const socket: any = useSocket();
+  const searchParams = useSearchParams();
   const { mutate, isPending: isLoadingDeleteConservation } = useDeleteConservationMutation();
   const listOnline = useListOnline((state) => state.listOnline);
   const [params, setParams] = useState<SearchParams>(INIT_PARAMS);
@@ -31,6 +32,7 @@ export default function ListMessage() {
   const [moveEnter_id, setMoveEnter_id] = useState<string>('');
   const [activeKey, setActiveKey] = useState<string>(ConversationFilterType.ALL);
   const [activeRoom, setActiveRoom] = useState<string | undefined>(undefined);
+  const [oldRoom, setOldRoom] = useState<string | undefined>(undefined);
   const setActivityAccountInfo = useActivityAccountInfo((state) => state.setUserInfo);
   const setActivityAccountType = useActivityAccountInfo((state) => state.setType);
   const {
@@ -60,11 +62,26 @@ export default function ListMessage() {
     staleTime: 60 * 1000,
     initialPageParam: INIT_PARAMS.pageIndex,
   });
+  useEffect(() => {
+    if (searchParams?.get('roomId') && !!socket) {
+      const roomId = searchParams.get('roomId') || undefined;
+      setActiveRoom(roomId);
+      if (oldRoom) {
+        socket.emit('leave-room', {
+          room: oldRoom,
+        });
+      }
+      socket.emit('join-room', {
+        room: roomId,
+      });
+      setOldRoom(roomId);
+    }
+  }, [searchParams?.get('roomId')]);
   const flatListMessages = useMemo(() => {
-    const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
     const oldData = listMessages?.pages.flatMap((page: any) => page.data) || [];
     return oldData?.map((item) => {
-      item.isOnline = onlineUsers.has(item?.userInfo?._id) || false;
+      console.log('itemitem', item);
+      item.isOnline = Array.from(listOnline).includes(item?.partner?._id) || false;
       return item;
     });
   }, [listMessages?.pages, listOnline]);
@@ -140,7 +157,7 @@ export default function ListMessage() {
       >
         <div></div>
         {flatListMessages.map((item: any, index: number) => (
-          <MessageItem
+          <ListMessageItem
             activeRoom={activeRoom}
             flatListMessagesLength={flatListMessages?.length}
             index={index}
@@ -190,7 +207,7 @@ export default function ListMessage() {
   };
   return (
     <>
-      <div className="py-[24px] max-md:py-[16px]">
+      <div className="py-[24px] max-md:py-[16px">
         <Flex justify="space-between" align="center" className="px-[16px]">
           <Flex align="center" className="max-lg:gap-[16px]">
             {/* <MobileMenu /> */}

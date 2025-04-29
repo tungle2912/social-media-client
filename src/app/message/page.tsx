@@ -17,7 +17,7 @@ export default function MessageContainer() {
 //   }, []);
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full rounded-[10px] overflow-hidden">
       {(!isSM || !roomId) && (
         <div className={styles.messageList}>
           <ListMessage />

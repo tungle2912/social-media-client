@@ -1,0 +1,191 @@
+@import '~/theme/styles/_variables.scss';
+
+.mainContent {
+  width: 90%;
+}
+
+.leftSidebar {
+  width: 35%;
+  position: sticky;
+  top: 20px;
+  margin-right: 50px;
+}
+
+.createPost {
+  background: #fff;
+  padding:15px 35px;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .inputCreatPost {
+    display: flex;
+    margin-bottom: 14px;
+
+    .userAvatar {
+      margin-right: 10px;
+    }
+
+    .postInput {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      outline: none;
+      border: none;
+    }
+  }
+}
+
+.managePosts {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+
+  .filterButton {
+    background-color: #f0f2f5;
+    border: none;
+    border-radius: 20px;
+    padding: 5px 15px;
+    font-size: 14px;
+    color: #65676b;
+  }
+}
+
+.postsList {
+  //  background: #fff;
+  border-radius: 10px;
+
+  .noPostsMessage {
+    text-align: center;
+    color: #888;
+  }
+}
+
+.aboutSection,
+.friendsSection,
+.imagesSection {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+
+  h3 {
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+
+  .infoList {
+    list-style: none;
+    margin: 15px 0;
+
+    li {
+      margin-bottom: 5px;
+      color: #333;
+    }
+  }
+
+  .friendsSectionHeader,
+  .imagesSectionHeader {
+    display: flex;
+    justify-content: space-between;
+
+    h3 {
+      font-size: 24px;
+    }
+
+    .viewAllFriendsLink,
+    .viewAllImage {
+      display: block;
+      color: #1877f2;
+      font-size: 20px;
+    }
+  }
+}
+
+.attach {
+  display: flex;
+  gap: 24px;
+  margin: 5px 0;
+  width: 100%;
+  .item {
+    cursor: pointer;
+    border-radius: 10px;
+    width: max-content;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #e8e9ee;
+    padding: 8px 16px;
+
+    &:hover {
+      border: 1px solid #8951ff;
+      background: #f8f8ff;
+    }
+  }
+}
+.addButton,
+.editButton {
+  display: block;
+  margin-top: 10px;
+  background-color: #f0f2f5;
+  border: none;
+  border-radius: 10px;
+  width: 100%;
+  height: 44px;
+  padding: 5px 10px;
+  font-size: 14px;
+  color: #65676b;
+}
+.imageContainer,
+.friendContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+  width: 100%;
+}
+.imageAvatar,
+.friendAvatar {
+  border-radius: 8px;
+  flex: 1 1 calc(25% - 10px);
+  max-width: calc(25% - 10px);
+}
+.btnAddEmoji,
+.btnAddTag {
+  cursor: pointer;
+  padding: 5px 10px;
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.btnAddEmoji:hover,
+.btnAddTag:hover {
+  background-color: $secondary-color-1;
+  border: 1px solid $primary-color;
+  border-radius: 5px;
+  color: $primary-color;
+}
+.btnAddEmoji:hover svg,
+.btnAddTag:hover svg {
+  path {
+    fill: $primary-color;
+  }
+}
+.inputCreatePost {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (max-width: 576px) {
+  .postsTab {
+    .mainContent {
+      width: 100%;
+    }
+  }
+}

@@ -51,6 +51,7 @@ export const acceptDocumentFiles = [
   'vnd.ms-excel', // .xls
   'vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
   'msword',
+  'text/plain' 
 ];
 export const SOCKET_EVENT_KEY = {
   CONNECT: 'connection',

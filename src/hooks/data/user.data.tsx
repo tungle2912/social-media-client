@@ -10,7 +10,7 @@ export const useGetProfileQuery = (enable: boolean = true) => {
   });
 };
 export const useUpdateProfileMutation = () => {
-  const {  update } = useSession();
+  const { update } = useSession();
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: userApi.updateProfile,
@@ -24,5 +24,17 @@ export const useUpdateProfileMutation = () => {
         queryKey: ['PROFILE'],
       });
     },
+  });
+};
+export const useFollowMutation = (id: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => userApi.follow(id),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({
+        queryKey: ['PROFILE'],
+      });
+    },
+    
   });
 };

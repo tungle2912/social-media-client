@@ -8,6 +8,7 @@ import RootLayoutWrapper from '~/components/layouts/RootLayoutWrapper';
 import { ELocale } from '~/definitions';
 
 import QueryProvider from '~/provider/query-provider';
+import { SocketProvider } from '~/provider/socketProvider';
 import { ThemeProvider } from '~/theme';
 import '~/theme/globals.css';
 
@@ -30,9 +31,11 @@ export default async function RootLayout({ children }: RootLayoutProps) {
         <QueryProvider>
           <NextIntlClientProvider messages={messages}>
             <NextAuthProvider>
-              <ThemeProvider>
-                <RootLayoutWrapper locale={locale}>{children}</RootLayoutWrapper>
-              </ThemeProvider>
+              <SocketProvider>
+                <ThemeProvider>
+                  <RootLayoutWrapper locale={locale}>{children}</RootLayoutWrapper>
+                </ThemeProvider>
+              </SocketProvider>
             </NextAuthProvider>
           </NextIntlClientProvider>
         </QueryProvider>

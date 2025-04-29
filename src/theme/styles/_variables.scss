@@ -101,3 +101,83 @@ $maxRowHeight: 50px;
     --black-color-2: #555;
     --black-color-3: #777;
   }
+  $primary-color: var(--primary);
+  $secondary-color: var(--secondary);
+  $secondary-color-1: var(--secondary-1);
+  $background-primary: var(--background-primary);
+  $background-secondary: var(--background-secondary);
+  $background-white: var(--background-white);
+  $background-purple: var(--background-purple);;
+  
+  $error-color: var(--error);
+  $border-input-color: #66d997;
+  $text-input-color: #66d997;
+  $orange-gradient: linear-gradient(94deg, #f15a2d 0%, #b6004c 100%);
+  
+  // white
+  $white-color: var(--white);
+  
+  // black
+  $black-color-1: var(--black-100);
+  $black-color-2: var(--black-200);
+  $black-color-3: var(--black-300);
+  $black-color-4: var(--black-400);
+  $black-color-5: var(--black-500);
+  $black-color-6: var(--black-600);
+  $black-color-7: var(--black-700);
+  
+  // orange
+  $orange-color: var(--orange);
+  $orange-color-1: var(--orange-100);
+  $orange-color-2: var(--orange-200);
+  $orange-color-3: var(--orange-300);
+  $orange-color-4: var(--orange-400);
+  $orange-color-5: var(--orange-500);
+  $divide-color: var(--divide);
+  
+  // gray
+  $gray-color-1: var(--gray-100);
+  $gray-color-2: var(--gray-200);
+  $gray-color-3: var(--gray-300);
+  $gray-color-4: var(--gray-400);
+  $gray-color-5: var(--gray-500);
+  $gray-color-6: var(--gray-600);
+  $gray-color-7: var(--gray-700);
+  
+  // green
+  $green-color-1: #4caf50;
+  $green-color-2: #05a660;
+  
+  // red
+  $red-color-1: var(--red-100);
+  $red-color-2: var(--red-200);
+  $red-color-3: var(--red-300);
+  $red-color-4: var(--red-400);
+  $red-color-5: var(--red-500);
+  
+  // blue
+  $blue-color: #1890ff;
+  $blue-color-1: #10004b;
+  $blue-color-2: #3e7bfa;
+  
+  //purple
+  $purple-color-1: #968faf;
+  $purple-color-2: #82287d;
+  $purple-color-3: #8951ff;
+  
+  // disable
+  $disabled-background: rgba(0, 0, 0, 0.04);
+  
+  $gap-small: 8px;
+  $gap-medium: 16px;
+  $gap-large: 24px;
+  $gap-large: 24px;
+  
+  $hover-color: var(--hover);
+  
+  $background-disable: var(--background-disable);
+  $disabled-color: var(--disable);
+  $scrollbar-color: var(--scroll-bar);
+  
+  $maxRowHeight: 50px;
+  

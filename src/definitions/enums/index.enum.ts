@@ -95,3 +95,10 @@ export enum ReactionType {
   Sad = 'sad',
   Angry = 'angry'
 }
+export enum contactStatus {
+  friend,
+  follower,
+  following,
+  none,
+  noContact
+}

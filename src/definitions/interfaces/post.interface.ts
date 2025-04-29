@@ -1,5 +1,12 @@
-import { Key } from "react";
-import { CommentScopeType, PostType, ReactionTargetType, ReactionType, ViewScopeType } from "~/definitions/enums/index.enum";
+import { Key } from 'react';
+import {
+  CommentScopeType,
+  contactStatus,
+  PostType,
+  ReactionTargetType,
+  ReactionType,
+  ViewScopeType,
+} from '~/definitions/enums/index.enum';
 
 // Interface cho Reaction
 export interface IReaction {
@@ -30,7 +37,7 @@ export interface IPost {
     _id: string;
     user_name: string;
     reactionType: string;
-  }[]
+  }[];
   specificFriends?: string[];
   reactsCount?: number;
   commentsCount?: number;
@@ -40,6 +47,7 @@ export interface IPost {
     last_name: string;
     user_name: string;
     avatar: string;
+    contactStatus: contactStatus;
   };
   canEdit?: boolean;
   isFriend?: boolean;
@@ -86,9 +94,9 @@ export interface BookmarkType {
 }
 export interface PostMedia {
   id: Key | null | undefined;
-  url: string;          // URL của file
+  url: string; // URL của file
   type?: 'image' | 'video' | 'file'; // Loại file (tự động xác định)
-  name?: string;        // Tên file (tự động trích xuất từ URL)
+  name?: string; // Tên file (tự động trích xuất từ URL)
 }
 
 export interface PostTag {

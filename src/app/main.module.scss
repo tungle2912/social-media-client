@@ -4,14 +4,16 @@
 @import '@styles/responsive';
 
 .homeWrapper {
+  padding: 20px 0 20px 20px;
   .textBox {
     font-size: $fontSizeSampleSP;
     @extend %gray-bounded !optional;
-
-    @include theme(#ff7675);
 
     @include lg {
       font-size: $fontSizeSamplePC;
     }
   }
+}
+.homeContent {
+  width: 65%;
 }

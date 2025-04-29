@@ -1,40 +1,53 @@
-import { getSession } from 'next-auth/react';
-import { createContext, useContext, useEffect, useState } from 'react';
+// src/provider/socketProvider.tsx
+'use client';
+
+import { useSession } from 'next-auth/react';
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { Socket } from 'socket.io-client';
 import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
 import useListOnline from '~/stores/listOnline.data';
-import socketClient from '~/utils/socketClient';
+import { socketClient } from '~/utils/socketClient';
 
-const SocketContext = createContext(null);
+const SocketContext = createContext<Socket | null>(null);
 
 export const useSocket = () => useContext(SocketContext);
 
-export const SocketProvider = async (children: any) => {
+export const SocketProvider = ({ children }: { children: React.ReactNode }) => {
+  const { data: session, status } = useSession();
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const initialized = useRef(false);
   const setListOnline = useListOnline((state) => state.setListOnline);
-  const session = await getSession();
-  const token = (session as any)?.access_token;
-  const [socket, setSocket] = useState(null);
-
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
-    const newSocket: any = socketClient();
-    setSocket(newSocket);
-    if (newSocket) {
-      newSocket.on(SOCKET_EVENT_KEY.CONNECT, (data: any) => {
-        if (loading) return;
-        setListOnline(data);
-        setLoading(true);
-        setTimeout(() => {
-          setLoading(false);
-        }, 5000);
-      });
+    if (status === 'loading') return;
+    if (initialized.current) return;
 
-      return () => {
-        newSocket.off(SOCKET_EVENT_KEY.CONNECT);
-        newSocket.disconnect();
-      };
+    const token = (session as any)?.accessToken;
+
+    if (!token) {
+      console.warn('No token available');
+      return;
     }
-  }, [token]);
+
+    initialized.current = true;
+    const newSocket = socketClient(token);
+
+    newSocket.on(SOCKET_EVENT_KEY.CONNECT, (data: any) => {
+      console.log('Socket connected');
+    });
+    newSocket.on('onlineUsers', (onlineUsers: string[]) => {
+      setListOnline(onlineUsers); 
+    });
+    newSocket.on('connect_error', (err) => {
+      console.error('Connection error:', err.message);
+    });
+
+    setSocket(newSocket);
+
+    return () => {
+      newSocket.disconnect();
+      initialized.current = false;
+    };
+  }, [(session as any)?.accessToken, status, setListOnline]);
 
   return <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>;
 };

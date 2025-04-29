@@ -26,6 +26,7 @@ import { messageApi } from '~/services/api/message.api';
 import emitter from '~/utils/emitter';
 import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
+import { useSession } from 'next-auth/react';
 
 export default function ChatMessage() {
   const router = useRouter();
@@ -33,6 +34,7 @@ export default function ChatMessage() {
   const socket: any = useSocket();
   const roomId = searchParams?.get('roomId');
   const queryClient = useQueryClient();
+  const {data: sessionData}=  useSession()
   const [isNewMsg, setIsNewMsg] = useState<boolean>(false);
   const listOnline = useListOnline((state) => state.listOnline);
   const activityAccountInfo = useActivityAccountInfo((state) => state.userInfo);
@@ -46,9 +48,6 @@ export default function ChatMessage() {
   const [msgMetaData, setMsgMetaData] = useState<any>();
   const [newMsgRead, setNewMsgRead] = useState<any>();
   const [newMsg, setNewMsg] = useState<any>();
-  useEffect(() => {
-    console.log('listDetailMessage    ', listDetailMessage);
-  }, [listDetailMessage]);
   const [paramsDetailMsg, setParamsDetailMsg] = useState({
     pageSize: 20,
     pageIndex: 1,
@@ -71,7 +70,6 @@ export default function ChatMessage() {
   useEffect(() => {
     if (dataResopnse) {
       setHasNexPage(dataResopnse?.pages[0]?.result.pagination.hasNextPage);
-
       const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
       //set dataConversion
       const conversation: any = dataResopnse?.pages[0]?.result?.conversation;
@@ -79,7 +77,7 @@ export default function ChatMessage() {
       const messageType = conversation.type;
       if (dataResopnse?.pages[0]?.result.pagination.page === 1) {
         if (messageType === ConversationType.DIRECT_MESSAGE) {
-          conversation.isOnline = Array.from(onlineUsers).includes(conversation?.partner?._id);
+          conversation.isOnline = Array.from(listOnline).includes(conversation?.partner?._id);
         }
         setDataConversation(conversation);
       }
@@ -88,15 +86,14 @@ export default function ChatMessage() {
           ? dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data
           : [...listDetailMessage, ...dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data];
 
-      console.log('data', data);
       //filter data for add key isNextDate
       let listNewMsgConvert: any = [];
       if (data?.length > 1) {
         for (let i = 0; i < data.length; i++) {
-          console.log('datee', data[i]);
           const message = {
             ...data[i],
             isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[i]?.user?._id) : false,
+            owner: data[i].user?._id === (sessionData?.user as any)?._id
           };
           if (i < data.length) {
             if (
@@ -177,7 +174,6 @@ export default function ChatMessage() {
 
             setListDetailMessage(result);
           } else {
-            console.log('listNewMsgConvert', listNewMsgConvert);
             setListDetailMessage(listNewMsgConvert);
           }
         } catch (err) {
@@ -393,7 +389,7 @@ export default function ChatMessage() {
       formData.append('conversationId', roomId + '');
     }
     // formData.append('conversationUuid', roomId + '');
-    formData.append('type', files?.length > 0 ? MESSAGE_TYPE.MEDIA : MESSAGE_TYPE.TEXT);
+    formData.append('type', (files?.length || documents?.length) > 0 ? MESSAGE_TYPE.MEDIA : MESSAGE_TYPE.TEXT);
     if (files?.length > 0) {
       for (let i = 0; i < files.length; i++) {
         formData.append('medias', files[i]?.file);
@@ -408,7 +404,6 @@ export default function ChatMessage() {
       const res: any = await messageApi.createConversationMessage(formData);
       if (!!res) {
         emitter.emit('NEW_MESSAGE');
-        console.log('res', res);
         setListDetailMessage((prev: any) => [
           {
             ...res.result,
@@ -439,7 +434,7 @@ export default function ChatMessage() {
               </div>
             ) : (
               <>
-                <div className="absolute w-full top-0 bg-white z-1 flex items-center justify-center h-[108px] border-b-[1px] border-color-[#E8E9EE]">
+                <div className="absolute w-full top-0 bg-white z-1 flex items-center justify-center border-b-[1px] border-color-[#E8E9EE]">
                   <div className="flex justify-between items-center gap-[12px] px-[32px] max-xs:px-[16px] py-[24px] w-full">
                     <div
                       className={styles.backButton}
@@ -454,7 +449,10 @@ export default function ChatMessage() {
                   </div>
                 </div>
                 <div
-                  className={classNames('w-full absolute top-[108px] bottom-[121px] pb-[12px]', styles.customScrollBar)}
+                  className={classNames(
+                    'w-full absolute top-[115px] bottom-[121px] pb-[12px] bg-white',
+                    styles.customScrollBar
+                  )}
                 >
                   <InfiniteScroll
                     dataLength={listDetailMessage?.length || 0}

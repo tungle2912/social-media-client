@@ -1,8 +1,6 @@
 import { create } from 'zustand';
 import { IBaseStateStore } from '~/stores';
 
-
-
 export interface IListOnlineState extends IBaseStateStore {
   listOnline: any;
   setListOnline: (value: any) => void;
@@ -14,11 +12,7 @@ const initialState = {
 
 const useListOnline = create<IListOnlineState>((set) => ({
   ...initialState,
-  setListOnline: (value) =>
-    set((state) => ({
-      ...state,
-      listOnline: value,
-    })),
+  setListOnline: (value) => set({ listOnline: value }),
   clearStore: () => set(initialState),
 }));
 

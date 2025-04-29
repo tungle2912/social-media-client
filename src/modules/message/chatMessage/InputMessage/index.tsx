@@ -6,7 +6,7 @@ import { useTranslations } from 'next-intl';
 
 import { useEffect, useRef, useState } from 'react';
 
-import { CloseIcon, IconAttatchment2, SendIcon } from '~/common/icon';
+import { CloseIcon, IconAttatchment2, SendIcon, SmileIcon } from '~/common/icon';
 import Button from '~/components/form/Button';
 import ModalBasic from '~/components/modal/modalBasic';
 import {
@@ -23,6 +23,7 @@ import {
 } from '~/definitions/constants/index.constant';
 import styles from './styles.module.scss';
 import image from '@/static/image';
+import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 
 interface IProps {
   defaultValue: string;
@@ -55,6 +56,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
   const [value, setValue] = useState<string | null>(null);
   const [files, setFiles] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [openNoticeFile, setOpenNoticeFile] = useState<{
     isOpen: boolean;
     message1: string;
@@ -159,6 +161,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
         file: file,
         type: file.type,
       };
+      console.log('Uploading file:', file);
       if (acceptDocumentFiles.includes(file?.type + '')) {
         setDocumentFiles((prev: any) => [...prev, fileObj]);
       } else setFiles((prev: any) => [...prev, fileObj]);
@@ -210,15 +213,11 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
       </ModalBasic>
     );
   };
-  // const handleAddEmoji = (e: any) => {
-  //   if (value?.length === MAX_LENGTH_CONTENT_MESSENGER - 1) return;
-  //   const input = inputRef?.current?.resizableTextArea;
-  //   const position = input?.textArea?.selectionStart;
-  //   const newValue = value?.slice(0, position) + e + value?.slice(position, value?.length);
-  //   setValue(newValue);
-  //   input.selectionStart = input.selectionEnd = position + 2;
-  //   inputRef?.current?.focus();
-  // };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setValue((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
+  };
   const handleSubmit = () => {
     if (loading || (value?.trim() === '' && files?.length === 0 && documentFiles?.length === 0)) return;
     setLoading(true);
@@ -257,9 +256,14 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
           </Tooltip>
           <Tooltip title={disabledTooltip ? '' : <span className="text-xs">{t('common.emoji')}</span>}>
             <div className="mr-4 cursor-pointer" onClick={() => setDisabledTooltip(!disabledTooltip)}>
-              {/* <SelectEmoji onSelectEmoji={handleAddEmoji} classNameItem="text-[20px]" rawChildren={true}>
-                <EmoticonIcon />
-              </SelectEmoji> */}
+              <div className={styles.btnAddEmoji} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                <SmileIcon />
+              </div>
+              {showEmojiPicker && (
+                <div className={styles.emojiPickerContainer}>
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
             </div>
           </Tooltip>
         </Flex>
@@ -276,7 +280,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
             ) : (
               <SendIcon
                 pathColor={
-                  value?.trim() === '' && !files[0]?.file && documentFiles.length === 0 ? '#B5B5B5' : "#8951ff"
+                  value?.trim() === '' && !files[0]?.file && documentFiles.length === 0 ? '#B5B5B5' : '#8951ff'
                 }
               />
             )}
@@ -298,34 +302,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
 
   return (
     <div className={styles.inputMsgContainer}>
-      <div
-        className={classNames(
-          'w-full h-auto relative rounded-[10px] px-[10px] pt-[10px] pb-[50px] bg-[#F8F8FF]',
-          loading ? 'opacity-[0.5]' : ''
-        )}
-      >
-        <Input.TextArea
-          ref={inputRef}
-          maxLength={maxLengthTextArea}
-          value={value || ''}
-          onKeyDown={(e: any) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              return handleSubmit();
-            }
-          }}
-          onChange={(e) => {
-            setValue(e?.target?.value);
-          }}
-          autoSize={{ minRows: 1, maxRows: 10 }}
-          placeholder={t('common.message')}
-          className={styles.inputMessage}
-        />
-        <Flex className="w-[99%] absolute bottom-[1px] rounded-bl-[10px] rounded-br-[10px] left-[5px] z-10 bg-[#F8F8FF] justify-center items-center">
-          {renderActions()}
-        </Flex>
-      </div>
-      <div className="mt-2">
+      <div className="mb-2">
         {files && (
           <div className="flex flex-row justify-start items-center">
             {files?.map((file: any, index: any) => {
@@ -365,7 +342,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
           <div className={styles.documentFile} key={index}>
             <div className="flex gap-[9px] items-center">
               <div className="h-[26.67px]">
-                <Image preview={false} alt='image' src={image.attachment} width={26.67} height={26.67} />
+                <Image preview={false} alt="image" src={image.attachment} width={26.67} height={26.67} />
               </div>
               <div className={classNames(styles.name, 'line-clamp-1')}>{file.name}</div>
             </div>
@@ -375,6 +352,34 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
           </div>
         ))}
       </div>
+      <div
+        className={classNames(
+          'w-full h-auto relative rounded-[10px] px-[10px] pt-[10px] pb-[50px] bg-[#F8F8FF]',
+          loading ? 'opacity-[0.5]' : ''
+        )}
+      >
+        <Input.TextArea
+          ref={inputRef}
+          maxLength={maxLengthTextArea}
+          value={value || ''}
+          onKeyDown={(e: any) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              return handleSubmit();
+            }
+          }}
+          onChange={(e) => {
+            setValue(e?.target?.value);
+          }}
+          autoSize={{ minRows: 1, maxRows: 10 }}
+          placeholder={t('common.message')}
+          className={styles.inputMessage}
+        />
+        <Flex className="w-[99%] absolute bottom-[1px] rounded-bl-[10px] rounded-br-[10px] left-[5px] z-10 bg-[#F8F8FF] justify-center items-center">
+          {renderActions()}
+        </Flex>
+      </div>
+
       <UploadErrorModal
         open={openNoticeFile.isOpen}
         message1={openNoticeFile.message1}

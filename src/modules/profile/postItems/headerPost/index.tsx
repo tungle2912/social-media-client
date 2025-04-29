@@ -7,11 +7,12 @@ import { useState } from 'react';
 import { AllConnectedIcon, DeleteIcon, OnlyMeIcon, PublicIcon, SomePeopleIcon } from '~/common/icon';
 import SmartTooltip from '~/common/smartTooltip';
 import ModalConfirm from '~/components/modal/modalConfirm';
-import { ViewScopeType } from '~/definitions/enums/index.enum';
+import { contactStatus, ViewScopeType } from '~/definitions/enums/index.enum';
 import { IPost } from '~/definitions/interfaces/post.interface';
 import { useDeletePostMutation } from '~/hooks/data/post.data';
 import { convertTimestampToString, convertTimeStampToStringDate } from '~/lib/utils';
 import styles from './styles.module.scss';
+import { useFollowMutation } from '~/hooks/data/user.data';
 interface Props {
   post: IPost;
   isMyPost: boolean;
@@ -30,10 +31,18 @@ export default function HeaderPost({ post, refetch }: Props) {
   const router = useRouter();
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const deletePostMutation = useDeletePostMutation();
+  const followMutation = useFollowMutation(post?.author?._id || '');
   const handleClickAvatar = (id: string) => {
     router.push(`/profile/${id}`);
   };
-
+  const handleFollow = async () => {
+    await followMutation.mutateAsync(undefined, {
+      onSuccess: async () => {
+        await refetch();
+        message.success('Follow successfully', 3);
+      },
+    });
+  };
   const renderTime = () => {
     const iconMap: Record<ViewScopeType, JSX.Element> = {
       [ViewScopeType.Public]: <PublicIcon width={16} height={16} />,
@@ -75,6 +84,7 @@ export default function HeaderPost({ post, refetch }: Props) {
       console.error('Error deleting post:', error);
     }
   };
+  console.log('post.author?.contactStatus', post.author?.contactStatus);
   return (
     <div className={styles.header}>
       <div className={styles.wrapInfo}>
@@ -84,14 +94,22 @@ export default function HeaderPost({ post, refetch }: Props) {
         <div className={styles.details}>
           <div className={styles.wrapName}>
             <SmartTooltip onClick={() => handleClickAvatar} text={post.author?.user_name ?? ''} />
-            {/* {!isProfilePage && !isMyPost && (
-              <div className={styles.friendStatus}>{post.isFriend ? 'Friend' : 'Add friend'}</div>
-            )} */}
+            <div className={styles.contactStatus}>
+              {post.author?.contactStatus === contactStatus.friend ||
+              post.author?.contactStatus === contactStatus.none ? null : post.author?.contactStatus ===
+                contactStatus.noContact ? (
+                <button className={styles.followButton} onClick={handleFollow}>
+                  Follow
+                </button>
+              ) : (
+                <span>{post.author?.contactStatus === contactStatus.follower ? 'follower' : 'following'}</span>
+              )}
+            </div>
           </div>
           {renderTime()}
         </div>
       </div>
-      <Popover  content={renderOptions} trigger={'click'} placement="bottomRight">
+      <Popover content={renderOptions} trigger={'click'} placement="bottomRight">
         <Button shape="circle" icon={<EllipsisOutlined />} />
       </Popover>
       <ModalConfirm
@@ -99,10 +117,10 @@ export default function HeaderPost({ post, refetch }: Props) {
         visible={showConfirmDelete}
         onCancel={() => setShowConfirmDelete(false)}
         onClosed={() => setShowConfirmDelete(false)}
-        title='Message'
-        description='Are you sure you want to delete this post?'
-        textOk='Delete'
-        textCancel='Cancel'
+        title="Message"
+        description="Are you sure you want to delete this post?"
+        textOk="Delete"
+        textCancel="Cancel"
       />
     </div>
   );
