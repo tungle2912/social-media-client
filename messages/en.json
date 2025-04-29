@@ -52,6 +52,7 @@
   "coverPhotoAlt": "cover photo",
   "editCover": "Edit Cover Photo",
   "addToStory": "Add To Story",
+  "avatar": "Avatar",
   "conversation": {
     "all": "All",
     "connected": "Connected",
@@ -65,6 +66,25 @@
     },
     "sendMediaMsg": "Sent a multimedia message"
   },
+  "sizeExceedingMessage": {
+    "pleaseCheckFileAgain": "Please check again before sending",
+    "message": "Message",
+    "exceededMaxFileSize": "Exceeded the maximum file size.",
+    "exceedNumberOfFiles": "Exceeded the maximum number of file uploads"
+  },
+  "message": {
+    "deleteConfirmation": {
+      "title": "Delete message",
+      "description": "Are you sure you want to delete this message?"
+    },
+    "deleteForMe": "Delete for me",
+    "deleteForEveryone": "Delete for everyone",
+    "viewProfile": "View profile",
+    "member": "Member",
+    "today": "Today",
+    "messageStatus": "This message was deleted",
+    "unsupportedMediaType": "Unsupported media type"
+  },
   "modalConfirm": {
     "no": "No",
     "yes": "Yes",
@@ -72,5 +92,28 @@
     "confirm": "Confirm",
     "delete": "Delete",
     "message": "Are you sure you want to delete this?"
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "yes": "Yes",
+    "no": "No",
+    "delete": "Delete",
+    "edit": "Edit",
+    "save": "Save",
+    "close": "Close",
+    "send": "Send",
+    "add": "Add",
+    "remove": "Remove",
+    "update": "Update",
+    "viewMore": "View more",
+    "viewLess": "View less",
+    "loadMore": "Load more",
+    "loading": "Loading...",
+    "noDataAvailable": "No data available",
+    "uploadImage": "Upload image",
+    "emoji": "Emoji",
+    "send": "Send",
+    "message": "Message"
   }
 }

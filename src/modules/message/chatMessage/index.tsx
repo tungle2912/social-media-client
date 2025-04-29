@@ -46,12 +46,15 @@ export default function ChatMessage() {
   const [msgMetaData, setMsgMetaData] = useState<any>();
   const [newMsgRead, setNewMsgRead] = useState<any>();
   const [newMsg, setNewMsg] = useState<any>();
+  useEffect(() => {
+    console.log('listDetailMessage    ', listDetailMessage);
+  }, [listDetailMessage]);
   const [paramsDetailMsg, setParamsDetailMsg] = useState({
     pageSize: 20,
     pageIndex: 1,
   });
   const {
-    data,
+    data: dataResopnse,
     isLoading: isLoadingList,
     refetch,
   } = useInfiniteQuery({
@@ -64,84 +67,84 @@ export default function ChatMessage() {
       return nextPage;
     },
     initialPageParam: 1,
-    onSuccess: async (res: any) => {
-      // queryClient.invalidateQueries(QUERY_KEY.LIST_DETAIL_MESSAGE);
-      if (!!res) {
-        const isLastPage = res?.pages[0]?.pageIndex === res?.pages[0]?.totalPages;
-        //check is last page
-        if (isLastPage) {
-          setHasNexPage(false);
+  });
+  useEffect(() => {
+    if (dataResopnse) {
+      setHasNexPage(dataResopnse?.pages[0]?.result.pagination.hasNextPage);
+
+      const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
+      //set dataConversion
+      const conversation: any = dataResopnse?.pages[0]?.result?.conversation;
+      //  setMsgMetaData(dataResopnse?.pages[0]?.metadata);
+      const messageType = conversation.type;
+      if (dataResopnse?.pages[0]?.result.pagination.page === 1) {
+        if (messageType === ConversationType.DIRECT_MESSAGE) {
+          conversation.isOnline = Array.from(onlineUsers).includes(conversation?.partner?._id);
         }
-        const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
-        //set dataConversion
-        const conversation: any = res?.pages[0]?.metadata?.conversation;
-        setMsgMetaData(res?.pages[0]?.metadata);
-        const messageType = conversation.type;
-        if (res?.pages[0]?.pageIndex === 1) {
-          if (messageType === ConversationType.DIRECT_MESSAGE) {
-            conversation.isOnline = Array.from(onlineUsers).includes(conversation?.partner?._id);
-          }
-          setDataConversation(conversation);
-        }
-        //spreading only if the page is not 1 => not scrolling but new message
-        const data =
-          res?.pages[0]?.pageIndex === 1
-            ? res?.pages[res?.pages?.length - 1]?.data
-            : [...listDetailMessage, ...res?.pages[res?.pages?.length - 1]?.data];
-        //filter data for add key isNextDate
-        let listNewMsgConvert: any = [];
-        if (data?.length > 1) {
-          for (let i = 0; i < data.length; i++) {
-            const message = {
-              ...data[i],
-              isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[i]?.user?._id) : false,
-            };
-            if (i < data.length) {
-              if (
-                dayjs(data[i + 1]?.createdAt).format('YYYY-MM-DD') !== dayjs(message?.createdAt).format('YYYY-MM-DD') ||
-                (isLastPage && i === data.length - 1)
-              ) {
-                listNewMsgConvert = [...listNewMsgConvert, { ...message, isNextDate: true }];
-              } else {
-                listNewMsgConvert = [...listNewMsgConvert, { ...message, isNextDate: false }];
-              }
+        setDataConversation(conversation);
+      }
+      const data =
+        dataResopnse?.pages[0]?.result?.pagination.page === 1
+          ? dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data
+          : [...listDetailMessage, ...dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data];
+
+      console.log('data', data);
+      //filter data for add key isNextDate
+      let listNewMsgConvert: any = [];
+      if (data?.length > 1) {
+        for (let i = 0; i < data.length; i++) {
+          console.log('datee', data[i]);
+          const message = {
+            ...data[i],
+            isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[i]?.user?._id) : false,
+          };
+          if (i < data.length) {
+            if (
+              dayjs(data[i + 1]?.createdAt).format('YYYY-MM-DD') !== dayjs(message?.createdAt).format('YYYY-MM-DD') ||
+              (!hasNextPage && i === data.length - 1)
+            ) {
+              listNewMsgConvert = [...listNewMsgConvert, { ...message, isNextDate: true }];
             } else {
               listNewMsgConvert = [...listNewMsgConvert, { ...message, isNextDate: false }];
             }
+          } else {
+            listNewMsgConvert = [...listNewMsgConvert, { ...message, isNextDate: false }];
           }
-        } else if (data?.length === 1) {
-          listNewMsgConvert = [
-            ...listNewMsgConvert,
-            {
-              ...data[0],
-              isNextDate: true,
-              isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[0]?.user?._id) : false,
-            },
-          ];
         }
-
-        const listNewMsgConvertTemp = [...listNewMsgConvert];
-
-        const { listForwardContact, listForwardPost } = listNewMsgConvertTemp?.reduce(
-          (acc, i) => {
-            if (!!i?.additionalData) {
-              if (
-                i.type === MESSAGE_TYPE.PROFILE ||
-                i.type === MESSAGE_TYPE.REMOVE_MEMBER ||
-                i.type === MESSAGE_TYPE.ADD_MEMBER ||
-                i.type === MESSAGE_TYPE.LEAVE_GROUP ||
-                i.type === MESSAGE_TYPE.CREATE_GROUP
-              ) {
-                typeof i?.additionalData === 'string' && acc.listForwardContact.push(i?.additionalData?.split(',')[0]);
-              } else if (i.type === MESSAGE_TYPE.POST) {
-                typeof i?.additionalData === 'string' && acc.listForwardPost.push(i?.additionalData?.split(',')[0]);
-              }
-            }
-            return acc;
+      } else if (data?.length === 1) {
+        listNewMsgConvert = [
+          ...listNewMsgConvert,
+          {
+            ...data[0],
+            isNextDate: true,
+            isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[0]?.user?._id) : false,
           },
-          { listForwardContact: [], listForwardPost: [] }
-        );
+        ];
+      }
 
+      const listNewMsgConvertTemp = [...listNewMsgConvert];
+
+      const { listForwardContact, listForwardPost } = listNewMsgConvertTemp?.reduce(
+        (acc, i) => {
+          if (!!i?.additionalData) {
+            if (
+              i.type === MESSAGE_TYPE.PROFILE ||
+              i.type === MESSAGE_TYPE.REMOVE_MEMBER ||
+              i.type === MESSAGE_TYPE.ADD_MEMBER ||
+              i.type === MESSAGE_TYPE.LEAVE_GROUP ||
+              i.type === MESSAGE_TYPE.CREATE_GROUP
+            ) {
+              typeof i?.additionalData === 'string' && acc.listForwardContact.push(i?.additionalData?.split(',')[0]);
+            } else if (i.type === MESSAGE_TYPE.POST) {
+              typeof i?.additionalData === 'string' && acc.listForwardPost.push(i?.additionalData?.split(',')[0]);
+            }
+          }
+          return acc;
+        },
+        { listForwardContact: [], listForwardPost: [] }
+      );
+
+      const fetchData = async () => {
         try {
           const resProfile: any =
             listForwardContact?.length > 0 &&
@@ -174,21 +177,21 @@ export default function ChatMessage() {
 
             setListDetailMessage(result);
           } else {
+            console.log('listNewMsgConvert', listNewMsgConvert);
             setListDetailMessage(listNewMsgConvert);
           }
         } catch (err) {
           handleError(err);
         }
+      };
+
+      fetchData();
+      setLoading(false);
+    } else
+      setTimeout(() => {
         setLoading(false);
-      } else
-        setTimeout(() => {
-          setLoading(false);
-        }, 1000);
-    },
-    onError() {
-      router.push('/404');
-    },
-  });
+      }, 1000);
+  }, [dataResopnse]);
   useEffect(() => {
     if (!!roomId) {
       setLoading(true);
@@ -212,10 +215,10 @@ export default function ChatMessage() {
       return (
         <>
           <div className="relative">
-            {activityAccountInfo?.profilePhoto ? (
-              <Avatar src={activityAccountInfo?.profilePhoto || ''} alt={t('avatar')} className={styles.avatarUser} />
+            {activityAccountInfo?.avatar ? (
+              <Avatar src={activityAccountInfo?.avatar || ''} alt={t('avatar')} className={styles.avatarUser} />
             ) : (
-              <div className={styles.avatarUser}>{getUsername(activityAccountInfo as any, true)}</div>
+              <div className={styles.avatarUser}>{activityAccountInfo?.user_name}</div>
             )}
             {isOnline && (
               <div className={classNames(styles.status, styles.online, 'absolute right-[2px] bottom-0')}></div>
@@ -227,7 +230,7 @@ export default function ChatMessage() {
           <div className="w-full">
             <SmartTooltip
               className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-              text={`${activityAccountInfo?.firstName} ${activityAccountInfo?.lastName}`}
+              text={activityAccountInfo?.user_name ?? ''}
             />
           </div>
         </>
@@ -236,14 +239,10 @@ export default function ChatMessage() {
       return (
         <>
           <div className="relative cursor-pointer" onClick={() => {}}>
-            {dataConversation?.partner?.basicPersonalInfo?.profilePhoto ? (
-              <Avatar
-                src={dataConversation?.partner?.basicPersonalInfo?.profilePhoto || ''}
-                alt={t('avatar')}
-                className={styles.avatarUser}
-              />
+            {dataConversation?.avatar ? (
+              <Avatar src={dataConversation?.avatar || ''} alt={t('avatar')} className={styles.avatarUser} />
             ) : (
-              <div className={styles.avatarUser}>{getUsername(dataConversation?.partner?.basicPersonalInfo, true)}</div>
+              <div className={styles.avatarUser}>{dataConversation?.title}</div>
             )}
             {dataConversation?.isOnline && (
               <div className={classNames(styles.status, styles.online, 'absolute right-[2px] bottom-0')}></div>
@@ -256,7 +255,7 @@ export default function ChatMessage() {
             <SmartTooltip
               className="text-base-black-200 font-bold text-[16px] max-w-[35rem] cursor-pointer hover:underline"
               onClick={() => {}}
-              text={`${dataConversation?.partnerUserInfo?.firstName} ${dataConversation?.partnerUserInfo?.lastName}`}
+              text={dataConversation?.title}
             />
           </div>
         </>
@@ -287,24 +286,22 @@ export default function ChatMessage() {
             <p
               className="mt-[4px] text-base-black-300 text-[12px] cursor-pointer hover:text-[#2268FA]"
               onClick={() => setOpenDrawerMember(true)}
-            >{`${dataConversation?.totalUser} ${t('messageLocale.member')}`}</p>
+            >{`${dataConversation?.totalUser} ${t('message.member')}`}</p>
           </div>
         </>
       );
     }
 
     return null;
-  }, [dataConversation, activityAccountInfo?.id, roomId, listOnline, activityAccountType]);
+  }, [dataConversation, activityAccountInfo?._id, roomId, listOnline, activityAccountType]);
   const onNextPage = () => {
     if (!hasNextPage || isLoadingList) return;
     setParamsDetailMsg((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }));
   };
   const renderListMsg = () => {
     return listDetailMessage.map((message: any, index: any) => {
-      const listMedia = message?.conversationMessageMedias?.filter(
-        (i: any) => i?.type === MediaType.IMAGE || i?.type === MediaType.VIDEO
-      );
-      const listDocs = message?.conversationMessageMedias?.filter((i: { type: string }) => i?.type === 'DOCUMENT');
+      const listMedia = message?.medias;
+      const listDocs = message?.attachments;
       if (!!message?.isNextDate) {
         return (
           <>
@@ -322,7 +319,7 @@ export default function ChatMessage() {
             <div className="mt-8 mb-4 h-[1px] w-full border-[1px] border-[#E8E9EE] flex justify-center items-center">
               <div className="w-fit px-4 bg-[#FFF] text-[#636363] text-xs text-center">
                 {dayjs(message.createdAt).format('YYYY-MM-DD') === dayjs().format('YYYY-MM-DD')
-                  ? t('activityRound.dateType.today')
+                  ? t('message.today')
                   : dayjs(message.createdAt).format('MMMM DD, YYYY')}
               </div>
             </div>
@@ -355,7 +352,7 @@ export default function ChatMessage() {
           setListDetailMessage((prev: any[]) =>
             prev.map((msg: { uuid: any }) => {
               if (msg?.uuid === message?.messageUuid)
-                return { ...msg, isDeleted: true, message: t('messageLocale.messageStatus') };
+                return { ...msg, isDeleted: true, message: t('message.messageStatus') };
               return msg;
             })
           );
@@ -389,32 +386,34 @@ export default function ChatMessage() {
   }, [roomId]);
   const sendMessage = async (text: string, files: any, documents: any) => {
     const formData = new FormData();
-    formData.append('content', text);
+    formData.append('message', text);
     if (activityAccountType === ConversationType.NOT_CHATTED) {
-      formData.append('userUuid', activityAccountInfo?.uuid + '');
+      formData.append('userId', activityAccountInfo?._id + '');
     } else {
-      formData.append('conversationUuid', roomId + '');
+      formData.append('conversationId', roomId + '');
     }
     // formData.append('conversationUuid', roomId + '');
     formData.append('type', files?.length > 0 ? MESSAGE_TYPE.MEDIA : MESSAGE_TYPE.TEXT);
     if (files?.length > 0) {
       for (let i = 0; i < files.length; i++) {
-        formData.append('files', files[i]?.file);
+        formData.append('medias', files[i]?.file);
       }
     }
     if (documents?.length > 0) {
       for (let i = 0; i < documents.length; i++) {
-        formData.append('files', documents[i]?.file);
+        formData.append('attachments', documents[i]?.file);
       }
     }
     try {
       const res: any = await messageApi.createConversationMessage(formData);
       if (!!res) {
         emitter.emit('NEW_MESSAGE');
+        console.log('res', res);
         setListDetailMessage((prev: any) => [
           {
-            ...res,
+            ...res.result,
             isScroll: true,
+            owner: true,
             createdAt: dayjs(),
             isNextDate:
               listDetailMessage?.length > 0 &&

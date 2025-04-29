@@ -1,16 +1,15 @@
 import { Avatar, Dropdown, Popover, Tooltip } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
-import SmartTooltip from '~/common/smartTooltip';
-import Button from '~/components/form/Button';
-import styles from '../styles.module.scss';
-import { ConversationMessageStatus, ConversationType, IPartnerTag } from '~/definitions/models/message';
-import { getUsername } from '~/services/helpers';
-import { convertTimeStampToStringDate } from '~/lib/utils';
-import { DeleteTagIcon, ThreeDotIcon } from '~/common/icon';
+import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
+import { DeleteTagIcon, ThreeDotIcon } from '~/common/icon';
+import SmartTooltip from '~/common/smartTooltip';
+import Button from '~/components/form/Button';
+import { ConversationMessageStatus, ConversationType } from '~/definitions/models/message';
+import { convertTimeStampToStringDate } from '~/lib/utils';
+import styles from '../styles.module.scss';
 
 interface itemProps {
   item: any;
@@ -46,11 +45,7 @@ export default function MessageItem({
   setActivityAccountType,
   setOpenMoreMessage,
 }: itemProps) {
-  const partnerTagItems = item?.partnerTag?.map((partnerTag: IPartnerTag, partnerTagIndex: number) => ({
-    key: partnerTagIndex,
-    value: partnerTag.tag.id,
-    label: <SmartTooltip text={partnerTag.tag.name} className="text-[#636363]" />,
-  }));
+
   const t = useTranslations();
   const router = useRouter();
   const { data } = useSession();
@@ -71,7 +66,7 @@ export default function MessageItem({
         } else {
           router.push(`/message?roomId=${item?._id}`);
         }
-        setActivityAccountInfo(data?.user);
+        setActivityAccountInfo(item?.partner);
         setActivityAccountType(item?.type);
       }}
     >
@@ -175,44 +170,6 @@ export default function MessageItem({
             ) : null}
           </div>
         </div>
-        {item?.partnerTag?.length ? (
-          <div className={classNames(styles.tags, 'w-full')}>
-            {item?.partnerTag?.slice(0, 3)?.map((item: IPartnerTag) => (
-              <div key={item.id} className={classNames(styles.tag, 'w-[100px]')}>
-                <SmartTooltip text={item.tag.name} className="text-[#636363]" />
-              </div>
-            ))}
-            {item?.partnerTag.slice(3)?.length > 0 ? (
-              <Dropdown
-                menu={{ items: partnerTagItems }}
-                placement="bottomRight"
-                rootClassName={styles.dropdownTag}
-                trigger={['hover']}
-                getPopupContainer={(trigger: HTMLElement) => trigger}
-                dropdownRender={() => {
-                  return (
-                    <div className={styles.dropdownRender}>
-                      {item?.partnerTag.slice(3).map((partnerTag: IPartnerTag) => (
-                        <div key={partnerTag.id} className={styles.item}>
-                          <div className="text-white line-clamp-1">
-                            <SmartTooltip text={partnerTag?.tag.name} />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                }}
-              >
-                <div
-                  className="flex shrink-0 px-[8px] py-[4px] justify-center items-center gap-[10px] rounded-[5px] border-[1px] border-solid border-[#E8E9EE] bg-[#F7F7F7] cursor-pointer text-[#2268FA] text-[14px] font-bold"
-                  onClick={(event) => event?.stopPropagation()}
-                >
-                  {`+${item?.partnerTag.slice(3).length}`}
-                </div>
-              </Dropdown>
-            ) : null}
-          </div>
-        ) : null}
       </div>
     </div>
   );

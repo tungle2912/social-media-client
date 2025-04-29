@@ -6,21 +6,12 @@ export interface IActivityAccountInfo extends IBaseStateStore {
   type: string | null;
   userInfo: {
     _id: number | null;
-    uuid: string | null;
-    firstName: string | null;
-    lastName: string | null;
     type: string | null;
-    specificType: string | null;
-    profilePhoto: string | null;
-    location: string | null;
-    cityOfResidence: string | null;
+    user_name: string | null;
+    avatar: string | null;
     representationObject: string | null;
     representationId: string | null;
-    companyProfile: {
-      companyName: string | null;
-      jobTitle: string | null;
-      jobTitleOther: string | null;
-    }
+ 
   }
   setType: (value: string) => void;
   setUserInfo: (value: any) => void;
@@ -30,21 +21,11 @@ const initialState = {
   type: null,
   userInfo: {
     _id: null,
-    uuid: null,
-    firstName: null,
-    lastName: null,
+    user_name: null,
     type: null,
-    specificType: null,
-    profilePhoto: null,
-    location: null,
-    cityOfResidence: null,
+    avatar: null,
     representationObject: null,
     representationId: null,
-    companyProfile: {
-      companyName: null,
-      jobTitle: null,
-      jobTitleOther: null,
-    },
   },
 };
 

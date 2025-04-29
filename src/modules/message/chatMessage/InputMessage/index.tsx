@@ -116,7 +116,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
         !acceptFilesImage.includes(file?.type + '') &&
         !acceptDocumentFiles.includes(file?.type + '')
       ) {
-        return message.error(t('messageLocale.unsupportedMediaType'));
+        return message.error(t('message.unsupportedMediaType'));
       }
       if (acceptFilesImage.includes(file?.type + '')) {
         if (file?.size / 1024 / 1024 > MAX_FILE_SIZE_DOCUMENT_MB) {
@@ -203,7 +203,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
           </p>
           <Flex justify="center" className="mt-[61px]" gap={24}>
             <Button btnType="primary" className="h-[48px] min-w-[170px]" onClick={onclose}>
-              {t('communityLocale.ok')}
+              {t('common.ok')}
             </Button>
           </Flex>
         </div>
@@ -248,14 +248,14 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
     return (
       <Flex className="w-full h-[45px] justify-between items-center">
         <Flex className="justify-between items-center">
-          <Tooltip title={<span className="text-xs">{t('uploadImage')}</span>}>
+          <Tooltip title={<span className="text-xs">{t('common.uploadImage')}</span>}>
             <div className="mt-[4px] mx-4 cursor-pointer">
               <Upload {...props}>
                 <IconAttatchment2 />
               </Upload>
             </div>
           </Tooltip>
-          <Tooltip title={disabledTooltip ? '' : <span className="text-xs">{t('emoji')}</span>}>
+          <Tooltip title={disabledTooltip ? '' : <span className="text-xs">{t('common.emoji')}</span>}>
             <div className="mr-4 cursor-pointer" onClick={() => setDisabledTooltip(!disabledTooltip)}>
               {/* <SelectEmoji onSelectEmoji={handleAddEmoji} classNameItem="text-[20px]" rawChildren={true}>
                 <EmoticonIcon />
@@ -263,7 +263,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
             </div>
           </Tooltip>
         </Flex>
-        <Tooltip title={<span className="text-xs">{t('send')}</span>}>
+        <Tooltip title={<span className="text-xs">{t('common.send')}</span>}>
           <div
             className={classNames(
               'mr-4 cursor-pointer',
@@ -318,7 +318,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
             setValue(e?.target?.value);
           }}
           autoSize={{ minRows: 1, maxRows: 10 }}
-          placeholder={t('messageLocale.message')}
+          placeholder={t('common.message')}
           className={styles.inputMessage}
         />
         <Flex className="w-[99%] absolute bottom-[1px] rounded-bl-[10px] rounded-br-[10px] left-[5px] z-10 bg-[#F8F8FF] justify-center items-center">

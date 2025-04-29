@@ -12,8 +12,8 @@ const socketClient = async (): Promise<Socket | null> => {
       Authorization: `Bearer ${token}`,
     },
   };
-
-  return io(`${process.env.NEXT_PUBLIC_API_ENDPOINT}`, options);
+  const socketUrl = process.env.SOCKET_URL || 'http://localhost:4000';
+  return io(socketUrl, options);
 };
 
 export default socketClient;
