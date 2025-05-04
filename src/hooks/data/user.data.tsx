@@ -35,6 +35,5 @@ export const useFollowMutation = (id: string) => {
         queryKey: ['PROFILE'],
       });
     },
-    
   });
 };

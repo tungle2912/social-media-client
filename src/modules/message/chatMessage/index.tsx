@@ -1,32 +1,28 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { Avatar, Flex, Spin } from 'antd';
+import classNames from 'classnames';
+import dayjs from 'dayjs';
+import { useTranslations } from 'next-intl';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import InfiniteScroll from 'react-infinite-scroll-component';
+import { BackIcon, IconPenEdit } from '~/common/icon';
 import IconNoMessage from '~/common/IconNoMessage';
+import SmartTooltip from '~/common/smartTooltip';
+import { QUERY_KEY } from '~/definitions/models';
+import { ConversationType, MESSAGE_TYPE } from '~/definitions/models/message';
+import { handleError } from '~/lib/utils';
+import InputMessage from '~/modules/message/chatMessage/InputMessage';
+import MessageItem from '~/modules/message/chatMessage/MessageItem';
 import { useSocket } from '~/provider/socketProvider';
 import useActivityAccountInfo from '~/stores/activityAccountInfo.store';
 import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
-import { Avatar, Flex, Spin } from 'antd';
-import { BackIcon, IconPenEdit } from '~/common/icon';
-import classNames from 'classnames';
-import InfiniteScroll from 'react-infinite-scroll-component';
-import { useTranslations } from 'next-intl';
-import { use, useCallback, useEffect, useRef, useState } from 'react';
-import { ConversationType, MESSAGE_TYPE } from '~/definitions/models/message';
-import { getUsername } from '~/services/helpers';
-import SmartTooltip from '~/common/smartTooltip';
-import { MediaType } from '~/definitions/enums/index.enum';
-import dayjs from 'dayjs';
-import InputMessage from '~/modules/message/chatMessage/InputMessage';
-import MessageItem from '~/modules/message/chatMessage/MessageItem';
-import { handleError } from '~/lib/utils';
-import { QUERY_KEY } from '~/definitions/models';
 
-import { contactApi } from '~/services/api/contact.api';
-import { messageApi } from '~/services/api/message.api';
-import emitter from '~/utils/emitter';
-import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
+import { contactApi } from '~/services/api/contact.api';
+import { messageApi } from '~/services/api/message.api';
 
 export default function ChatMessage() {
   const router = useRouter();
@@ -34,13 +30,15 @@ export default function ChatMessage() {
   const socket: any = useSocket();
   const roomId = searchParams?.get('roomId');
   const queryClient = useQueryClient();
-  const {data: sessionData}=  useSession()
+  const { data: sessionData } = useSession();
   const [isNewMsg, setIsNewMsg] = useState<boolean>(false);
   const listOnline = useListOnline((state) => state.listOnline);
   const activityAccountInfo = useActivityAccountInfo((state) => state.userInfo);
   const activityAccountType = useActivityAccountInfo((state) => state.type);
   const [loading, setLoading] = useState<boolean>(false);
   const [dataConversation, setDataConversation] = useState<any>();
+  const [dataPagination, setDataPagination] = useState<any>();
+  const [dataMessageResponse, setDataMessageResponse] = useState<any>();
   const [listDetailMessage, setListDetailMessage] = useState<any>([]);
   const [openDrawerEditMember, setOpenDrawerEditMember] = useState<boolean>(false);
   const [openDrawerEditGroup, setOpenDrawerEditGroup] = useState<boolean>(false);
@@ -69,23 +67,27 @@ export default function ChatMessage() {
   });
   useEffect(() => {
     if (dataResopnse) {
-      setHasNexPage(dataResopnse?.pages[0]?.result.pagination.hasNextPage);
-      const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
-      //set dataConversion
+      setDataPagination(dataResopnse?.pages[0]?.result.pagination);
       const conversation: any = dataResopnse?.pages[0]?.result?.conversation;
-      //  setMsgMetaData(dataResopnse?.pages[0]?.metadata);
       const messageType = conversation.type;
-      if (dataResopnse?.pages[0]?.result.pagination.page === 1) {
-        if (messageType === ConversationType.DIRECT_MESSAGE) {
-          conversation.isOnline = Array.from(listOnline).includes(conversation?.partner?._id);
-        }
-        setDataConversation(conversation);
+      if (messageType === ConversationType.DIRECT_MESSAGE) {
+        conversation.isOnline = Array.from(listOnline).includes(conversation?.partner?._id);
       }
+      setDataConversation(conversation);
+      //set dataConversion
+      //  setMsgMetaData(dataResopnse?.pages[0]?.metadata);
       const data =
         dataResopnse?.pages[0]?.result?.pagination.page === 1
           ? dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data
           : [...listDetailMessage, ...dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data];
-
+      setDataMessageResponse(data);
+    }
+  }, [dataResopnse]);
+  useEffect(() => {
+    if (dataMessageResponse) {
+      const data = dataMessageResponse;
+      const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
+      const messageType = dataConversation.type;
       //filter data for add key isNextDate
       let listNewMsgConvert: any = [];
       if (data?.length > 1) {
@@ -93,7 +95,7 @@ export default function ChatMessage() {
           const message = {
             ...data[i],
             isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[i]?.user?._id) : false,
-            owner: data[i].user?._id === (sessionData?.user as any)?._id
+            owner: data[i].user?._id === (sessionData?.user as any)?._id,
           };
           if (i < data.length) {
             if (
@@ -187,7 +189,7 @@ export default function ChatMessage() {
       setTimeout(() => {
         setLoading(false);
       }, 1000);
-  }, [dataResopnse]);
+  }, [dataMessageResponse]);
   useEffect(() => {
     if (!!roomId) {
       setLoading(true);
@@ -229,6 +231,7 @@ export default function ChatMessage() {
               text={activityAccountInfo?.user_name ?? ''}
             />
           </div>
+       
         </>
       );
     } else if (dataConversation?.type === ConversationType.DIRECT_MESSAGE) {
@@ -337,49 +340,52 @@ export default function ChatMessage() {
   };
   useEffect(() => {
     if (socket) {
-      socket.on(SOCKET_EVENT_KEY.FIRE_MESSAGE, (message: { conversationMessage: { isOnline: boolean } }) => {
-        message.conversationMessage.isOnline = true;
-        emitter.emit('NEW_MESSAGE');
-        setNewMsg(message);
+      socket.on('NEW_MESSAGE', async (message: any) => {
+        setDataMessageResponse((prev: any) => [message, ...prev]);
       });
-      socket.on(SOCKET_EVENT_KEY.DELETE_MESSAGE, (message: { conversationUuid: string | null; messageUuid: any }) => {
-        emitter.emit('NEW_MESSAGE');
-        if (message?.conversationUuid === roomId) {
-          setListDetailMessage((prev: any[]) =>
-            prev.map((msg: { uuid: any }) => {
-              if (msg?.uuid === message?.messageUuid)
-                return { ...msg, isDeleted: true, message: t('message.messageStatus') };
-              return msg;
-            })
-          );
-        }
-      });
-      socket.on(SOCKET_EVENT_KEY.MESSAGE_READ, (message: { conversationUuid: string | null; messageUuid: any }) => {
-        setNewMsgRead(message);
-        if (message?.conversationUuid === roomId) {
-          setListDetailMessage((prev: any[]) =>
-            prev.map((msg: { uuid: any }) => {
-              if (msg?.uuid === message?.messageUuid) return { ...msg, isRead: true };
-              return msg;
-            })
-          );
-        }
-        socket.on(SOCKET_EVENT_KEY.ADD_MEMBER, () => {
-          queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
-          emitter.emit('NEW_MESSAGE');
-        });
+      // socket.on(SOCKET_EVENT_KEY.FIRE_MESSAGE, (message: { conversationMessage: { isOnline: boolean } }) => {
+      //   message.conversationMessage.isOnline = true;
+      //   emitter.emit('NEW_MESSAGE');
+      //   setNewMsg(message);
+      // });
+      // socket.on(SOCKET_EVENT_KEY.DELETE_MESSAGE, (message: { conversationUuid: string | null; messageUuid: any }) => {
+      //   emitter.emit('NEW_MESSAGE');
+      //   if (message?.conversationUuid === roomId) {
+      //     setListDetailMessage((prev: any[]) =>
+      //       prev.map((msg: { uuid: any }) => {
+      //         if (msg?.uuid === message?.messageUuid)
+      //           return { ...msg, isDeleted: true, message: t('message.messageStatus') };
+      //         return msg;
+      //       })
+      //     );
+      //   }
+      // });
+      // socket.on(SOCKET_EVENT_KEY.MESSAGE_READ, (message: { conversationUuid: string | null; messageUuid: any }) => {
+      //   setNewMsgRead(message);
+      //   if (message?.conversationUuid === roomId) {
+      //     setListDetailMessage((prev: any[]) =>
+      //       prev.map((msg: { uuid: any }) => {
+      //         if (msg?.uuid === message?.messageUuid) return { ...msg, isRead: true };
+      //         return msg;
+      //       })
+      //     );
+      //   }
+      //   socket.on(SOCKET_EVENT_KEY.ADD_MEMBER, () => {
+      //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
+      //     emitter.emit('NEW_MESSAGE');
+      //   });
 
-        socket.on(SOCKET_EVENT_KEY.REMOVE_MEMBER, () => {
-          queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
-          emitter.emit('NEW_MESSAGE');
-        });
-        socket.on(SOCKET_EVENT_KEY.MEMBER_EXIT, () => {
-          queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
-          emitter.emit('NEW_MESSAGE');
-        });
-      });
+      //   socket.on(SOCKET_EVENT_KEY.REMOVE_MEMBER, () => {
+      //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
+      //     emitter.emit('NEW_MESSAGE');
+      //   });
+      //   socket.on(SOCKET_EVENT_KEY.MEMBER_EXIT, () => {
+      //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
+      //     emitter.emit('NEW_MESSAGE');
+      //   });
+      // });
     }
-  }, [roomId]);
+  }, [roomId, socket]);
   const sendMessage = async (text: string, files: any, documents: any) => {
     const formData = new FormData();
     formData.append('message', text);
@@ -402,21 +408,20 @@ export default function ChatMessage() {
     }
     try {
       const res: any = await messageApi.createConversationMessage(formData);
-      if (!!res) {
-        emitter.emit('NEW_MESSAGE');
-        setListDetailMessage((prev: any) => [
-          {
-            ...res.result,
-            isScroll: true,
-            owner: true,
-            createdAt: dayjs(),
-            isNextDate:
-              listDetailMessage?.length > 0 &&
-              dayjs(listDetailMessage[0]?.createdAt).format('YYYY-MM-DD') !== dayjs().format('YYYY-MM-DD'),
-          },
-          ...prev,
-        ]);
-      }
+      // if (!!res) {
+      //   setListDetailMessage((prev: any) => [
+      //     {
+      //       ...res.result,
+      //       isScroll: true,
+      //       owner: true,
+      //       createdAt: dayjs(),
+      //       isNextDate:
+      //         listDetailMessage?.length > 0 &&
+      //         dayjs(listDetailMessage[0]?.createdAt).format('YYYY-MM-DD') !== dayjs().format('YYYY-MM-DD'),
+      //     },
+      //     ...prev,
+      //   ]);
+      // }
     } catch (error) {}
   };
   return (

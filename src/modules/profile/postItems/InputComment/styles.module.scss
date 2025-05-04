@@ -1,0 +1,31 @@
+.inputCommentContainer {
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  .avatar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40px;
+    width: 40px;
+    background: #fff0f6;
+    color: #eb2f96;
+    font-weight: 700;
+    font-size: 16px;
+    border-radius: 50%;
+  }
+  .inputComment {
+    background-color: #F8F8FF;
+    font-size: 14px;
+    padding: 5px 0 5px 0;
+    border: none;
+    box-shadow: 0 0 0 2px rgba(122, 5, 255, 0.06);
+    outline: 0;
+  }
+  .inputComment:active, inputComment:focus {
+    border: none;
+  }
+  .cursorNotAllow{
+    cursor: not-allowed !important;
+  }
+}

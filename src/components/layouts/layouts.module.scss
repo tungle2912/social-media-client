@@ -33,6 +33,8 @@
 @media (max-width: 576px) {
   .layoutContainer {
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
     :global {
       .ant-layout-sider {
         width: 100% !important;

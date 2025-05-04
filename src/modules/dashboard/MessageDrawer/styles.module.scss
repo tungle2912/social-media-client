@@ -1,0 +1,48 @@
+@import '~/theme/styles/_variables.scss';
+@import '~/theme/styles/_mixins.scss';
+
+.drawerMessage {
+  border-top-right-radius: 20px;
+  border-top-left-radius: 20px;
+  padding: 0;
+
+  :global {
+    .ant-drawer-header {
+      border-bottom: none;
+    }
+  }
+}
+
+.box {
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  box-shadow: 0px 6px 20px 0px #0000004d;
+  width: 360px;
+}
+
+.collapseMessenger {
+  padding: 0 20px;
+  cursor: pointer;
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+  background: #ffffff;
+}
+
+.status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #B5B5B5;
+  }
+}

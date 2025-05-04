@@ -1,4 +1,4 @@
-import { sendDelete, sendGet, sendPatch, sendPost } from '~/api/request';
+import { sendDelete, sendGet, sendPatch, sendPost, sendPut } from '~/api/request';
 import { IPost } from '~/definitions/interfaces/post.interface';
 
 
@@ -16,7 +16,7 @@ export const postApi = {
     return sendGet(`/api/posts/${id}`);
   },
   updatePost: (id: string, data?: any) => {
-    return sendPatch(`/api/posts/${id}`, data);
+    return sendPut(`/api/posts/${id}`, data);
   },
   reactPost: (data: any) => {
     return sendPost('/api/reacts', data);

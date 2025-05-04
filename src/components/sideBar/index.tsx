@@ -1,14 +1,15 @@
-"use client";
-import { MenuUnfoldOutlined } from "@ant-design/icons";
-import { Button, Layout, Menu } from "antd";
-import Image from "next/image";
-import { menuRoutes } from "~/definitions/models/menu";
-import { useDimension } from "~/hooks";
-import { useSideBarStore } from "~/stores/sidebar.store";
-import image from "../../../public/static/image";
-import styles from "./styles.module.scss";
-import { useTheme } from "~/theme/ThemeProvider";
-import classNames from "classnames";
+'use client';
+import { MenuUnfoldOutlined } from '@ant-design/icons';
+import { Button, Layout, Menu, MenuProps } from 'antd';
+import Image from 'next/image';
+import { menuRoutes } from '~/definitions/models/menu';
+import { useDimension } from '~/hooks';
+import { useSideBarStore } from '~/stores/sidebar.store';
+import image from '../../../public/static/image';
+import styles from './styles.module.scss';
+import { useTheme } from '~/theme/ThemeProvider';
+import classNames from 'classnames';
+import { useRouter } from 'next/navigation';
 
 const { Sider } = Layout;
 
@@ -16,6 +17,13 @@ export default function Sidebar() {
   const { isSM } = useDimension();
   const { collapsed, setCollapsed } = useSideBarStore();
   const { theme } = useTheme();
+  const route = useRouter();
+  const handleMenuClick: MenuProps['onClick'] = (e) => {
+    const selectedRoute = menuRoutes.find(route => route.key === e.key);
+    if (selectedRoute) {
+      route.push(selectedRoute.url);
+    }
+  };
   return (
     <Sider
       trigger={null}
@@ -24,13 +32,13 @@ export default function Sidebar() {
       theme={theme}
       collapsed={collapsed}
     >
-      <div className={styles.logo}>
+      <div className={styles.logo} onClick={() => route.push('/')}>
         {(!isSM || (isSM && !collapsed)) && (
           <Image
             src={image.logo}
             width={collapsed ? 100 : 150}
             height={collapsed ? 50 : 80}
-            style={{ marginBottom: collapsed ? "30px" : "" }}
+            style={{ marginBottom: collapsed ? '30px' : '' }}
             alt="logo"
           />
         )}
@@ -44,7 +52,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      <Menu mode="inline" defaultSelectedKeys={["1"]} items={menuRoutes} />
+      <Menu mode="inline" defaultSelectedKeys={['1']} items={menuRoutes} />
     </Sider>
   );
 }

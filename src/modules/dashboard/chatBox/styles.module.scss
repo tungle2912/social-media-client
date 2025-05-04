@@ -1,0 +1,33 @@
+@import '~/theme/styles/_variables.scss';
+@import '~/theme/styles/_mixins.scss';
+.avatarUser {
+  width: 66px;
+  height: 66px;
+  background-color: #fff0f6;
+  color: #eb2f96;
+  border-radius: 50%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.status {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #b5b5b5;
+  }
+}

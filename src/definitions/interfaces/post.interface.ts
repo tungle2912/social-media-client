@@ -24,7 +24,7 @@ export interface IPost {
   authorId: string;
   content: string;
   media?: string[];
-  attachments?: string[];
+  attachments?: any[];
   createdAt: number;
   updatedAt: number;
   viewScope: ViewScopeType;

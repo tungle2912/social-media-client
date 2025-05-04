@@ -1,21 +1,27 @@
-import { Input } from 'antd';
+import { InputProps } from 'antd/lib';
 import classNames from 'classnames';
+import React from 'react';
+
+
+import styles from './styles.module.scss'
+import InputBasic from '~/common/input/InputBasic';
 import { SearchIcon } from '~/common/icon';
-import styles from './styles.module.scss';
-import { useTranslations } from 'next-intl';
-interface InputSearchProps {
-  placeholder?: string;
+
+interface ICustomInputProps extends InputProps {
   className?: string;
+  border?: boolean;
+  rounded?: boolean;
+  placement?: string;
 }
-function InputSearch({ className }: InputSearchProps) {
-  const t = useTranslations();
+
+export default function InputSearch({ border = true, className, placement = '',...props }: ICustomInputProps) {
   return (
-    <Input
-      name="search"
-      placeholder={t('search')}
-      className={classNames(styles.inputSearch, className)}
-      prefix={<SearchIcon />}
+    <InputBasic
+      className={classNames(styles.customInput, styles.inputSearch, className, {
+        [styles.border]: border,
+      })}
+      {...props}
+      prefix={ <SearchIcon />}
     />
   );
 }
-export default InputSearch;

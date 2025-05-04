@@ -20,6 +20,7 @@ import HeaderPost from '~/modules/profile/postItems/headerPost';
 import ReactCount from '~/modules/profile/postItems/reactCount';
 import { useAuthStore } from '~/stores/auth.store';
 import styles from './styles.module.scss';
+import CommentComponent from '~/modules/profile/postItems/PostComment';
 interface PostItemProps {
   post: IPost;
   refetch: (options?: RefetchOptions) => Promise<
@@ -31,13 +32,15 @@ interface PostItemProps {
       Error
     >
   >;
+  openComment?: boolean;
 }
-function PostItem({ post, refetch }: PostItemProps) {
+function PostItem({ post, refetch, openComment = false }: PostItemProps) {
   const { user } = useAuthStore();
   const reactPostMutation = useReactPostMutation();
   const [localReaction, setLocalReaction] = useState(post.currentUserReaction || '');
   const [popoverVisible, setPopoverVisible] = useState(false);
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const [showComment, setShowComment] = useState(openComment);
   const parseMedia = (url: string): PostMedia => {
     const fileName = url.split('/').pop() || '';
     const ext = fileName.split('.').pop()?.toLowerCase() || '';
@@ -50,6 +53,14 @@ function PostItem({ post, refetch }: PostItemProps) {
         : ['mp4', 'mpeg', 'mov'].includes(ext)
           ? 'video'
           : 'file',
+      id: undefined,
+    };
+  };
+  const parseFile = (file: any): PostMedia => {
+    return {
+      url: file.url,
+      name: file.name,
+      type: 'file',
       id: undefined,
     };
   };
@@ -126,7 +137,7 @@ function PostItem({ post, refetch }: PostItemProps) {
       <HeaderPost refetch={refetch} isMyPost={post.authorId === user?._id} post={post}></HeaderPost>
       <ContentPost
         content={post.content}
-        postMedias={[...(post.media?.map(parseMedia) || []), ...(post.attachments?.map(parseMedia) || [])]}
+        postMedias={[...(post.media?.map(parseMedia) || []), ...(post?.attachments?.map(parseFile) || [])]}
       />
       <div className={styles.metaDataPost}>
         <ReactCount reactions={post.reactions || []} />
@@ -149,7 +160,12 @@ function PostItem({ post, refetch }: PostItemProps) {
             {localReaction ? localReaction.charAt(0).toUpperCase() + localReaction.slice(1) : 'Like'}
           </Button>
         </Popover>
-        <Button type="text" icon={<CommentIcon />} className={styles.actionButton}>
+        <Button
+          type="text"
+          icon={<CommentIcon />}
+          onClick={() => setShowComment((prev) => !prev)}
+          className={styles.actionButton}
+        >
           Comment
         </Button>
         <Button type="text" icon={<ShareIcon />} className={styles.actionButton}>
@@ -159,6 +175,7 @@ function PostItem({ post, refetch }: PostItemProps) {
           More
         </Button>
       </div>
+      {showComment && <CommentComponent postId={post._id} />}
     </div>
   );
 }

@@ -10,8 +10,9 @@ import { EmojiClickData } from 'emoji-picker-react';
 import { useTranslations } from 'next-intl';
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { use, useEffect, useState } from 'react';
 import { AllConnectedIcon, OnlyMeIcon, PublicIcon, SmileIcon, SomePeopleIcon, TagIcon } from '~/common/icon';
+import { UserType } from '~/definitions';
 import {
   acceptDocumentFiles,
   acceptFilesImage,
@@ -26,9 +27,12 @@ import {
 import { CommentScopeType, MediaType, ViewScopeType } from '~/definitions/enums/index.enum';
 import { IPost } from '~/definitions/interfaces/post.interface';
 import { useCreatePostMutation } from '~/hooks/data/post.data';
+import { useModalController } from '~/hooks/useModalController';
+import SelectPeopleCanViewAndComment from '~/modules/profile/modalCreatePost/selectPeople';
 import { useAuthStore } from '~/stores/auth.store';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './styles.module.scss';
+import AddTag from '~/modules/profile/modalCreatePost/addTag';
 
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
 interface props {
@@ -129,6 +133,7 @@ export function ModalCreatePost({
   const createPostMutation = useCreatePostMutation();
   const [documentFiles, setDocumentFiles] = useState<File[]>([]);
   const { setLoading } = useLoadingStore();
+  const peopleCanViewAndCommentCtrl = useModalController();
   const [isShowUpload, setIsShowUpload] = useState(showUpload);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [viewScope, setViewScope] = useState<ViewScopeType>(ViewScopeType.Public);
@@ -151,6 +156,9 @@ export function ModalCreatePost({
     setIsShowUpload(true);
     setCurrentUploadType(type);
   };
+  const [selectedValues, setSelectedValues] = useState<{ viewScope: UserType[] }>({
+    viewScope: [],
+  });
   const handleCreatePost = async () => {
     if (!content.trim() && mediaFiles.length === 0 && documentFiles.length === 0) {
       message.error('Please enter post content or add media/files');
@@ -160,6 +168,7 @@ export function ModalCreatePost({
     formData.append('content', content.trim());
     formData.append('viewScope', viewScope.toString());
     formData.append('commentScope', commentScope.toString());
+    formData.append('specificFriends', JSON.stringify(selectedValues.viewScope.map((friend) => friend._id)));
     mediaFiles.forEach((file) => {
       formData.append('media', file);
     });
@@ -266,206 +275,233 @@ export function ModalCreatePost({
   useEffect(() => {
     setIsShowUpload(showUpload);
     setCurrentUploadType(type);
-  }, [showUpload,type]);
+  }, [showUpload, type]);
+
+  const onHandleSelectPermission = (value: ViewScopeType, field: string) => {
+    if (value === ViewScopeType.SomeOne) {
+      peopleCanViewAndCommentCtrl.open(true, { field });
+    }
+    setViewScope(value);
+  };
+
   return (
-    <Modal title="Create a post" centered onCancel={handleClose} open={isOpenModal} className={styles.modalCreatePost}>
-      <div className={styles.createPostContainer}>
-        <div className={styles.createPostContent}>
-          <div className={styles.userInfo}>
-            <Avatar src={user?.avatar} alt="Avatar" className={styles.avatar} />
-            <div className={styles.userDetails}>
-              <p className={styles.username}>{user?.user_name}</p>
-              <div className={styles.privacySettings}>
-                <Select
-                  defaultValue={viewScopeOptions[0].value}
-                  onChange={setViewScope}
-                  style={{ width: 160 }}
-                  options={viewScopeOptions}
-                />
-                <Select
-                  defaultValue={commentScopeOptions[0].value}
-                  onChange={setCommentScope}
-                  style={{ width: 160 }}
-                  options={commentScopeOptions}
-                />
-              </div>
-            </div>
-          </div>
-
-          <textarea
-            className={styles.textArea}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder="Write something here ..."
-          ></textarea>
-
-          <div className={styles.emojiTag}>
-            <div className={styles.btnAddEmoji} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
-              <SmileIcon />
-              Add emoji
-            </div>
-            {showEmojiPicker && (
-              <div className={styles.emojiPickerContainer}>
-                <EmojiPicker onEmojiClick={handleEmojiClick} />
-              </div>
-            )}
-            <div className={styles.btnAddTag}>
-              <TagIcon />
-              Add Tag
-            </div>
-          </div>
-        </div>
-        <div className={styles.uploadContainer}>
-          {isShowUpload && (
-            <div className={styles.uploadSection}>
-              {currentUploadType === MediaType.IMAGE ? (
-                <Upload className={classNames(styles.customUpload)} {...mediaUploadProps}>
-                  <div className={styles.container}>
-                    <AddDocumentIcon />
-                    <p className={styles.uploadHeader}>Add Photo/Video</p>
-                    <p className={styles.uploadSubtitle}>Drag and drop files here</p>
-                    <p className={styles.uploadNote}>Maximum photo size: {MAX_FILE_SIZE_IMAGE_MB}MB</p>
-                    <p className={styles.uploadNote}>Maximum video size: {MAX_FILE_SIZE_VIDEOS_MB}MB</p>
-                  </div>
-                </Upload>
-              ) : (
-                <Upload className={classNames(styles.customUpload)} {...documentUploadProps}>
-                  <div className={styles.container}>
-                    <AddImageIcon />
-                    <p className={styles.uploadHeader}>Upload Document</p>
-                    <p className={styles.uploadSubtitle}>Drag and drop files here</p>
-                    <p className={styles.uploadNote}>Maximum document size: {MAX_FILE_SIZE_DOCUMENT_MB}MB</p>
-                  </div>
-                </Upload>
-              )}
-            </div>
-          )}
-          <div className={styles.documentPreview}>
-            {documentFiles.map((file) => (
-              <div key={file.name} className={styles.documentItem}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: '10px' }}>
-                  <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
-                  <span>{file.name}</span>
+    <>
+      <Modal
+        title="Create a post"
+        centered
+        onCancel={handleClose}
+        open={isOpenModal}
+        className={styles.modalCreatePost}
+      >
+        <div className={styles.createPostContainer}>
+          <div className={styles.createPostContent}>
+            <div className={styles.userInfo}>
+              <Avatar src={user?.avatar} alt="Avatar" className={styles.avatar} />
+              <div className={styles.userDetails}>
+                <p className={styles.username}>{user?.user_name}</p>
+                <div className={styles.privacySettings}>
+                  <Select
+                    defaultValue={viewScopeOptions[0].value}
+                    onChange={setViewScope}
+                    style={{ width: 160 }}
+                    options={viewScopeOptions}
+                    onSelect={(value) => onHandleSelectPermission(value, 'viewScope')}
+                  />
+                  <Select
+                    defaultValue={commentScopeOptions[0].value}
+                    onChange={setCommentScope}
+                    style={{ width: 160 }}
+                    options={commentScopeOptions}
+                  />
                 </div>
-                <button
-                  onClick={() => setDocumentFiles((prev) => prev.filter((f) => f.name !== file.name))}
-                  className={styles.removeButton}
-                >
-                  <XCloseIcon />
-                </button>
               </div>
-            ))}
+            </div>
+
+            <textarea
+              className={styles.textArea}
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              placeholder="Write something here ..."
+            ></textarea>
+
+            <div className={styles.emojiTag}>
+              <div className={styles.btnAddEmoji} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                <SmileIcon />
+                Add emoji
+              </div>
+              {showEmojiPicker && (
+                <div className={styles.emojiPickerContainer}>
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
+              <AddTag keyword={''} setKeyword={() => {}}>
+                <div className={styles.btnAddTag}>
+                  <TagIcon />
+                  Add Tag
+                </div>
+              </AddTag>
+            </div>
           </div>
-          <div className={styles.mediaPreview}>
-            {/* Trường hợp 1 tệp */}
-            {numberOfFiles === 1 && (
-              <div className={classNames(styles.previewItem, styles.oneFile)}>
-                {mediaFiles[0].type.startsWith('image/') ? (
-                  <Image src={URL.createObjectURL(mediaFiles[0])} alt="Preview" width={100} height={100} />
+          <div className={styles.uploadContainer}>
+            {isShowUpload && (
+              <div className={styles.uploadSection}>
+                {currentUploadType === MediaType.IMAGE ? (
+                  <Upload className={classNames(styles.customUpload)} {...mediaUploadProps}>
+                    <div className={styles.container}>
+                      <AddDocumentIcon />
+                      <p className={styles.uploadHeader}>Add Photo/Video</p>
+                      <p className={styles.uploadSubtitle}>Drag and drop files here</p>
+                      <p className={styles.uploadNote}>Maximum photo size: {MAX_FILE_SIZE_IMAGE_MB}MB</p>
+                      <p className={styles.uploadNote}>Maximum video size: {MAX_FILE_SIZE_VIDEOS_MB}MB</p>
+                    </div>
+                  </Upload>
                 ) : (
-                  <video controls src={URL.createObjectURL(mediaFiles[0])} />
+                  <Upload className={classNames(styles.customUpload)} {...documentUploadProps}>
+                    <div className={styles.container}>
+                      <AddImageIcon />
+                      <p className={styles.uploadHeader}>Upload Document</p>
+                      <p className={styles.uploadSubtitle}>Drag and drop files here</p>
+                      <p className={styles.uploadNote}>Maximum document size: {MAX_FILE_SIZE_DOCUMENT_MB}MB</p>
+                    </div>
+                  </Upload>
                 )}
               </div>
             )}
-
-            {/* Trường hợp 2 tệp */}
-            {numberOfFiles === 2 && (
-              <>
-                {mediaFiles.map((file) => (
-                  <div key={file.name} className={classNames(styles.previewItem, styles.twoFiles)}>
-                    {file.type.startsWith('image/') ? (
-                      <Image src={URL.createObjectURL(file)} alt="Preview" width={100} height={100} />
-                    ) : (
-                      <video controls src={URL.createObjectURL(file)} />
-                    )}
+            <div className={styles.documentPreview}>
+              {documentFiles.map((file) => (
+                <div key={file.name} className={styles.documentItem}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginLeft: '10px' }}>
+                    <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                    <span>{file.name}</span>
                   </div>
-                ))}
-              </>
-            )}
-            {numberOfFiles >= 3 && (
-              <>
-                <div className={classNames(styles.previewItem, styles.threeFilesFirst)}>
+                  <button
+                    onClick={() => setDocumentFiles((prev) => prev.filter((f) => f.name !== file.name))}
+                    className={styles.removeButton}
+                  >
+                    <XCloseIcon />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <div className={styles.mediaPreview}>
+              {/* Trường hợp 1 tệp */}
+              {numberOfFiles === 1 && (
+                <div className={classNames(styles.previewItem, styles.oneFile)}>
                   {mediaFiles[0].type.startsWith('image/') ? (
                     <Image src={URL.createObjectURL(mediaFiles[0])} alt="Preview" width={100} height={100} />
                   ) : (
                     <video controls src={URL.createObjectURL(mediaFiles[0])} />
                   )}
                 </div>
-                <div className={styles.threeFilesContainer}>
-                  <div className={classNames(styles.previewItem, styles.threeFilesSecond)}>
-                    {mediaFiles[1].type.startsWith('image/') ? (
-                      <Image src={URL.createObjectURL(mediaFiles[1])} alt="Preview" width={100} height={100} />
-                    ) : (
-                      <video controls src={URL.createObjectURL(mediaFiles[1])} />
-                    )}
-                  </div>
-                  <div className={classNames(styles.previewItem, styles.threeFilesThird)}>
-                    {mediaFiles[2].type.startsWith('image/') ? (
-                      <Image src={URL.createObjectURL(mediaFiles[2])} alt="Preview" width={100} height={100} />
-                    ) : (
-                      <video controls src={URL.createObjectURL(mediaFiles[2])} />
-                    )}
+              )}
 
-                    {numberOfFiles > 3 && <div className={styles.moreFilesOverlay}>+{numberOfFiles - 3}</div>}
+              {/* Trường hợp 2 tệp */}
+              {numberOfFiles === 2 && (
+                <>
+                  {mediaFiles.map((file) => (
+                    <div key={file.name} className={classNames(styles.previewItem, styles.twoFiles)}>
+                      {file.type.startsWith('image/') ? (
+                        <Image src={URL.createObjectURL(file)} alt="Preview" width={100} height={100} />
+                      ) : (
+                        <video controls src={URL.createObjectURL(file)} />
+                      )}
+                    </div>
+                  ))}
+                </>
+              )}
+              {numberOfFiles >= 3 && (
+                <>
+                  <div className={classNames(styles.previewItem, styles.threeFilesFirst)}>
+                    {mediaFiles[0].type.startsWith('image/') ? (
+                      <Image src={URL.createObjectURL(mediaFiles[0])} alt="Preview" width={100} height={100} />
+                    ) : (
+                      <video controls src={URL.createObjectURL(mediaFiles[0])} />
+                    )}
                   </div>
-                </div>
-              </>
-            )}
-            {numberOfFiles > 0 && (
-              <button onClick={() => setMediaFiles([])} className={styles.removeButton}>
-                <XCloseIcon />
-              </button>
-            )}
+                  <div className={styles.threeFilesContainer}>
+                    <div className={classNames(styles.previewItem, styles.threeFilesSecond)}>
+                      {mediaFiles[1].type.startsWith('image/') ? (
+                        <Image src={URL.createObjectURL(mediaFiles[1])} alt="Preview" width={100} height={100} />
+                      ) : (
+                        <video controls src={URL.createObjectURL(mediaFiles[1])} />
+                      )}
+                    </div>
+                    <div className={classNames(styles.previewItem, styles.threeFilesThird)}>
+                      {mediaFiles[2].type.startsWith('image/') ? (
+                        <Image src={URL.createObjectURL(mediaFiles[2])} alt="Preview" width={100} height={100} />
+                      ) : (
+                        <video controls src={URL.createObjectURL(mediaFiles[2])} />
+                      )}
+
+                      {numberOfFiles > 3 && <div className={styles.moreFilesOverlay}>+{numberOfFiles - 3}</div>}
+                    </div>
+                  </div>
+                </>
+              )}
+              {numberOfFiles > 0 && (
+                <button onClick={() => setMediaFiles([])} className={styles.removeButton}>
+                  <XCloseIcon />
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-        <div className={styles.createPostFooter}>
-          <div className={styles.divider}>
-            <span className={styles.dividerText}>Add to your post</span>
-          </div>
-          <div className={styles.attach}>
-            {mediaFiles.length > 0 || documentFiles.length > 0 ? (
-              <>
-                <Upload {...mediaUploadProps}>
-                  <div className={styles.item}>
+          <div className={styles.createPostFooter}>
+            <div className={styles.divider}>
+              <span className={styles.dividerText}>Add to your post</span>
+            </div>
+            <div className={styles.attach}>
+              {mediaFiles.length > 0 || documentFiles.length > 0 ? (
+                <>
+                  <Upload {...mediaUploadProps}>
+                    <div className={styles.item}>
+                      <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
+                      <span>{t('photoVideo')}</span>
+                    </div>
+                  </Upload>
+                  <Upload {...documentUploadProps}>
+                    <div className={styles.item}>
+                      <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                      <span>{t('attachment')}</span>
+                    </div>
+                  </Upload>
+                </>
+              ) : (
+                <>
+                  <div onClick={() => handleClickAttach(MediaType.IMAGE)} className={styles.item}>
                     <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
                     <span>{t('photoVideo')}</span>
-                  </div>
-                </Upload>
-                <Upload {...documentUploadProps}>
-                  <div className={styles.item}>
+                  </div>{' '}
+                  <div onClick={() => handleClickAttach(MediaType.FILE)} className={styles.item}>
                     <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
                     <span>{t('attachment')}</span>
                   </div>
-                </Upload>
-              </>
-            ) : (
-              <>
-                <div onClick={() => handleClickAttach(MediaType.IMAGE)} className={styles.item}>
-                  <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
-                  <span>{t('photoVideo')}</span>
-                </div>{' '}
-                <div onClick={() => handleClickAttach(MediaType.FILE)} className={styles.item}>
-                  <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
-                  <span>{t('attachment')}</span>
-                </div>
-              </>
-            )}
-          </div>
-          <div className={styles.actionButtons}>
-            <button
-              className={styles.saveButton}
-              onClick={() => {
-                setIsOpenModal(false);
-              }}
-            >
-              Cancel
-            </button>
-            <button disabled={createPostMutation.isPending} onClick={handleCreatePost} className={styles.postButton}>
-              Post
-            </button>
+                </>
+              )}
+            </div>
+            <div className={styles.actionButtons}>
+              <button
+                className={styles.saveButton}
+                onClick={() => {
+                  setIsOpenModal(false);
+                }}
+              >
+                Cancel
+              </button>
+              <button disabled={createPostMutation.isPending} onClick={handleCreatePost} className={styles.postButton}>
+                Post
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    </Modal>
+      </Modal>
+      <SelectPeopleCanViewAndComment
+        open={!!peopleCanViewAndCommentCtrl.key}
+        attachedData={peopleCanViewAndCommentCtrl.attachedData}
+        onClosed={() => peopleCanViewAndCommentCtrl.close()}
+        selectedValues={selectedValues}
+        setSelectedValues={setSelectedValues}
+        onChangeValue={setSelectedValues}
+      />
+    </>
   );
 }

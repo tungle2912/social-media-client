@@ -1,6 +1,6 @@
 // import MediaUpload from '~/modules/community/components/MediaUpload';
 import { LoadingOutlined } from '@ant-design/icons';
-import { Flex, Image, Input, message, Spin, Tooltip, Upload, UploadProps } from 'antd';
+import { Flex, Input, message, Spin, Tooltip, Upload, UploadProps } from 'antd';
 import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
 
@@ -24,6 +24,7 @@ import {
 import styles from './styles.module.scss';
 import image from '@/static/image';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import Image from 'next/image';
 
 interface IProps {
   defaultValue: string;
@@ -342,7 +343,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
           <div className={styles.documentFile} key={index}>
             <div className="flex gap-[9px] items-center">
               <div className="h-[26.67px]">
-                <Image preview={false} alt="image" src={image.attachment} width={26.67} height={26.67} />
+                <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
               </div>
               <div className={classNames(styles.name, 'line-clamp-1')}>{file.name}</div>
             </div>
@@ -354,30 +355,70 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
       </div>
       <div
         className={classNames(
-          'w-full h-auto relative rounded-[10px] px-[10px] pt-[10px] pb-[50px] bg-[#F8F8FF]',
+          'w-full h-auto relative rounded-[10px] px-[10px bg-[#F8F8FF] flex min-h-[80px] items-center gap-3',
           loading ? 'opacity-[0.5]' : ''
         )}
       >
-        <Input.TextArea
-          ref={inputRef}
-          maxLength={maxLengthTextArea}
-          value={value || ''}
-          onKeyDown={(e: any) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-              e.preventDefault();
-              return handleSubmit();
-            }
-          }}
-          onChange={(e) => {
-            setValue(e?.target?.value);
-          }}
-          autoSize={{ minRows: 1, maxRows: 10 }}
-          placeholder={t('common.message')}
-          className={styles.inputMessage}
-        />
-        <Flex className="w-[99%] absolute bottom-[1px] rounded-bl-[10px] rounded-br-[10px] left-[5px] z-10 bg-[#F8F8FF] justify-center items-center">
+        <Tooltip title={<span className="text-xs">{t('common.uploadImage')}</span>}>
+          <div className="mt-[4px] ml-3 cursor-pointer">
+            <Upload {...props}>
+              <IconAttatchment2 />
+            </Upload>
+          </div>
+        </Tooltip>
+        <div className='flex-1 rounded-[10px] flex items-center border-[#7a7979] border-2 h-[50px] gap-2 p-2 bg-[#F8F8FF]'>
+          <Input.TextArea
+            ref={inputRef}
+            maxLength={maxLengthTextArea}
+            value={value || ''}
+            onKeyDown={(e: any) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                return handleSubmit();
+              }
+            }}
+            onChange={(e) => {
+              setValue(e?.target?.value);
+            }}
+            autoSize={{ minRows: 1, maxRows: 10 }}
+            placeholder={t('common.message')}
+            className={styles.inputMessage}
+          />
+          <Tooltip title={disabledTooltip ? '' : <span className="text-xs">{t('common.emoji')}</span>}>
+            <div className="mr-4 cursor-pointer" onClick={() => setDisabledTooltip(!disabledTooltip)}>
+              <div className={styles.btnAddEmoji} onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+                <SmileIcon />
+              </div>
+              {showEmojiPicker && (
+                <div className={styles.emojiPickerContainer}>
+                  <EmojiPicker onEmojiClick={handleEmojiClick} />
+                </div>
+              )}
+            </div>
+          </Tooltip>
+        </div>
+        <Tooltip title={<span className="text-xs">{t('common.send')}</span>}>
+          <div
+            className={classNames(
+              'mr-4 cursor-pointer',
+              value?.trim() === '' && !files[0]?.file && documentFiles.length === 0 && styles.cursorNotAllow
+            )}
+            onClick={handleSubmit}
+          >
+            {loading ? (
+              <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
+            ) : (
+              <SendIcon
+                pathColor={
+                  value?.trim() === '' && !files[0]?.file && documentFiles.length === 0 ? '#B5B5B5' : '#8951ff'
+                }
+              />
+            )}
+          </div>
+        </Tooltip>
+        {/* <Flex className="w-[99%] absolute bottom-[1px] rounded-bl-[10px] rounded-br-[10px] left-[5px] z-10 bg-[#F8F8FF] justify-center items-center">
           {renderActions()}
-        </Flex>
+        </Flex> */}
       </div>
 
       <UploadErrorModal

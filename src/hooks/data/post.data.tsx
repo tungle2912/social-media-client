@@ -24,10 +24,13 @@ export const useGetPostByUserIdQuery = (id: string) => {
     enabled: !!id,
   });
 };
-export const useGetPostByIdQuery = (id: string) => {
+export const useGetPostByIdQuery = (id: string | undefined) => {
   return useQuery({
     queryKey: ['POSTS', id],
-    queryFn: () => postApi.getPostById(id),
+    queryFn: () => {
+      if (!id) throw new Error('ID is required');
+      return postApi.getPostById(id);
+    },
     enabled: !!id,
   });
 };
@@ -79,4 +82,4 @@ export const useDeletePostMutation = () => {
       queryClient.invalidateQueries({ queryKey: ['POSTS'] });
     },
   });
-}
+};

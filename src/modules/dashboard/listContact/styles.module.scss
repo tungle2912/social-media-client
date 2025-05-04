@@ -1,0 +1,23 @@
+.listSuggested {
+  border-radius: 20px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}
+.suggestedItem {
+  display: flex;
+  gap: 8px;
+  max-height: 200px;
+}
+.suggestedName {
+  font-size: medium;
+  font-weight: 500;
+  color: #333;
+  margin-left: 10px;
+}
+.listMessage {
+  border-radius: 20px;
+  background-color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 25px;
+}

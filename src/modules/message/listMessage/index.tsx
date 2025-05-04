@@ -80,7 +80,6 @@ export default function ListMessage() {
   const flatListMessages = useMemo(() => {
     const oldData = listMessages?.pages.flatMap((page: any) => page.data) || [];
     return oldData?.map((item) => {
-      console.log('itemitem', item);
       item.isOnline = Array.from(listOnline).includes(item?.partner?._id) || false;
       return item;
     });

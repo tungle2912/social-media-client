@@ -1,0 +1,24 @@
+@import '~/theme/styles/_variables.scss';
+
+.deleteIcon {
+  display: inline-block;
+  border-radius: 10px;
+
+  &.primary {
+    &:hover {
+      svg {
+        path {
+          fill: $primary-color;
+        }
+      }
+    }
+  }
+
+  &.white {
+    &:hover {
+      svg {
+        filter: brightness(0) invert(1);
+      }
+    }
+  }
+}
