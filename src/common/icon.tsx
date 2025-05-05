@@ -19,6 +19,18 @@ export const GroupUserIcon: React.FC<IConProps> = ({ color = '#10004B' }) => {
     </svg>
   );
 };
+export const CheckSuccessIcon: React.FC<IConProps> = () => {
+  return (
+    <svg width="97" height="96" viewBox="0 0 97 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M88.5004 48C88.5004 70.08 70.5404 88 48.5004 88L47.3814 87.9846C25.8181 87.3913 8.50043 69.7058 8.50043 48C8.50043 25.96 26.4204 8 48.5004 8C70.5404 8 88.5004 25.96 88.5004 48ZM46.2221 59.9596L65.2221 40.9596C66.5821 39.5996 66.5821 37.3996 65.2221 35.9996C63.8621 34.6396 61.6221 34.6396 60.2621 35.9996L43.7421 52.5196L36.7421 45.5196C35.3821 44.1596 33.1421 44.1596 31.7821 45.5196C30.4221 46.8796 30.4221 49.0796 31.7821 50.4796L41.3021 59.9596C41.9821 60.6396 42.8621 60.9596 43.7421 60.9596C44.6621 60.9596 45.5421 60.6396 46.2221 59.9596Z"
+        fill="#05A660"
+      />
+    </svg>
+  );
+};
 export const CloseIcon2: React.FC<IConProps> = () => {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">

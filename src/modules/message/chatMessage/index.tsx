@@ -23,6 +23,7 @@ import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
 import { contactApi } from '~/services/api/contact.api';
 import { messageApi } from '~/services/api/message.api';
+import { messageType } from '~/definitions/enums/index.enum';
 
 export default function ChatMessage() {
   const router = useRouter();
@@ -120,70 +121,7 @@ export default function ChatMessage() {
           },
         ];
       }
-
-      const listNewMsgConvertTemp = [...listNewMsgConvert];
-
-      const { listForwardContact, listForwardPost } = listNewMsgConvertTemp?.reduce(
-        (acc, i) => {
-          if (!!i?.additionalData) {
-            if (
-              i.type === MESSAGE_TYPE.PROFILE ||
-              i.type === MESSAGE_TYPE.REMOVE_MEMBER ||
-              i.type === MESSAGE_TYPE.ADD_MEMBER ||
-              i.type === MESSAGE_TYPE.LEAVE_GROUP ||
-              i.type === MESSAGE_TYPE.CREATE_GROUP
-            ) {
-              typeof i?.additionalData === 'string' && acc.listForwardContact.push(i?.additionalData?.split(',')[0]);
-            } else if (i.type === MESSAGE_TYPE.POST) {
-              typeof i?.additionalData === 'string' && acc.listForwardPost.push(i?.additionalData?.split(',')[0]);
-            }
-          }
-          return acc;
-        },
-        { listForwardContact: [], listForwardPost: [] }
-      );
-
-      const fetchData = async () => {
-        try {
-          const resProfile: any =
-            listForwardContact?.length > 0 &&
-            (await contactApi.getContactProfile({
-              additionData: listForwardContact,
-            }));
-          const resPost: any =
-            listForwardPost?.length > 0 &&
-            (await contactApi.getForwardPost({
-              post_ids: listForwardPost,
-            }));
-          const _resProfile = resProfile?.data || [];
-          const _resPost = resPost?.data || [];
-          const res = [..._resProfile, ..._resPost];
-
-          if (res?.length) {
-            const lookup = res?.reduce((acc, obj) => {
-              acc[obj._id] = obj;
-              return acc;
-            }, {});
-
-            const result = listNewMsgConvertTemp.map((item) => {
-              const newItem = { ...item };
-              newItem.additionalData =
-                typeof item?.additionalData === 'string'
-                  ? lookup[item?.additionalData?.split(',')[0]]
-                  : item?.additionalData;
-              return newItem;
-            });
-
-            setListDetailMessage(result);
-          } else {
-            setListDetailMessage(listNewMsgConvert);
-          }
-        } catch (err) {
-          handleError(err);
-        }
-      };
-
-      fetchData();
+      setListDetailMessage(listNewMsgConvert);
       setLoading(false);
     } else
       setTimeout(() => {
@@ -231,7 +169,6 @@ export default function ChatMessage() {
               text={activityAccountInfo?.user_name ?? ''}
             />
           </div>
-       
         </>
       );
     } else if (dataConversation?.type === ConversationType.DIRECT_MESSAGE) {
@@ -395,7 +332,7 @@ export default function ChatMessage() {
       formData.append('conversationId', roomId + '');
     }
     // formData.append('conversationUuid', roomId + '');
-    formData.append('type', (files?.length || documents?.length) > 0 ? MESSAGE_TYPE.MEDIA : MESSAGE_TYPE.TEXT);
+    formData.append('type', String((files?.length || documents?.length) > 0 ? messageType.Media : messageType.Text));
     if (files?.length > 0) {
       for (let i = 0; i < files.length; i++) {
         formData.append('medias', files[i]?.file);
@@ -453,12 +390,7 @@ export default function ChatMessage() {
                     {/* <div className="flex items-center gap-[16px]">{renderActionRoom()}</div> */}
                   </div>
                 </div>
-                <div
-                  className={classNames(
-                    'w-full absolute top-[115px] pb-[12px] bg-white',
-                    styles.customScrollBar
-                  )}
-                >
+                <div className={classNames('w-full absolute top-[115px] pb-[12px] bg-white', styles.customScrollBar)}>
                   <InfiniteScroll
                     dataLength={listDetailMessage?.length || 0}
                     next={onNextPage}

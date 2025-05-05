@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Avatar, Button, Modal } from 'antd';
+import { Avatar, Button, Modal, Spin } from 'antd';
 import styles from './styles.module.scss';
 import InputCreatePost from '~/modules/profile/inputCreatePost';
 import { useSession } from 'next-auth/react';
@@ -101,9 +101,7 @@ export default function ListPost() {
         className="rounded-[15px] p-0"
         bodyStyle={{ padding: 0 }}
       >
-        <p className="text-center text-lg font-semibold py-4 border-b border-gray-200">
-          {t('postDetail')}
-        </p>
+        <p className="text-center text-lg font-semibold py-4 border-b border-gray-200">{t('postDetail')}</p>
         {errorMessage ? (
           <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
             <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
@@ -115,7 +113,9 @@ export default function ListPost() {
             <PostItem openComment={true} post={selectedPost} refetch={refetch} />
           </div>
         ) : (
-          <div className="flex items-center justify-center min-h-[300px]">Loading...</div>
+          <div className="flex items-center justify-center min-h-[300px]">
+            <Spin />
+          </div>
         )}
       </Modal>
       <ModalCreatePost

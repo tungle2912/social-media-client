@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Avatar, Flex, Popover } from 'antd';
+import { Avatar, Flex, Popover, Spin } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
@@ -20,8 +21,15 @@ import MediaMessage from '~/modules/message/MediaMessage';
 import SendTime from '~/modules/message/chatMessage/SendTime';
 import image from '@/static/image';
 import { useRouter } from 'next/navigation';
-import { convertLinksToAnchors } from '~/lib/helper';
+import { convertLinksToAnchors, parseFile, parseMedia } from '~/lib/helper';
 import Image from 'next/image';
+import { messageType } from '~/definitions/enums/index.enum';
+import { useEffect, useRef, useState } from 'react';
+import { useGetPostByIdQuery } from '~/hooks/data/post.data';
+import HeaderPost from '~/modules/profile/postItems/headerPost';
+import ContentPost from '~/modules/profile/postItems/contentPost';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import PostItem from '~/modules/profile/postItems';
 
 interface MessageItemProps {
   message: any;
@@ -34,6 +42,33 @@ interface MessageItemProps {
 
 const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dataConversation }: MessageItemProps) => {
   const t = useTranslations();
+  const [postId, setPostId] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const postRef = useRef<any>(null);
+  const { data: postDetail, refetch, error: postError, status: postStatus } = useGetPostByIdQuery(postId);
+  useEffect(() => {
+    if (postError) {
+      // @ts-ignore
+      if (postError.status === 403) {
+        // @ts-ignore
+        setErrorMessage(postError.data?.message || 'Not authorized to view');
+      } else {
+        setErrorMessage('An error occurred while fetching post');
+      }
+      setSelectedPost(null);
+    } else if (postDetail) {
+      setSelectedPost(postDetail.result);
+      setErrorMessage('');
+    }
+  }, [postDetail, postError]);
+  useEffect(() => {
+    if (postRef.current) {
+      const scale = Math.min(100 / postRef.current.offsetWidth, 200 / postRef.current.offsetWidth);
+      postRef.current.style.transformOrigin = 'center';
+      postRef.current.style.transform = `scale(${scale})`;
+    }
+  }, [selectedPost]);
   const settingConfirm = {
     width: 560,
     textCancel: t('modalConfirm.no'),
@@ -46,6 +81,12 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
       </div>
     ),
   };
+  useEffect(() => {
+    if (message?.type === messageType.Post) {
+      setPostId(message?.additionalData?._id);
+    }
+  }, [message]);
+
   const handleDownload = () => {
     const listDownload = [...listMedia, ...listDocs];
     listDownload?.forEach((item) => {
@@ -163,33 +204,24 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
                   </Flex>
                 </Flex>
               )}
-              {message?.additionalData && message?.type === MESSAGE_TYPE.POST && (
+              {message?.additionalData && message?.type === messageType.Post && (
                 <Flex className="flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2">
                   <Flex className="gap gap-3 py-2 flex  border-b-[1px]">
-                    {message.additionalData?.owner?.profilePhoto ? (
-                      <Avatar
-                        src={message.additionalData?.owner?.profilePhoto || ''}
-                        alt={t('avatar')}
-                        className={styles.avatarUserSmall}
-                      />
+                    {errorMessage ? (
+                      <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
+                        <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+                        <p className="text-gray-600 text-center">{errorMessage}</p>
+                      </div>
+                    ) : selectedPost ? (
+                      <div className="max-h-[90vh] overflow-y-auto p-4">
+                        <PostItem openComment={true} post={selectedPost} refetch={refetch} />
+                      </div>
                     ) : (
-                      <div className={styles.avatarUserSmall}>{getUsername(message?.additionalData?.owner, true)}</div>
+                      <div className="flex items-center justify-center min-h-[300px]">
+                        <Spin />
+                      </div>
                     )}
-                    <div>
-                      <SmartTooltip
-                        className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                        text={`${message.additionalData?.owner?.firstName} ${message.additionalData?.owner?.lastName}`}
-                      />
-                      <a
-                        href={`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData._id}`}
-                        target="_blank"
-                        className="text-sm not-italic font-normal leading-[24px] mt-[4px] text-base-blue-500 line-clamp-2"
-                        rel="noreferrer"
-                      >
-                        {' '}
-                        {`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData._id}`}{' '}
-                      </a>
-                    </div>
                   </Flex>
                 </Flex>
               )}
@@ -298,35 +330,33 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
                         </Flex>
                       </Flex>
                     )}
-                    {message?.additionalData && message?.type === MESSAGE_TYPE.POST && (
+                    {message?.additionalData && message?.type === messageType.Post && (
                       <Flex className="flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2">
                         <Flex className="gap gap-3 py-2 flex  border-b-[1px]">
-                          {message.additionalData?.owner?.profilePhoto ? (
-                            <Avatar
-                              src={message.additionalData?.owner?.profilePhoto || ''}
-                              alt={t('avatar')}
-                              className={styles.avatarUserSmall}
-                            />
+                          {errorMessage ? (
+                            <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
+                              <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
+                              <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
+                              <p className="text-gray-600 text-center">{errorMessage}</p>
+                            </div>
+                          ) : selectedPost ? (
+                            <div ref={postRef} className="overflow-y-auto p-4">
+                              <div className={styles.wrapRepost}>
+                                <HeaderPost refetch={refetch} isMyPost={false} post={selectedPost} />
+                                <ContentPost
+                                  content={selectedPost.content}
+                                  postMedias={[
+                                    ...(selectedPost.media?.map(parseMedia) || []),
+                                    ...(selectedPost.attachments?.map(parseFile) || []),
+                                  ]}
+                                />
+                              </div>
+                            </div>
                           ) : (
-                            <div className={styles.avatarUserSmall}>
-                              {getUsername(message?.additionalData?.owner, true)}
+                            <div className="flex items-center justify-center min-w-[200px] min-h-[300px]">
+                              <Spin />
                             </div>
                           )}
-                          <div>
-                            <SmartTooltip
-                              className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                              text={`${message.additionalData?.owner?.firstName} ${message.additionalData?.owner?.lastName}`}
-                            />
-                            <a
-                              href={`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData._id}`}
-                              target="_blank"
-                              className="text-sm not-italic font-normal leading-[24px] mt-[4px] text-base-blue-500 line-clamp-2"
-                              rel="noreferrer"
-                            >
-                              {' '}
-                              {`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData._id}`}{' '}
-                            </a>
-                          </div>
                         </Flex>
                       </Flex>
                     )}

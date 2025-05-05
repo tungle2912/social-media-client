@@ -19,3 +19,9 @@ export const useCreateGroupConservationMutation = () => {
     },
   });
 };
+export const useCreateMessageMutation = () => {
+  return useMutation({
+    mutationFn: (data: any) => messageApi.createConversationMessage(data),
+    onSuccess: () => {},
+  });
+};

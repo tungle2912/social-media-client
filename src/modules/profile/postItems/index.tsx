@@ -25,6 +25,7 @@ import styles from './styles.module.scss';
 import CommentComponent from '~/modules/profile/postItems/PostComment';
 import classNames from 'classnames';
 import { ModalRePost } from '~/modules/profile/modalRepost';
+import ModalForward from '~/modules/profile/postItems/modalForward';
 interface PostItemProps {
   post: IPost;
   refetch: (options?: RefetchOptions) => Promise<
@@ -48,6 +49,7 @@ function PostItem({ post, refetch, openComment = false }: PostItemProps) {
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
   const [showComment, setShowComment] = useState(openComment);
   const [showModalRepost, setShowModalRepost] = useState(false);
+  const [openForward, setOpenForward] = useState<boolean>(false);
   const parseMedia = (url: string): PostMedia => {
     const fileName = url.split('/').pop() || '';
     const ext = fileName.split('.').pop()?.toLowerCase() || '';
@@ -141,13 +143,13 @@ function PostItem({ post, refetch, openComment = false }: PostItemProps) {
   );
   const sharePopoverContent = (
     <div className={classNames('flex flex-col gap-3 py-2', styles.sharePopover)}>
-      <Button
+      {/* <Button
         type="text"
         icon={<ShareIcon />}
         className="w-[150px] flex items-center gap-5 justify-start px-2 py-2 align-self-center"
       >
         Share
-      </Button>
+      </Button> */}
       <Button
         onClick={() => {
           setShowModalRepost(true);
@@ -159,7 +161,15 @@ function PostItem({ post, refetch, openComment = false }: PostItemProps) {
       >
         Repost
       </Button>
-      <Button type="text" icon={<ForwardIcon />} className="w-[150px] flex items-center gap-5 justify-start px-2 py-2">
+      <Button
+        type="text"
+        icon={<ForwardIcon />}
+        onClick={() => {
+          setOpenForward(true);
+          setShareVisible(false);
+        }}
+        className="w-[150px] flex items-center gap-5 justify-start px-2 py-2"
+      >
         Forward
       </Button>
     </div>
@@ -228,12 +238,23 @@ function PostItem({ post, refetch, openComment = false }: PostItemProps) {
         </Button>
       </div>
       {showComment && <CommentComponent postId={post._id} />}
-      <ModalRePost
-        isOpenModal={showModalRepost}
-        refetch={refetch}
-        setIsOpenModal={setShowModalRepost}
-        embeddedPost={post._id}
-      />
+      {showModalRepost && (
+        <ModalRePost
+          isOpenModal={showModalRepost}
+          refetch={refetch}
+          setIsOpenModal={setShowModalRepost}
+          embeddedPost={post._id}
+        />
+      )}
+      {openForward && (
+        <ModalForward
+          open={openForward}
+          onClose={() => setOpenForward(false)}
+          name={post?.author?.user_name}
+          avatar={post?.author?.avatar}
+          postId={post?._id}
+        />
+      )}
     </div>
   );
 }

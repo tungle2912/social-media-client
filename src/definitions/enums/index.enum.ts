@@ -102,3 +102,14 @@ export enum contactStatus {
   none,
   noContact
 }
+export enum messageType {
+  Text,
+  Media,
+  Profile,
+  Post,
+  RemoveMember,
+  AddMember,
+  JoinGroup,
+  LeaveGroup,
+  CreateGroup
+}

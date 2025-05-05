@@ -1,3 +1,5 @@
+import { PostMedia } from "~/definitions/interfaces/post.interface";
+
 export const regexYoutubeLink =
   /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
 
@@ -16,3 +18,26 @@ export const convertLinksToAnchors = (input: any) => {
     ?.replace(/\r\n|\n/g, '<br>');
 };
 
+export const parseMedia = (url: string): PostMedia => {
+  const fileName = url.split('/').pop() || '';
+  const ext = fileName.split('.').pop()?.toLowerCase() || '';
+
+  return {
+    url,
+    name: fileName,
+    type: ['gif', 'png', 'jpeg', 'jpg'].includes(ext)
+      ? 'image'
+      : ['mp4', 'mpeg', 'mov'].includes(ext)
+        ? 'video'
+        : 'file',
+    id: undefined,
+  };
+};
+export const parseFile = (file: any): PostMedia  => {
+  return {
+    url: file.url,
+    name: file.name,
+    type: 'file',
+    id: undefined,
+  };
+};
