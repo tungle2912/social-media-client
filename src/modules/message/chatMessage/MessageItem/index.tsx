@@ -206,7 +206,7 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
                   <div className={styles.documentFile} key={index}>
                     <div className="flex gap-[9px] items-center">
                       <div className="h-[26.67px]">
-                      <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                        <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
                       </div>
                       <div className={classNames(styles.name)}>
                         <SmartTooltip className="max-w-[100%]" text={doc?.name} />
@@ -243,7 +243,7 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
             <div>
               {dataConversation?.type === ConversationType.GROUP_CHAT && (
                 <strong onClick={() => {}} className="text-xs cursor-pointer hover:underline">
-                  {getUsername(message?.user?.basicPersonalInfo)}
+                  {message?.user?.user_name}
                 </strong>
               )}
               <div
@@ -343,7 +343,7 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
                         <div className={styles.documentFile} key={i}>
                           <div className="flex gap-[9px] items-center">
                             <div className="h-[26.67px]">
-                            <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                              <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
                             </div>
                             <div className={classNames(styles.name)}>
                               <SmartTooltip className="max-w-[100%]" text={doc?.name} />

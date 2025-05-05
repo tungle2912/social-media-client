@@ -37,7 +37,7 @@ interface Props {
     >
   >;
 }
-export default function HeaderPost({ post, refetch }: Props) {
+export default function HeaderPost({ post, isMyPost, refetch }: Props) {
   const time = convertTimeStampToStringDate(post.createdAt);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -266,9 +266,12 @@ export default function HeaderPost({ post, refetch }: Props) {
           {renderTime()}
         </div>
       </div>
-      <Popover content={renderOptions} trigger={'click'} placement="bottomRight">
-        <Button shape="circle" icon={<EllipsisOutlined />} />
-      </Popover>
+      {isMyPost && (
+        <Popover content={renderOptions} trigger={'click'} placement="bottomRight">
+          <Button shape="circle" icon={<EllipsisOutlined />} />
+        </Popover>
+      )}
+
       <ModalConfirm
         onOk={handleDeletePost}
         visible={showConfirmDelete}

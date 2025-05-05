@@ -83,7 +83,18 @@
     "member": "Member",
     "today": "Today",
     "messageStatus": "This message was deleted",
-    "unsupportedMediaType": "Unsupported media type"
+    "unsupportedMediaType": "Unsupported media type",
+    "memberRequirement": "You must be a member of this group to send messages",
+    "invalidFileType": "Invalid file type",
+    "fileSizeExceeds": "File size exceeds the limit",
+    "pleaseEnterName": "Please enter a name",
+    "maxLengthInput": "Maximum length is 100 characters",
+    "createGroupError": "Error creating group",
+    "groupChat": "Group chat",
+    "addAvatar": "Add an avatar",
+    "groupName": "Group name",
+    "allMembersList": "All members list",
+    "memberChosenList": "Member chosen list"
   },
   "modalConfirm": {
     "no": "No",
@@ -102,6 +113,7 @@
     "edit": "Edit",
     "save": "Save",
     "close": "Close",
+    "typeHere": "Type here...",
     "send": "Send",
     "add": "Add",
     "remove": "Remove",
@@ -114,6 +126,7 @@
     "uploadImage": "Upload image",
     "emoji": "Emoji",
     "send": "Send",
-    "message": "Message"
+    "message": "Message",
+    "noData": "No data"
   }
 }

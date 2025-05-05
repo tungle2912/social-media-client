@@ -15,3 +15,4 @@ export const convertLinksToAnchors = (input: any) => {
     })
     ?.replace(/\r\n|\n/g, '<br>');
 };
+

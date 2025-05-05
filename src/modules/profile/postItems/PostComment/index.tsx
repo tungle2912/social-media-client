@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/navigation';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import { UserRole } from '~/definitions/enums/index.enum';
 import {
   useCreateCommentMutation,
@@ -19,6 +19,7 @@ import useLoadingStore from '~/stores/loading.store';
 import { LikeIcon, LoveIcon, HahaIcon, WowIcon, SadIcon, AngryIcon, LikeIconButton } from '~/common/icon';
 import ReactCount from '~/modules/profile/postItems/reactCount';
 import styles from './styles.module.scss';
+import { UserType } from '~/definitions';
 
 interface IProps {
   postId: string;
@@ -28,14 +29,14 @@ interface IProps {
 
 export default function CommentComponent({ postId, initialComments = [], focusCommentId }: IProps) {
   const { data: dataSession } = useSession();
-  const user = dataSession?.user;
+  const user = dataSession?.user as UserType;
   const router = useRouter();
   const t = useTranslations();
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const focusedCommentRef = useRef<HTMLDivElement>(null);
   const { setLoading } = useLoadingStore();
   const queryClient = useQueryClient();
-  const [expandedComments, setExpandedComments] = useState({});
+  const [expandedComments, setExpandedComments] = useState<Record<string, boolean>>({});
 
   const {
     data: commentsData,
@@ -97,7 +98,7 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
         { commentId, data: { content } },
         {
           onSuccess: () => {
-            queryClient.invalidateQueries(['comments', postId]);
+            queryClient.invalidateQueries({ queryKey: ['comments', postId] });
             setLoading(false);
           },
         }
@@ -111,7 +112,7 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
     try {
       await deleteComment.mutateAsync(commentId, {
         onSuccess: () => {
-          queryClient.invalidateQueries(['comments', postId]);
+          queryClient.invalidateQueries({ queryKey: ['comments', postId] });
         },
       });
     } catch (error) {
@@ -129,7 +130,7 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
     return mentions;
   };
 
-  const renderCommentContent = (content: string) => {
+  const renderCommentContent = (content: string): JSX.Element | JSX.Element[] => {
     if (!content) {
       return <span>No content</span>;
     }
@@ -147,7 +148,11 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
           </span>
         );
       }
-      return <span className='text-lg' key={index}>{part}</span>;
+      return (
+        <span className="text-lg" key={index}>
+          {part}
+        </span>
+      );
     });
   };
 
@@ -196,7 +201,7 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
         </Button>
       )}
       <div className="mt-4">
-        <CommentForm onSubmit={(content) => handleCreateComment(content)} loading={createComment.isPending} />
+        <CommentForm onSubmit={(content) => handleCreateComment(content)} />
       </div>
     </div>
   );
@@ -212,6 +217,16 @@ const CommentItem = ({
   renderCommentContent,
   canEditDelete,
   ref,
+}: {
+  comment: any;
+  level: number;
+  handleUpdateComment: (commentId: string, content: string) => void;
+  handleDeleteComment: (commentId: string) => void;
+  handleCreateComment: (content: string, parentId?: string | null) => void;
+  postId: string;
+  renderCommentContent: any;
+  canEditDelete: (commentAuthor: any) => boolean;
+  ref?: React.Ref<HTMLDivElement>;
 }) => {
   const { data: dataSession } = useSession();
   const user = dataSession?.user;
@@ -234,8 +249,7 @@ const CommentItem = ({
       }
     };
   }, []);
-
-  const handleReactionClick = (reactionType) => {
+  const handleReactionClick = (reactionType: any) => {
     const previousReaction = localReaction;
     const newReaction = reactionType === previousReaction ? '' : reactionType;
     setLocalReaction(newReaction);
@@ -247,9 +261,7 @@ const CommentItem = ({
           targetType: 1, // 1 for comments
         },
         {
-          onSuccess: () => {
-            queryClient.invalidateQueries(['comments', postId]);
-          },
+          onSuccess: () => {},
           onError: () => {
             setLocalReaction(previousReaction);
           },
@@ -258,7 +270,7 @@ const CommentItem = ({
     }, 500);
   };
 
-  const reactionIcons = {
+  const reactionIcons: Record<string, ReactNode> = {
     like: <LikeIcon />,
     love: <LoveIcon />,
     haha: <HahaIcon />,
@@ -304,7 +316,7 @@ const CommentItem = ({
                 <EditCommentForm
                   initialContent={comment.content}
                   onCancel={() => setEditing(false)}
-                  onSave={(content) => {
+                  onSave={(content: any) => {
                     handleUpdateComment(comment._id, content);
                     setEditing(false);
                   }}
@@ -352,7 +364,7 @@ const CommentItem = ({
           {replying && (
             <div className="mt-2">
               <CommentForm
-                onSubmit={(content, parentId) => handleCreateComment(content, parentId)}
+                onSubmit={(content: any, parentId: any) => handleCreateComment(content, parentId)}
                 mentionTag={`@${comment.author.user_name}`}
                 parentId={comment._id}
                 onCancel={() => setReplying(false)}
@@ -365,7 +377,17 @@ const CommentItem = ({
   );
 };
 
-const CommentForm = ({ onSubmit, mentionTag = '', parentId = null, onCancel }) => {
+const CommentForm = ({
+  onSubmit,
+  mentionTag = '',
+  parentId = null,
+  onCancel,
+}: {
+  onSubmit: (content: string, parentId?: string | null) => void;
+  mentionTag?: string;
+  parentId?: string | null;
+  onCancel?: () => void;
+}) => {
   const [content, setContent] = useState(mentionTag);
   const { data: dataSession } = useSession();
   const user = dataSession?.user as any;
@@ -413,7 +435,7 @@ const CommentForm = ({ onSubmit, mentionTag = '', parentId = null, onCancel }) =
   );
 };
 
-const EditCommentForm = ({ initialContent, onCancel, onSave }) => {
+const EditCommentForm = ({ initialContent, onCancel, onSave }: { initialContent: any; onCancel: any; onSave: any }) => {
   const [content, setContent] = useState(initialContent);
 
   return (

@@ -4,7 +4,7 @@ import { contactApi } from '~/services/api/contact.api';
 export const useGetFriendQuery = (enable: boolean = true) => {
   return useQuery({
     queryKey: ['FRIENDS'],
-    queryFn: contactApi.getFriends,
+    queryFn: (param) => contactApi.getFriends(param),
     enabled: enable,
   });
 };

@@ -263,7 +263,6 @@ export function ModalCreatePost({
     accept: acceptDocumentFiles.join(', '),
     onChange: (info) => {
       if (info.file.status === 'done') {
-        console.log(info?.file);
         handleFileSelection(info?.file?.originFileObj, MediaType.FILE);
       }
       // const fileList = info.fileList.map((file) => file.originFileObj as File);

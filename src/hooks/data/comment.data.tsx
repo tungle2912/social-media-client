@@ -3,7 +3,7 @@ import { commentApi } from '~/services/api/comment.api';
 
 export const useCreateCommentMutation = (postId: string) => {
   return useMutation({
-    mutationFn: (data: any) => commentApi.createComment(data)
+    mutationFn: (data: any) => commentApi.createComment(data),
   });
 };
 
@@ -22,13 +22,13 @@ export const useUpdateCommentMutation = (postId: string) => {
 };
 
 // Hook để xóa bình luận
-export const useDeleteCommentMutation = (commentId: string) => {
+export const useDeleteCommentMutation = (postId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => commentApi.deleteComment(commentId),
+    mutationFn: (commentId: string) => commentApi.deleteComment(commentId),
     onSuccess: async () => {
       queryClient.invalidateQueries({
-        queryKey: ['COMMENTS'],
+        queryKey: ['COMMENTS', postId],
       });
     },
   });

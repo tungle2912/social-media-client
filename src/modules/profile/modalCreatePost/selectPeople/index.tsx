@@ -73,9 +73,6 @@ const SelectPeopleCanViewAndComment: React.FC<Props> = ({
       window.removeEventListener('scroll', handleResize);
     };
   }, [listUserRef.current, selectedValues.viewScope.length, window.innerHeight, window.innerWidth]);
-  useEffect(() => {
-    console.log('listConnections', listConnections);
-  }, [listConnections]);
   const [params, setParams] = useState({
     page: 1,
     limit: 5,

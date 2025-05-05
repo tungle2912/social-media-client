@@ -1,8 +1,8 @@
 export enum ConversationFilterType {
   ALL = 'ALL',
-  CONNECTED = 'CONNECTED',
-  NON_CONNECTED = 'NON_CONNECTED',
-  GROUP = 'GROUP',
+  CONNECTED = 'DIRECT_MESSAGE',
+  NON_CONNECTED = 'NOT_CHATTED',
+  GROUP = 'GROUP_CHAT',
   GROUP_OR_CONNECTED = 'GROUP_OR_CONNECTED',
 }
 export enum ConversationType {

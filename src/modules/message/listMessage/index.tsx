@@ -1,11 +1,11 @@
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Flex, message, Skeleton, Tabs } from 'antd';
+import { Flex, message, Skeleton, Tabs, Tooltip } from 'antd';
 import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { IconTick } from '~/common/icon';
+import { GroupUserIcon, IconTick } from '~/common/icon';
 import { SearchParams } from '~/definitions/interfaces/interface';
 import { QUERY_KEY } from '~/definitions/models';
 import { ConversationFilterType } from '~/definitions/models/message';
@@ -19,6 +19,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useDeleteConservationMutation } from '~/hooks/data/conservation.data';
 import ListMessageItem from '~/modules/message/listMessage/messageItem';
 import useActivityAccountInfo from '~/stores/activityAccountInfo.store';
+import InputSearch from '~/common/inputSearch';
+import { useModalController } from '~/hooks/useModalController';
+import GroupChat from '~/modules/message/GroupChat';
 const INIT_PARAMS = { pageIndex: 1, pageSize: 10 };
 export default function ListMessage() {
   const t = useTranslations();
@@ -35,6 +38,9 @@ export default function ListMessage() {
   const [oldRoom, setOldRoom] = useState<string | undefined>(undefined);
   const setActivityAccountInfo = useActivityAccountInfo((state) => state.setUserInfo);
   const setActivityAccountType = useActivityAccountInfo((state) => state.setType);
+  const [inputValue, setInputValue] = useState<string>('');
+  const groupChatCtrl = useModalController();
+
   const {
     data: listMessages,
     fetchNextPage,
@@ -77,6 +83,10 @@ export default function ListMessage() {
       setOldRoom(roomId);
     }
   }, [searchParams?.get('roomId')]);
+  const handleSearch = (e: any) => {
+    setInputValue(e.target.value);
+    setParams({ ...params, search: e.target.value });
+  };
   const flatListMessages = useMemo(() => {
     const oldData = listMessages?.pages.flatMap((page: any) => page.data) || [];
     return oldData?.map((item) => {
@@ -139,6 +149,7 @@ export default function ListMessage() {
         setOpenMoreMessage(false);
       }
     };
+
     return (
       <InfiniteScroll
         dataLength={flatListMessages.length}
@@ -154,27 +165,32 @@ export default function ListMessage() {
         height={`calc(100dvh - 314px)`}
         className="scroll-bar pl-[10px] pr-[6px] mr-[5px] pb-[5px]"
       >
-        <div></div>
-        {flatListMessages.map((item: any, index: number) => (
-          <ListMessageItem
-            activeRoom={activeRoom}
-            flatListMessagesLength={flatListMessages?.length}
-            index={index}
-            isLoadingDeleteConservation={isLoadingDeleteConservation}
-            item={item}
-            moveEnter_id={moveEnter_id}
-            onDeleteConservation={onDeleteConservation}
-            onMouseMoveChatMessage={onMouseMoveChatMessage}
-            openMoreMessage={openMoreMessage}
-            refetchListMessage={refetchListMessage}
-            renderPreviewMsg={renderPreviewMsg}
-            setActivityAccountInfo={setActivityAccountInfo}
-            setActivityAccountType={setActivityAccountType}
-            setOpenMoreMessage={setOpenMoreMessage}
-            key={item._id}
-            disableDeleteConversation={false}
-          />
-        ))}
+        {flatListMessages?.length === 0 ? (
+          <div className="flex justify-center mt-[20px] px-[20px]">
+            <span className="text-base-black text-[16px]">{t('conversation.noMessage')}</span>
+          </div>
+        ) : (
+          flatListMessages.map((item: any, index: number) => (
+            <ListMessageItem
+              activeRoom={activeRoom}
+              flatListMessagesLength={flatListMessages?.length}
+              index={index}
+              isLoadingDeleteConservation={isLoadingDeleteConservation}
+              item={item}
+              moveEnter_id={moveEnter_id}
+              onDeleteConservation={onDeleteConservation}
+              onMouseMoveChatMessage={onMouseMoveChatMessage}
+              openMoreMessage={openMoreMessage}
+              refetchListMessage={refetchListMessage}
+              renderPreviewMsg={renderPreviewMsg}
+              setActivityAccountInfo={setActivityAccountInfo}
+              setActivityAccountType={setActivityAccountType}
+              setOpenMoreMessage={setOpenMoreMessage}
+              key={item._id}
+              disableDeleteConversation={false}
+            />
+          ))
+        )}
       </InfiniteScroll>
     );
   };
@@ -222,6 +238,26 @@ export default function ListMessage() {
             <span className="text-black-200 text-[12px] whitespace-nowrap">{t('conversation.markAllRead')}</span>
           </div>
         </Flex>
+        <div className="flex items-center justify-between mt-[16px] px-[16px] gap-2">
+          <InputSearch
+            placeholder={t('search')}
+            className={classNames(styles.inputSearch, styles.large)}
+            value={inputValue}
+            onChange={handleSearch}
+          />
+          <Tooltip
+            title={t('messageLocale.createAGroupChat')}
+            placement="bottom"
+            rootClassName={styles.tooltipCreateGroupChat}
+          >
+            <div
+              className={classNames(styles.groupIcon, { [styles.active]: !!groupChatCtrl?.key })}
+              onClick={() => groupChatCtrl.open(true)}
+            >
+              <GroupUserIcon color="#3E3E3E" />
+            </div>
+          </Tooltip>
+        </div>
         <div className="mt-[8px]">
           <Tabs activeKey={activeKey} onChange={onChangeTab} className={classNames(styles.customTabs, 'message-tab')}>
             {tabs.map((tab) => {
@@ -234,7 +270,7 @@ export default function ListMessage() {
           </Tabs>
         </div>
       </div>
-      {/* <GroupChat drawerCtrl={groupChatCtrl} refetchListMessage={refetchListMessage} /> */}
+      <GroupChat drawerCtrl={groupChatCtrl} refetchListMessage={refetchListMessage} />
     </>
   );
 }

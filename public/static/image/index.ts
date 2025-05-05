@@ -5,6 +5,7 @@ import attachment from './attachment.png';
 import logo from './logo.png';
 import coverPhoto from './coverPhoto1jpg.jpg';
 import iconTick from './iconTick.png';
+import imageDefault from './imageDefault.png';
 
 interface IImage {
   [key: string]: any;
@@ -15,6 +16,7 @@ const image: IImage = {
   videoAndImage,
   attachment,
   coverPhoto,
-  iconTick
+  iconTick,
+  imageDefault,
 };
 export default image;

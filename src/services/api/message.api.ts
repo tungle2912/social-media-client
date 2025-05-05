@@ -12,5 +12,8 @@ export const messageApi = {
   },
   createConversationMessage: (data: any) => {
     return sendPost('/api/conversations/message', data);
-  }
+  },
+  createGroupConservation: (data: any) => {
+    return sendPost('/api/conversations/create-group', data);
+  },
 };

@@ -1,3 +1,4 @@
+@import '~/theme/styles/_variables.scss';
 .input {
   display: flex;
   width: 100%;
@@ -5,5 +6,129 @@
   background-color: transparent !important;
   :global(.ant-form-item){
     width: 100%;
+  }
+}
+
+
+.customInput {
+  width: 100%;
+  height: 48px;
+  box-shadow: none;
+
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover,
+  input:-webkit-autofill:focus,
+  input:-webkit-autofill:active {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: $black-color-2;
+    transition: background-color 5000s ease-in-out 0s;
+    box-shadow: inset 0 0 20px 20px $background-secondary;
+    caret-color: $black-color-2;
+  }
+
+  :global {
+    textarea {
+      &::-webkit-scrollbar {
+        padding: 10px;
+        height: 6px;
+        width: 4px !important;
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-track {
+        box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: #d9d9d9;
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-thumb:hover {
+        background: #c7c6c6;
+        border-radius: 10px;
+      }
+
+      &::-webkit-scrollbar-track-piece {
+        background-color: #636363;
+        border-radius: 10px;
+      }
+      resize: none;
+    }
+    .ant-input-affix-wrapper {
+      height: 100%;
+    }
+    .ant-input {
+      height: 100%;
+      padding: 4px 20px;
+    }
+    .ant-input-outlined:not(.ant-input-disabled):not(.ant-input-status-error):not(.ant-input-status-warning) {
+      &:focus,
+      &:focus-within,
+      &:active {
+        .ant-input-suffix {
+          svg {
+            rect {
+              stroke: $primary-color;
+            }
+            path {
+              stroke: $primary-color;
+              fill: $primary-color;
+            }
+          }
+        }
+      }
+    }
+    .ant-input-outlined.ant-input-status-error:not(.ant-input-disabled),
+    .ant-input-status-error:not(.ant-input-disabled):not(.ant-input-borderless).ant-input {
+      // border: none;
+      border-color: $red-color-1;
+      background-color: $red-color-1;
+
+      &:hover {
+        border-color: $red-color-2;
+      }
+
+      &:focus,
+      &:focus-within {
+        border-color: $red-color-5;
+      }
+    }
+    .ant-input-outlined.ant-input-status-warning:not(.ant-input-disabled),
+    .ant-input-status-warning:not(.ant-input-disabled):not(.ant-input-borderless).ant-input {
+      border-color: $orange-color-1;
+      background: $orange-color-1;
+
+      &:hover {
+        border-color: $orange-color-2;
+      }
+
+      &:focus,
+      &:focus-within {
+        border-color: $orange-color-5;
+      }
+    }
+  }
+
+  &.rounded {
+    :global {
+      .ant-input-outlined {
+        border-radius: 100px;
+      }
+    }
+  }
+
+  &.customSearchButton {
+    padding: 0px !important;
+
+    :global {
+      .ant-input {
+        margin-left: 24px;
+        background: transparent;
+        color: #fff;
+      }
+    }
   }
 }

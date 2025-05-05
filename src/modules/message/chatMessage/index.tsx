@@ -455,7 +455,7 @@ export default function ChatMessage() {
                 </div>
                 <div
                   className={classNames(
-                    'w-full absolute top-[115px] bottom-[121px] pb-[12px] bg-white',
+                    'w-full absolute top-[115px] pb-[12px] bg-white',
                     styles.customScrollBar
                   )}
                 >
