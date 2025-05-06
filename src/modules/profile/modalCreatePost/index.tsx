@@ -493,14 +493,16 @@ export function ModalCreatePost({
           </div>
         </div>
       </Modal>
-      <SelectPeopleCanViewAndComment
-        open={!!peopleCanViewAndCommentCtrl.key}
-        attachedData={peopleCanViewAndCommentCtrl.attachedData}
-        onClosed={() => peopleCanViewAndCommentCtrl.close()}
-        selectedValues={selectedValues}
-        setSelectedValues={setSelectedValues}
-        onChangeValue={setSelectedValues}
-      />
+      {!!peopleCanViewAndCommentCtrl.key && (
+        <SelectPeopleCanViewAndComment
+          open={!!peopleCanViewAndCommentCtrl.key}
+          attachedData={peopleCanViewAndCommentCtrl.attachedData}
+          onClosed={() => peopleCanViewAndCommentCtrl.close()}
+          selectedValues={selectedValues}
+          setSelectedValues={setSelectedValues}
+          onChangeValue={setSelectedValues}
+        />
+      )}
     </>
   );
 }

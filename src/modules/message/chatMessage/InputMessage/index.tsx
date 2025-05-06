@@ -162,7 +162,6 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
         file: file,
         type: file.type,
       };
-      console.log('Uploading file:', file);
       if (acceptDocumentFiles.includes(file?.type + '')) {
         setDocumentFiles((prev: any) => [...prev, fileObj]);
       } else setFiles((prev: any) => [...prev, fileObj]);
@@ -201,7 +200,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
           <p className="mt-[61px] text-base-black-300 leading-[24px]">
             {t(`sizeExceedingMessage.${message1}`)}
             <br />
-            {t(`message.${message2}`, { field: limit })}
+            {t(`sizeExceedingMessage.${message2}`, { field: limit })}
             <br />
             {t('sizeExceedingMessage.pleaseCheckFileAgain')}
           </p>
@@ -366,7 +365,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
             </Upload>
           </div>
         </Tooltip>
-        <div className='flex-1 rounded-[10px] flex items-center border-[#7a7979] border-2 h-[50px] gap-2 p-2 bg-[#F8F8FF]'>
+        <div className="flex-1 rounded-[10px] flex items-center border-[#7a7979] border-2 h-[50px] gap-2 p-2 bg-[#F8F8FF]">
           <Input.TextArea
             ref={inputRef}
             maxLength={maxLengthTextArea}

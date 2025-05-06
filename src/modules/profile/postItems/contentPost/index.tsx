@@ -168,7 +168,7 @@ const ContentPost = ({ content, postMedias, onShowDetail, isDetail }: IPropsCont
                   const isImage = EXT_IMAGE.includes(ext);
                   return index < 2 ? (
                     <PhotoView
-                      key={item.id}
+                      key={index}
                       src={isImage ? item.url : undefined}
                       render={(props) => (
                         <div {...props.attrs} className={styles.videoContainer}>

@@ -93,7 +93,7 @@ export const nextAuthOptions: AuthOptions = {
       return baseUrl;
     },
     async jwt({ token, user, account, trigger, session }: any) {
-      const currentTime = Date.now() / 1000; // Thời gian hiện tại tính bằng giây
+      const currentTime = Math.floor(Date.now() / 1000); // Thời gian hiện tại tính bằng giây
       if (trigger === 'update' && session?.user) {
         token.user = { ...token.user, ...session.user };
       }
@@ -113,22 +113,19 @@ export const nextAuthOptions: AuthOptions = {
         token.accessToken = account.access_token;
         // Nếu SSO cung cấp exp, có thể thêm vào đây
       }
-
-      // Kiểm tra và làm mới token nếu cần
       if (token.accessTokenExpires) {
         const threshold = 300; // 5 phút trước khi hết hạn
-        if (currentTime + threshold >= token.accessTokenExpires) {
+        if (token.accessTokenExpires - currentTime <= threshold) {
           const refreshedTokens = await refreshAccessToken(token.refreshToken);
           if (refreshedTokens) {
             token.accessToken = refreshedTokens.accessToken;
             token.accessTokenExpires = refreshedTokens.accessTokenExpires;
             token.refreshToken = refreshedTokens.refreshToken;
+          } else {
+            token.isAuthenticated = true;
           }
         }
-        // Cập nhật trạng thái xác thực dựa trên token hiện tại
-        token.isAuthenticated = currentTime < token.accessTokenExpires;
       } else {
-        // Với SSO không có exp, giả định luôn xác thực
         token.isAuthenticated = true;
       }
 

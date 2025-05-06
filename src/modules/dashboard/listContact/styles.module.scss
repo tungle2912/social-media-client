@@ -21,3 +21,14 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   padding: 25px;
 }
+@media (max-width: 1250px) {
+  .listMessage {
+    padding: 20px;
+  }
+  .listSuggested {
+    padding: 20px;
+  }
+  .suggestedItem {
+    width: 100%;
+  }
+}

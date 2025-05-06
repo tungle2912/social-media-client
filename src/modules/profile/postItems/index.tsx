@@ -15,6 +15,7 @@ import {
   ShareIcon,
   WowIcon,
 } from '~/common/icon';
+import { useSearchParams } from 'next/navigation';
 import { IPost, PostMedia } from '~/definitions/interfaces/post.interface';
 import { useGetPostByIdQuery, useReactPostMutation } from '~/hooks/data/post.data';
 import ContentPost from '~/modules/profile/postItems/contentPost';
@@ -26,6 +27,9 @@ import CommentComponent from '~/modules/profile/postItems/PostComment';
 import classNames from 'classnames';
 import { ModalRePost } from '~/modules/profile/modalRepost';
 import ModalForward from '~/modules/profile/postItems/modalForward';
+import { useDimension } from '~/hooks';
+import Image from 'next/image';
+import { parseFile, parseMedia } from '~/lib/helper';
 interface PostItemProps {
   post: IPost;
   refetch: (options?: RefetchOptions) => Promise<
@@ -51,29 +55,13 @@ function PostItem({ post, refetch, openComment = false, isPreview = false }: Pos
   const [showComment, setShowComment] = useState(openComment);
   const [showModalRepost, setShowModalRepost] = useState(false);
   const [openForward, setOpenForward] = useState<boolean>(false);
-  const parseMedia = (url: string): PostMedia => {
-    const fileName = url.split('/').pop() || '';
-    const ext = fileName.split('.').pop()?.toLowerCase() || '';
+  const searchParams = useSearchParams();
+  const { isSM } = useDimension();
+  const roomId = searchParams.get('roomId');
+  const isForward = useMemo(() => {
+    return !!roomId;
+  }, [roomId]);
 
-    return {
-      url,
-      name: fileName,
-      type: ['gif', 'png', 'jpeg', 'jpg'].includes(ext)
-        ? 'image'
-        : ['mp4', 'mpeg', 'mov'].includes(ext)
-          ? 'video'
-          : 'file',
-      id: undefined,
-    };
-  };
-  const parseFile = (file: any): PostMedia => {
-    return {
-      url: file.url,
-      name: file.name,
-      type: 'file',
-      id: undefined,
-    };
-  };
   useEffect(() => {
     setLocalReaction(post.currentUserReaction || '');
   }, [post.currentUserReaction]);
@@ -175,8 +163,21 @@ function PostItem({ post, refetch, openComment = false, isPreview = false }: Pos
       </Button>
     </div>
   );
-  return (
-    <div className={styles.postItem}>
+  return isForward && isSM && postDetail?.result ? (
+    <div className="flex justify-center items-center bg-gray-600 rounded-[10px] p-2 h-[120px]">
+      <button className="text-white" onClick={() => window.open(`/post/${post._id}`, '_blank')}>
+        <Image
+          alt="logo"
+          width={200}
+          height={100}
+          src="https://res.cloudinary.com/dflvvu32c/image/upload/v1745035787/logo_wjj1t5.png"
+          className={styles.logo}
+        />
+        Nhấn để xem bài viết
+      </button>
+    </div>
+  ) : (
+    <div className={classNames(styles.postItem, isForward && styles.postItemForward)}>
       <HeaderPost refetch={refetch} isMyPost={post?.author?._id === user?._id && !isPreview} post={post}></HeaderPost>
       <ContentPost
         content={post.content}

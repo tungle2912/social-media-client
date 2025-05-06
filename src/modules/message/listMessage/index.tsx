@@ -246,7 +246,7 @@ export default function ListMessage() {
             onChange={handleSearch}
           />
           <Tooltip
-            title={t('messageLocale.createAGroupChat')}
+            title={t('message.createAGroupChat')}
             placement="bottom"
             rootClassName={styles.tooltipCreateGroupChat}
           >

@@ -11,9 +11,12 @@ export const messageApi = {
     return sendDelete(`/api/conversations/${id}`);
   },
   createConversationMessage: (data: any) => {
-    return sendPost('/api/conversations/message', data);
+    return sendPost('/api/messages', data);
   },
   createGroupConservation: (data: any) => {
     return sendPost('/api/conversations/create-group', data);
   },
+  deleteMessage: (id: string, data: any) => {
+    return sendDelete(`/api/messages/${id}`, data);
+  }
 };

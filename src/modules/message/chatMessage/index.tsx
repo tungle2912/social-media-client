@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/rules-of-hooks */
-import { Avatar, Flex, Spin } from 'antd';
+import { Avatar, Flex, message, Spin } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
@@ -10,8 +10,7 @@ import { BackIcon, IconPenEdit } from '~/common/icon';
 import IconNoMessage from '~/common/IconNoMessage';
 import SmartTooltip from '~/common/smartTooltip';
 import { QUERY_KEY } from '~/definitions/models';
-import { ConversationType, MESSAGE_TYPE } from '~/definitions/models/message';
-import { handleError } from '~/lib/utils';
+import { ConversationType, messageDeleteType } from '~/definitions/models/message';
 import InputMessage from '~/modules/message/chatMessage/InputMessage';
 import MessageItem from '~/modules/message/chatMessage/MessageItem';
 import { useSocket } from '~/provider/socketProvider';
@@ -21,9 +20,10 @@ import styles from './styles.module.scss';
 
 import { useInfiniteQuery, useQueryClient } from '@tanstack/react-query';
 import { useSession } from 'next-auth/react';
-import { contactApi } from '~/services/api/contact.api';
-import { messageApi } from '~/services/api/message.api';
 import { messageType } from '~/definitions/enums/index.enum';
+import { messageApi } from '~/services/api/message.api';
+import { useDeleteMessageMutation } from '~/hooks/data/conservation.data';
+import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
 
 export default function ChatMessage() {
   const router = useRouter();
@@ -47,46 +47,55 @@ export default function ChatMessage() {
   const [msgMetaData, setMsgMetaData] = useState<any>();
   const [newMsgRead, setNewMsgRead] = useState<any>();
   const [newMsg, setNewMsg] = useState<any>();
-  const [paramsDetailMsg, setParamsDetailMsg] = useState({
-    pageSize: 20,
-    pageIndex: 1,
-  });
+  const deleteMessageMutation = useDeleteMessageMutation();
+
   const {
-    data: dataResopnse,
+    data: dataResponse,
     isLoading: isLoadingList,
     refetch,
+    hasNextPage,
+    fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE, roomId, paramsDetailMsg],
-    queryFn: () => messageApi.getConversationsDetailMessage(roomId, paramsDetailMsg),
+    queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE, roomId],
+    queryFn: ({ pageParam = 1 }) =>
+      messageApi.getConversationsDetailMessage(roomId, {
+        pageSize: 20,
+        pageIndex: pageParam,
+      }),
     enabled: !!roomId && !isNewMsg,
     staleTime: 0,
-    getNextPageParam: (lastPage: any) => {
-      const nextPage = lastPage?.pageIndex < lastPage?.totalPages ? lastPage?.pageIndex + 1 : undefined;
-      return nextPage;
+    getNextPageParam: (lastPage) => {
+      const { pageIndex, totalPages } = lastPage.result.pagination;
+      return pageIndex < totalPages ? pageIndex + 1 : undefined;
     },
     initialPageParam: 1,
   });
   useEffect(() => {
-    if (dataResopnse) {
-      setDataPagination(dataResopnse?.pages[0]?.result.pagination);
-      const conversation: any = dataResopnse?.pages[0]?.result?.conversation;
+    if (dataResponse) {
+      setDataPagination(dataResponse?.pages[0]?.result.pagination);
+      const conversation: any = dataResponse?.pages[0]?.result?.conversation;
       const messageType = conversation.type;
       if (messageType === ConversationType.DIRECT_MESSAGE) {
         conversation.isOnline = Array.from(listOnline).includes(conversation?.partner?._id);
       }
       setDataConversation(conversation);
       //set dataConversion
-      //  setMsgMetaData(dataResopnse?.pages[0]?.metadata);
+      //  setMsgMetaData(dataResponse?.pages[0]?.metadata);
       const data =
-        dataResopnse?.pages[0]?.result?.pagination.page === 1
-          ? dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data
-          : [...listDetailMessage, ...dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data];
+        dataResponse?.pages[0]?.result?.pagination.page === 1
+          ? dataResponse?.pages[dataResponse?.pages?.length - 1]?.result?.data
+          : [...listDetailMessage, ...dataResponse?.pages[dataResponse?.pages?.length - 1]?.result?.data];
       setDataMessageResponse(data);
     }
-  }, [dataResopnse]);
+  }, [dataResponse]);
   useEffect(() => {
     if (dataMessageResponse) {
-      const data = dataMessageResponse;
+      const currentUserId = (sessionData?.user as any)?._id;
+      const filteredMessages = dataMessageResponse.filter((message: any) => {
+        if (message.deletedFor && message.deletedFor.includes(currentUserId)) return false;
+        return true;
+      });
+      const data = filteredMessages;
       const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
       const messageType = dataConversation.type;
       //filter data for add key isNextDate
@@ -129,11 +138,30 @@ export default function ChatMessage() {
       }, 1000);
   }, [dataMessageResponse]);
   useEffect(() => {
+    if (socket) {
+      const handleNewMessage = (message: any) => {
+        setDataMessageResponse((prev: any) => [message, ...prev]);
+      };
+      const handleNewDeleteMessage = (updatedMessage: any) => {
+        setDataMessageResponse((prev: any) =>
+          prev.map((msg: any) => (msg._id === updatedMessage._id ? updatedMessage : msg))
+        );
+      };
+
+      socket.on(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
+      socket.on(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
+
+      // Cleanup: Xóa listener khi component unmount hoặc khi roomId/socket thay đổi
+      return () => {
+        socket.off(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
+        socket.off(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
+      };
+    }
+  }, [roomId, socket]);
+  useEffect(() => {
     if (!!roomId) {
       setLoading(true);
       setListDetailMessage([]);
-      setHasNexPage(true);
-      setParamsDetailMsg((prev) => ({ ...prev, pageIndex: 1 }));
       setIsNewMsg(false);
     }
     if (!roomId) {
@@ -143,7 +171,6 @@ export default function ChatMessage() {
     }
   }, [roomId, activityAccountInfo?._id]);
   const lastMsgRef = useRef<HTMLParagraphElement | null>(null);
-  const [hasNextPage, setHasNexPage] = useState<boolean>(true);
   const t = useTranslations();
   const renderGeneralRoomInfo = useCallback(() => {
     if (activityAccountType === ConversationType.NOT_CHATTED) {
@@ -230,13 +257,25 @@ export default function ChatMessage() {
 
     return null;
   }, [dataConversation, activityAccountInfo?._id, roomId, listOnline, activityAccountType]);
+  const handleDeleteMessage = async (type: messageDeleteType, message_id: any) => {
+    await deleteMessageMutation.mutateAsync(
+      {
+        id: message_id,
+        data: {
+          delete_type: type,
+        },
+      },
+      {
+        onSuccess: () => {
+          message.success(t('message.deleteMessageSuccess'));
+        },
+      }
+    );
+  };
   const onNextPage = () => {
     if (!hasNextPage || isLoadingList) return;
-    setParamsDetailMsg((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }));
+    fetchNextPage();
   };
-  useEffect(() => {
-    console.log('listDetailMessage', listDetailMessage);
-  }, [listDetailMessage]);
   const renderListMsg = () => {
     return listDetailMessage.map((message: any, index: any) => {
       const listMedia = message?.medias;
@@ -269,7 +308,7 @@ export default function ChatMessage() {
         <MessageItem
           key={message?._id}
           dataConversation={dataConversation}
-          handleDeleteMsg={(type, message_id) => Promise.resolve()}
+          handleDeleteMsg={handleDeleteMessage}
           index={index}
           listDocs={listDocs}
           listMedia={listMedia}
@@ -278,20 +317,7 @@ export default function ChatMessage() {
       );
     });
   };
-  useEffect(() => {
-    if (socket) {
-      const handleNewMessage = (message: any) => {
-        setDataMessageResponse((prev: any) => [message, ...prev]);
-      };
 
-      socket.on('NEW_MESSAGE', handleNewMessage);
-
-      // Cleanup: Xóa listener khi component unmount hoặc khi roomId/socket thay đổi
-      return () => {
-        socket.off('NEW_MESSAGE', handleNewMessage);
-      };
-    }
-  }, [roomId, socket]);
   const sendMessage = async (text: string, files: any, documents: any) => {
     const formData = new FormData();
     formData.append('message', text);
@@ -349,13 +375,14 @@ export default function ChatMessage() {
                   <InfiniteScroll
                     dataLength={listDetailMessage?.length || 0}
                     next={onNextPage}
-                    hasMore={!!hasNextPage}
+                    hasMore={hasNextPage}
                     loader={
                       <div className="flex justify-center mt-[20px]">
                         <Spin />
                       </div>
                     }
                     inverse={true}
+                    key={roomId}
                     height={`calc(100dvh - 300px)`}
                     className="scroll-bar py-10 px-[16px] mr-[5px] flex flex-col-reverse"
                   >

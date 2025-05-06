@@ -65,7 +65,8 @@ export default function ChatBox({ conversation, onClose }: any) {
         width: '350px',
         background: '#fff',
         border: '1px solid #ccc',
-        borderRadius: '15px',
+        borderTopLeftRadius: '15px',
+        borderTopRightRadius: '15px',
         boxShadow: '0 2px 15px rgba(0,0,0,0.1)',
       }}
     >
@@ -77,7 +78,8 @@ export default function ChatBox({ conversation, onClose }: any) {
           padding: '10px',
           borderBottom: '1px solid #eee',
           background: '#f6f6f6',
-          borderRadius: '15px',
+          borderTopLeftRadius: '15px',
+          borderTopRightRadius: '15px',
           overflow: 'hidden',
         }}
       >

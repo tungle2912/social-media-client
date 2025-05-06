@@ -55,13 +55,13 @@ export const acceptDocumentFiles = [
 ];
 export const SOCKET_EVENT_KEY = {
   CONNECT: 'connection',
-  FIRE_MESSAGE: 'message',
-  DELETE_MESSAGE: 'message-deletion',
+  NEW_MESSAGE: 'new-message',
+  DELETE_MESSAGE: 'delete-message',
   MESSAGE_READ: 'message-read',
   NOTIFICATION: 'notification',
   NEWSLETTER: 'newsletter',
   SYNCHRONIZE: 'synchronize',
   ADD_MEMBER: 'add-member',
   REMOVE_MEMBER: 'remove-member',
-  MEMBER_EXIT: 'member-exit',
-};
+  MEMBER_EXIT: 'member-exit'
+}

@@ -1,37 +1,49 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 /* eslint-disable react-hooks/rules-of-hooks */
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Avatar, Flex, Image, Popover, Spin, Tooltip } from 'antd';
+import { Avatar, Flex, Image, Popover, Skeleton, Spin, Tooltip } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { saveAs } from 'file-saver';
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
-import { useEffect, useRef, useState } from 'react';
+import image from '@/static/image';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
-import { useDimension } from '~/hooks';
-import { useSocket } from '~/provider/socketProvider';
-import useListOnline from '~/stores/listOnline.data';
-import styles from './styles.module.scss';
+import { DeleteTagIcon, DocumentDownloadIcon, DropDownIcon2, IconRead, IconSent } from '~/common/icon';
+import SmartTooltip from '~/common/smartTooltip';
+import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
+import { messageType } from '~/definitions/enums/index.enum';
 import { QUERY_KEY } from '~/definitions/models';
-import { messageApi } from '~/services/api/message.api';
 import {
   ConversationMessageStatus,
   ConversationType,
   MESSAGE_TYPE,
-  TYPE_DELETE_MESSAGE,
+  messageDeleteType,
 } from '~/definitions/models/message';
-import { handleError } from '~/lib/utils';
-import { contactApi } from '~/services/api/contact.api';
-import { CancelledIcon, DeleteTagIcon, DocumentDownloadIcon, DropDownIcon2, IconRead, IconSent } from '~/common/icon';
-import SmartTooltip from '~/common/smartTooltip';
+import { useDimension } from '~/hooks';
+import { useDeleteMessageMutation } from '~/hooks/data/conservation.data';
 import useConfirm from '~/hooks/useConfirm';
 import { convertLinksToAnchors } from '~/lib/helper';
-import { getUsername } from '~/services/helpers';
-import MediaMessage from '~/modules/message/MediaMessage';
-import image from '@/static/image';
 import InputMessage from '~/modules/dashboard/MessageDrawer/ChatMessage/InputMessage';
-
+import MediaMessage from '~/modules/message/MediaMessage';
+import { useSocket } from '~/provider/socketProvider';
+import { messageApi } from '~/services/api/message.api';
+import { getUsername } from '~/services/helpers';
+import useListOnline from '~/stores/listOnline.data';
+import styles from './styles.module.scss';
+import { useGetPostByIdQuery } from '~/hooks/data/post.data';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+import PostItem from '~/modules/profile/postItems';
+const SYSTEM_MESSAGE_MAP: Record<string, string> = {
+  [messageType.CreateGroup]: 'message.groupCreatedBy',
+  [messageType.AddMember]: 'message.memberAdded',
+  [messageType.RemoveMember]: 'message.memberRemoved',
+  [messageType.JoinGroup]: 'message.memberJoined',
+  [messageType.LeaveGroup]: 'message.memberLeft',
+};
+const MemoizedPostItem = memo(PostItem);
 // TODO: Need refactoring
 const ChatMessage = (message: any) => {
   const socket: any = useSocket();
@@ -49,15 +61,57 @@ const ChatMessage = (message: any) => {
     pageSize: 20,
     pageIndex: 1,
   });
-  const [hasNextPage, setHasNexPage] = useState<boolean>(true);
+  const [postId, setPostId] = useState<any>(null);
+  const [selectedPost, setSelectedPost] = useState<any>(null);
+  const [errorMessage, setErrorMessage] = useState<string>('');
+  const deleteMessageMutation = useDeleteMessageMutation();
   const lastMsgRef = useRef<HTMLParagraphElement | null>(null);
   const [openDrawerEditMember, setOpenDrawerEditMember] = useState<boolean>(false);
   const [isNewMsg, setIsNewMsg] = useState<boolean>(true);
   const { data: sessionData } = useSession();
   const profile = sessionData?.user;
+  const { data: postDetail, refetch: refetchPost, error: postError, status: postStatus } = useGetPostByIdQuery(postId);
+  useEffect(() => {
+    if (postError) {
+      // @ts-ignore
+      if (postError.status === 403) {
+        // @ts-ignore
+        setErrorMessage(postError.data?.message || 'Not authorized to view');
+      } else {
+        setErrorMessage('An error occurred while fetching post');
+      }
+      setSelectedPost(null);
+    } else if (postDetail) {
+      setSelectedPost(postDetail.result);
+      setErrorMessage('');
+    }
+  }, [postDetail, postError]);
+  const renderPostContent = useCallback(() => {
+    if (errorMessage) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
+          <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('accessDenied')}</h3>
+          <p className="text-gray-600 text-center">{errorMessage}</p>
+        </div>
+      );
+    }
+
+    if (selectedPost) {
+      return (
+        <div className="max-h-[90vh] overflow-y-auto p-4">
+          <MemoizedPostItem openComment={true} post={selectedPost} isPreview refetch={refetchPost} />
+        </div>
+      );
+    }
+    return (
+      <div className="flex items-center justify-center min-h-[300px] p-4">
+        <Skeleton active paragraph={{ rows: 4 }} title={false} className="w-full max-w-[400px]" />
+      </div>
+    );
+  }, [selectedPost, errorMessage]);
   useEffect(() => {
     setListDetailMessage([]);
-    setHasNexPage(true);
     setParamsDetailMsg((prev) => ({ ...prev, pageIndex: 1 }));
   }, [roomId]);
   useEffect(() => {
@@ -68,57 +122,75 @@ const ChatMessage = (message: any) => {
       setIsNewMsg(false);
     }
   }, [message]);
-  const getMediaMessage = async (newMsg) => {
-    try {
-      const res: any = await connect.getMediaMessage(newMsg?.uuid);
-      if (res?.code === CODE.OK) {
-        setListDetailMessage((prev) => [{ ...newMsg, conversationMessageMedias: res?.data }, ...prev]);
-      }
-    } catch (error) {}
-  };
+
   useEffect(() => {
     if (socket) {
-      socket.on('NEW_MESSAGE', async (message: any) => {
+      const handleNewMessage = (message: any) => {
         setDataMessageResponse((prev: any) => [message, ...prev]);
-      });
+      };
+      const handleNewDeleteMessage = (updatedMessage: any) => {
+        setDataMessageResponse((prev: any) =>
+          prev.map((msg: any) => (msg._id === updatedMessage._id ? updatedMessage : msg))
+        );
+      };
+
+      socket.on(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
+      socket.on(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
+
+      // Cleanup: Xóa listener khi component unmount hoặc khi roomId/socket thay đổi
+      return () => {
+        socket.off(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
+        socket.off(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
+      };
     }
   }, [roomId, socket]);
   const {
-    data: dataResopnse,
+    data: dataResponse,
     isLoading: isLoadingList,
     refetch,
+    hasNextPage,
+    fetchNextPage,
   } = useInfiniteQuery({
-    queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE, roomId, paramsDetailMsg],
-    queryFn: () => messageApi.getConversationsDetailMessage(roomId, paramsDetailMsg),
+    queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE, roomId],
+    queryFn: ({ pageParam = 1 }) =>
+      messageApi.getConversationsDetailMessage(roomId, {
+        pageSize: 20,
+        pageIndex: pageParam,
+      }),
     enabled: !!roomId && !isNewMsg,
     staleTime: 0,
-    getNextPageParam: (lastPage: any) => {
-      const nextPage = lastPage?.pageIndex < lastPage?.totalPages ? lastPage?.pageIndex + 1 : undefined;
-      return nextPage;
+    getNextPageParam: (lastPage) => {
+      const { pageIndex, totalPages } = lastPage.result.pagination;
+      return pageIndex < totalPages ? pageIndex + 1 : undefined;
     },
     initialPageParam: 1,
   });
   useEffect(() => {
-    if (dataResopnse) {
-      setDataPagination(dataResopnse?.pages[0]?.result.pagination);
-      const conversation: any = dataResopnse?.pages[0]?.result?.conversation;
+    if (dataResponse) {
+      setDataPagination(dataResponse?.pages[0]?.result.pagination);
+      const conversation: any = dataResponse?.pages[0]?.result?.conversation;
       const messageType = conversation.type;
       if (messageType === ConversationType.DIRECT_MESSAGE) {
         conversation.isOnline = Array.from(listOnline).includes(conversation?.partner?._id);
       }
       setDataConversation(conversation);
       //set dataConversion
-      //  setMsgMetaData(dataResopnse?.pages[0]?.metadata);
+      //  setMsgMetaData(dataResponse?.pages[0]?.metadata);
       const data =
-        dataResopnse?.pages[0]?.result?.pagination.page === 1
-          ? dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data
-          : [...listDetailMessage, ...dataResopnse?.pages[dataResopnse?.pages?.length - 1]?.result?.data];
+        dataResponse?.pages[0]?.result?.pagination.page === 1
+          ? dataResponse?.pages[dataResponse?.pages?.length - 1]?.result?.data
+          : [...listDetailMessage, ...dataResponse?.pages[dataResponse?.pages?.length - 1]?.result?.data];
       setDataMessageResponse(data);
     }
-  }, [dataResopnse]);
+  }, [dataResponse]);
   useEffect(() => {
     if (dataMessageResponse) {
-      const data = dataMessageResponse;
+      const currentUserId = (sessionData?.user as any)?._id;
+      const filteredMessages = dataMessageResponse.filter((message: any) => {
+        if (message.deletedFor && message.deletedFor.includes(currentUserId)) return false;
+        return true;
+      });
+      const data = filteredMessages;
       const onlineUsers = new Set(listOnline?.users?.map((user: any) => user._id));
       const messageType = dataConversation.type;
       //filter data for add key isNextDate
@@ -153,70 +225,7 @@ const ChatMessage = (message: any) => {
           },
         ];
       }
-
-      const listNewMsgConvertTemp = [...listNewMsgConvert];
-
-      const { listForwardContact, listForwardPost } = listNewMsgConvertTemp?.reduce(
-        (acc, i) => {
-          if (!!i?.additionalData) {
-            if (
-              i.type === MESSAGE_TYPE.PROFILE ||
-              i.type === MESSAGE_TYPE.REMOVE_MEMBER ||
-              i.type === MESSAGE_TYPE.ADD_MEMBER ||
-              i.type === MESSAGE_TYPE.LEAVE_GROUP ||
-              i.type === MESSAGE_TYPE.CREATE_GROUP
-            ) {
-              typeof i?.additionalData === 'string' && acc.listForwardContact.push(i?.additionalData?.split(',')[0]);
-            } else if (i.type === MESSAGE_TYPE.POST) {
-              typeof i?.additionalData === 'string' && acc.listForwardPost.push(i?.additionalData?.split(',')[0]);
-            }
-          }
-          return acc;
-        },
-        { listForwardContact: [], listForwardPost: [] }
-      );
-
-      const fetchData = async () => {
-        try {
-          const resProfile: any =
-            listForwardContact?.length > 0 &&
-            (await contactApi.getContactProfile({
-              additionData: listForwardContact,
-            }));
-          const resPost: any =
-            listForwardPost?.length > 0 &&
-            (await contactApi.getForwardPost({
-              post_ids: listForwardPost,
-            }));
-          const _resProfile = resProfile?.data || [];
-          const _resPost = resPost?.data || [];
-          const res = [..._resProfile, ..._resPost];
-
-          if (res?.length) {
-            const lookup = res?.reduce((acc, obj) => {
-              acc[obj._id] = obj;
-              return acc;
-            }, {});
-
-            const result = listNewMsgConvertTemp.map((item) => {
-              const newItem = { ...item };
-              newItem.additionalData =
-                typeof item?.additionalData === 'string'
-                  ? lookup[item?.additionalData?.split(',')[0]]
-                  : item?.additionalData;
-              return newItem;
-            });
-
-            setListDetailMessage(result);
-          } else {
-            setListDetailMessage(listNewMsgConvert);
-          }
-        } catch (err) {
-          handleError(err);
-        }
-      };
-
-      fetchData();
+      setListDetailMessage(listNewMsgConvert);
       setLoading(false);
     } else
       setTimeout(() => {
@@ -238,9 +247,8 @@ const ChatMessage = (message: any) => {
 
   const onNextPage = () => {
     if (!hasNextPage || isLoadingList) return;
-    setParamsDetailMsg((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }));
+    fetchNextPage();
   };
-
   useEffect(() => {
     if (listDetailMessage && listDetailMessage?.length > 0 && !!listDetailMessage[0].isScroll) {
       if (lastMsgRef.current) {
@@ -254,7 +262,7 @@ const ChatMessage = (message: any) => {
     formData.append('message', text);
     formData.append('conversationId', roomId + '');
     // formData.append('conversationUuid', roomId + '');
-    formData.append('type', (files?.length || documents?.length) > 0 ? MESSAGE_TYPE.MEDIA : MESSAGE_TYPE.TEXT);
+    formData.append('type', String((files?.length || documents?.length) > 0 ? messageType.Media : messageType.Text));
     if (files?.length > 0) {
       for (let i = 0; i < files.length; i++) {
         formData.append('medias', files[i]?.file);
@@ -265,23 +273,7 @@ const ChatMessage = (message: any) => {
         formData.append('attachments', documents[i]?.file);
       }
     }
-    try {
-      const res: any = await messageApi.createConversationMessage(formData);
-      // if (!!res) {
-      //   setListDetailMessage((prev: any) => [
-      //     {
-      //       ...res.result,
-      //       isScroll: true,
-      //       owner: true,
-      //       createdAt: dayjs(),
-      //       isNextDate:
-      //         listDetailMessage?.length > 0 &&
-      //         dayjs(listDetailMessage[0]?.createdAt).format('YYYY-MM-DD') !== dayjs().format('YYYY-MM-DD'),
-      //     },
-      //     ...prev,
-      //   ]);
-      // }
-    } catch (error) {}
+    await messageApi.createConversationMessage(formData);
   };
 
   const renderListMsg = () => {
@@ -379,20 +371,20 @@ const ChatMessage = (message: any) => {
       );
     };
 
-    const handleDeleteMsg = async (type, messageUuid) => {
-      // try {
-      //   const res: any = await connect.deleteMessage(roomId, messageUuid, {
-      //     deleteType: type,
-      //   });
-      //   if (res?.code === CODE.OK) {
-      //     const newList = listDetailMessage.map((msg) => {
-      //       if (msg?.uuid === messageUuid)
-      //         return { ...msg, isDeleted: true, message: t('messageLocale.deletedByUser') };
-      //       return msg;
-      //     });
-      //     setListDetailMessage(newList);
-      //   }
-      // } catch (error) {}
+    const handleDeleteMsg = async (type: messageDeleteType, message_id: any) => {
+      await deleteMessageMutation.mutateAsync(
+        {
+          id: message_id,
+          data: {
+            delete_type: type,
+          },
+        },
+        {
+          onSuccess: () => {
+            message.success(t('message.deleteMessageSuccess'));
+          },
+        }
+      );
     };
 
     const settingConfirm = {
@@ -408,7 +400,7 @@ const ChatMessage = (message: any) => {
       ),
     };
 
-    return listDetailMessage.map((message, index) => {
+    return listDetailMessage.map((message: any, index: any) => {
       const listMedia = message?.medias;
       const listDocs = message?.attachments;
 
@@ -419,353 +411,274 @@ const ChatMessage = (message: any) => {
         });
       };
 
-      const MsgComponent = () => (
-        <div
-          id={`message_${message?._id}`}
-          className={classNames(
-            `mt-4 flex ${message?.owner ? 'justify-end' : 'justify-start'} items-center overflow-x-clip`,
-            styles.msg
-          )}
-        >
-          {message?.owner && !message?.deletedAt && !message?.isDeleted && (
-            <div className={classNames('relative cursor-pointer z-10', styles.msgOption)}>
-              <Popover
-                showArrow={false}
-                overlayClassName={styles.msgOptionPopover}
-                content={() => (
-                  <>
-                    <div
-                      className="p-4 hover:bg-[#F7F7F7]"
-                      onClick={() =>
-                        useConfirm({
-                          ...settingConfirm,
-                          onOk: () => handleDeleteMsg(TYPE_DELETE_MESSAGE.ONLY_ME, message?.uuid),
-                        })
-                      }
+      const MsgComponent = () => {
+        const isMessageSystem =
+          message?.type &&
+          [
+            messageType.CreateGroup,
+            messageType.AddMember,
+            messageType.RemoveMember,
+            messageType.JoinGroup,
+            messageType.LeaveGroup,
+          ].includes(message.type);
+
+        const messageText = SYSTEM_MESSAGE_MAP[message.type]
+          ? t(SYSTEM_MESSAGE_MAP[message.type])
+          : t('message.unknownAction');
+        const renderSystemMessage = () => (
+          <div className="px-[16px] text-sm max-w-[100%] py-[6px] rounded-[10px] bg-[#F7F7F7] text-[#333333] flex gap-2 items-center">
+            {message.user?.avatar ? (
+              <Avatar src={message.user?.avatar || ''} alt={t('avatar')} className={styles.avatarUserIcon} />
+            ) : (
+              <div className={styles.avatarUserIcon}>{message.user.user_name}</div>
+            )}
+            <span className="text-xs font-medium">{message.user?.user_name}</span>
+            <span className="text-xs text-lg">{messageText}</span>
+          </div>
+        );
+        const renderMessageContent = () => {
+          if (message.deletedForAll) {
+            return (
+              <div className="text-sm break-words text-[#333333]">
+                <i>{t('message.messageHasBeenRecalled')}</i>
+              </div>
+            );
+          }
+          return (
+            <>
+              <div
+                className="text-sm break-words text-[#333333]"
+                dangerouslySetInnerHTML={{ __html: convertLinksToAnchors(message?.message) }}
+              ></div>
+              {message?.additionalData && message?.type === MESSAGE_TYPE.PROFILE && (
+                <Flex className="flex flex-col bg-[white] px-3 py-2">
+                  <Flex
+                    className={`w-[${isSM ? 40 : 15}vw] gap gap-2 py-2 flex justify-start items-center border-b-[1px]`}
+                  >
+                    {message.additionalData?.basicPersonalInfo?.profilePhoto ? (
+                      <Avatar
+                        src={message.additionalData?.basicPersonalInfo?.profilePhoto || ''}
+                        alt={t('avatar')}
+                        className={styles.avatarUser}
+                      />
+                    ) : (
+                      <div className={styles.avatarUser}>{getUsername(message?.user?.basicPersonalInfo, true)}</div>
+                    )}
+                    <div>
+                      <SmartTooltip
+                        className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
+                        text={`${message.additionalData?.basicPersonalInfo?.firstName} ${message.additionalData?.basicPersonalInfo?.lastName}`}
+                      />
+                    </div>
+                  </Flex>
+                  <Flex className="mt-2">
+                    <a
+                      target="_blank"
+                      href={`${process.env.NEXT_PUBLIC_DOMAIN}/public-page/personal/${message?.additionalData?._id}`}
+                      className="py-2 leading-6 cursor-pointer underline"
+                      rel="noreferrer"
                     >
-                      <div className="cursor-pointer flex justify-start items-center">
-                        <DeleteTagIcon />
-                        <span className="ml-2 text-sm">{t('message.deleteForMe')}</span>
+                      {t('message.viewProfile')}
+                    </a>
+                  </Flex>
+                </Flex>
+              )}
+              {message?.additionalData && message?.type === messageType.Post && (
+                <Flex className="flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2">
+                  <Flex className="gap gap-3 py-2 flex border-b-[1px]">{renderPostContent()}</Flex>
+                </Flex>
+              )}
+              {listMedia?.length > 0 && <MediaMessage listMedia={listMedia} handleDownload={handleDownload} />}
+              {listMedia?.length < 1 && listDocs?.length > 0 && (
+                <div className="flex justify-end">
+                  <div className={styles.btnAction} onClick={handleDownload}>
+                    <DocumentDownloadIcon />
+                  </div>
+                </div>
+              )}
+              {listDocs?.length > 0 &&
+                listDocs.map((doc: any, index: any) => (
+                  <div className={styles.documentFile} key={index}>
+                    <div className="flex gap-[9px] items-center">
+                      <div className="h-[26.67px]">
+                        <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                      </div>
+                      <div className={classNames(styles.name)}>
+                        <SmartTooltip className="max-w-[100%]" text={doc?.name} />
                       </div>
                     </div>
-                    {dayjs().diff(message?.createdAt, 'minute') < 60 && (
+                  </div>
+                ))}
+            </>
+          );
+        };
+        const renderOwnerMessage = () => (
+          <div className="w-fit max-w-[70%] px-[16px] py-[12px] rounded-[10px] bg-[#f7f0ff]">
+            {renderMessageContent()}
+            {message?.createdAt && !message?.deletedAt && !message?.isDeleted && (
+              <SendTime
+                createdAt={message?.createdAt}
+                isRead={message?.deliveredByUsers?.length === 0 || message?.isRead}
+                isOwn={true}
+                deliveredByUsers={message?.deliveredByUsers}
+                readByUsers={message?.readByUsers}
+                lastMsg={index === 0}
+                dataConversation={dataConversation}
+                key={message?._id}
+              />
+            )}
+          </div>
+        );
+        const renderNonOwnerMessage = () => (
+          <Flex className="w-full">
+            <div className="mr-2 relative cursor-pointer" onClick={() => {}}>
+              {message?.user?.avatar ? (
+                <Avatar src={message?.user?.avatar || ''} alt={t('avatar')} className={styles.avatar} />
+              ) : (
+                <div className={styles.avatar}>{message?.user?.user_name}</div>
+              )}
+              {message?.isOnline && (
+                <div className={classNames(styles.status, styles.online, 'absolute right-[2px] top-[30px]')}></div>
+              )}
+            </div>
+            <div className="max-w-[80%] w-fit flex justify-center items-center">
+              <div>
+                {dataConversation?.type === ConversationType.GROUP_CHAT && (
+                  <strong onClick={() => {}} className="text-xs cursor-pointer hover:underline">
+                    {message?.user?.user_name}
+                  </strong>
+                )}
+                <div
+                  className={classNames(
+                    'px-[16px] w-full py-[12px] rounded-[10px] bg-[#F7F7F7]',
+                    dataConversation?.type === ConversationType.GROUP_CHAT ? 'mt-1' : ''
+                  )}
+                >
+                  {renderMessageContent()}
+                  {message?.createdAt && !message?.deletedAt && !message?.isDeleted && (
+                    <SendTime
+                      createdAt={message?.createdAt}
+                      isRead={message?.status === ConversationMessageStatus.READ || message?.isRead}
+                      isOwn={false}
+                      dataConversation={dataConversation}
+                    />
+                  )}
+                </div>
+              </div>
+              {!message?.owner && !message?.deletedForAll && (
+                <div className={classNames('relative cursor-pointer z-10 ml-2', styles.msgOption)}>
+                  <Popover
+                    showArrow={false}
+                    overlayClassName={styles.msgOptionPopover}
+                    content={() => (
                       <div
                         className="p-4 hover:bg-[#F7F7F7]"
                         onClick={() =>
                           useConfirm({
-                            ...settingConfirm,
+                            width: 560,
+                            textCancel: t('modalConfirm.no'),
+                            textOk: t('modalConfirm.yes'),
+                            title: t('modalConfirm.message'),
                             description: (
                               <div>
-                                <p className="text-[#636363]">{t('message.confirmDelete')}</p>
-                                <p className="text-[#636363]">{t('message.confirmDeleteDes')}</p>
+                                <p className="text-[#636363]">{t('message.deleteConfirmation.title')}</p>
+                                <p className="text-[#636363]">{t('message.deleteConfirmation.description')}</p>
                               </div>
                             ),
-                            onOk: () => handleDeleteMsg(TYPE_DELETE_MESSAGE.ALL, message?.uuid),
+                            onOk: () => handleDeleteMsg(messageDeleteType.onlyMe, message?._id),
                           })
                         }
                       >
                         <div className="cursor-pointer flex justify-start items-center">
                           <DeleteTagIcon />
-                          <span className="ml-2 text-sm">{t('message.deleteForEveryone')}</span>
+                          <span className="ml-2 text-sm">{t('message.deleteForMe')}</span>
                         </div>
                       </div>
-                    )}
-                  </>
-                )}
-              >
-                <div
-                  className={classNames(
-                    'flex justify-center items-center w-[32px] h-[32px] mr-2 border-[1px] border-[#E8E9EE] rounded-[100px]',
-                    styles.iconDropdown
-                  )}
-                >
-                  <DropDownIcon2 />
-                </div>
-              </Popover>
-            </div>
-          )}
-          {message?.owner ? (
-            <div className="w-fit max-w-[70%] px-[16px] py-[12px] rounded-[10px] bg-[#f7f0ff]">
-              <div
-                className="text-sm break-words text-[#333333] max-w-[390px]"
-                dangerouslySetInnerHTML={{
-                  __html:
-                    message?.deletedAt || message?.isDeleted
-                      ? `<i>${message?.message}</i>`
-                      : convertLinksToAnchors(message?.message),
-                }}
-              ></div>
-              {message?.createdAt && !message?.deletedAt && !message?.isDeleted && (
-                <>
-                  {message?.additionalData && message?.type === MESSAGE_TYPE.PROFILE && (
-                    <Flex className="flex flex-col bg-[white] px-3 py-2">
-                      <Flex className="gap gap-2 py-2 flex justify-center items-center border-b-[1px]">
-                        {message.additionalData?.basicPersonalInfo?.profilePhoto ? (
-                          <Avatar
-                            src={message.additionalData?.basicPersonalInfo?.profilePhoto || ''}
-                            alt="avatar"
-                            className={styles.avatarUser}
-                          />
-                        ) : (
-                          <div className={styles.avatarUser}>{message?.partner?.user_name}</div>
-                        )}
-                        <div>
-                          <SmartTooltip
-                            className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                            text={`${message.additionalData?.basicPersonalInfo?.firstName} ${message.additionalData?.basicPersonalInfo?.lastName}`}
-                          />
-                          <p className="mt-[4px] text-base-black-300 text-[12px]">
-                            {dataConversation?.partner?.experiences?.companyName}
-                          </p>
-                          <p className="mt-[4px] text-base-black-300 text-[12px]">
-                            {message.additionalData?.basicPersonalInfo?.cityOfResidence}
-                          </p>
-                        </div>
-                      </Flex>
-                      <Flex className="mt-2">
-                        <u className="py-2 leading-6 cursor-pointer text-[#333333]">{t('messageLocale.viewProfile')}</u>
-                      </Flex>
-                    </Flex>
-                  )}
-                  {message?.additionalData && message?.type === MESSAGE_TYPE.POST && (
-                    <Flex className="flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2">
-                      <Flex className="gap gap-2 py-2 flex  border-b-[1px]">
-                        {message.additionalData?.owner?.profilePhoto ? (
-                          <Avatar
-                            src={message.additionalData?.owner?.profilePhoto || ''}
-                            alt="avatar"
-                            className={styles.avatarUserSmall}
-                          />
-                        ) : (
-                          <div className={styles.avatarUserSmall}>
-                            {getUsername(message?.additionalData?.owner, true)}
-                          </div>
-                        )}
-                        <div>
-                          <SmartTooltip
-                            className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                            text={`${message.additionalData?.owner?.firstName} ${message.additionalData?.owner?.lastName}`}
-                          />
-                          <a
-                            href={`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData.uuid}`}
-                            target="_blank"
-                            className="text-sm not-italic font-normal leading-[24px] mt-[4px] text-base-blue-500 "
-                            rel="noreferrer"
-                          >
-                            {' '}
-                            {`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData.uuid}`}{' '}
-                          </a>
-                        </div>
-                      </Flex>
-                    </Flex>
-                  )}
-                  {listMedia?.length > 0 && <MediaMessage listMedia={listMedia} handleDownload={handleDownload} />}
-                  {listMedia?.length < 1 && listDocs?.length > 0 && (
-                    <div className="flex justify-end">
-                      <div className={styles.btnAction} onClick={handleDownload}>
-                        <DocumentDownloadIcon />
-                      </div>
-                    </div>
-                  )}
-                  {listDocs?.length > 0 &&
-                    listDocs.map((doc: any, index: any) => (
-                      <div className={styles.documentFile} key={index}>
-                        <div className="flex gap-[9px] items-center">
-                          <div className="h-[26.67px]">
-                            <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
-                          </div>
-                          <div className={classNames(styles.name)}>
-                            <SmartTooltip className="max-w-[100%]" text={doc?.name} />
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  <SendTime
-                    createdAt={message?.createdAt}
-                    isRead={message?.deliveredByUsers?.length === 0}
-                    isOwn={true}
-                    deliveredByUsers={message?.deliveredByUsers}
-                    readByUsers={message?.readByUsers}
-                  />
-                </>
-              )}
-            </div>
-          ) : (
-            <Flex className="w-full">
-              <div className="mr-2 relative cursor-pointer" onClick={() => {}}>
-                {message?.user?.avatar ? (
-                  <Avatar src={message?.user?.avatar || ''} alt={t('avatar')} className={styles.avatar} />
-                ) : (
-                  <div className={styles.avatar}>message?.user?.user_name</div>
-                )}
-                {message?.isOnline && (
-                  <div className={classNames(styles.status, styles.online, 'absolute right-[2px] top-[30px]')}></div>
-                )}
-              </div>
-              <div className="max-w-[80%] w-fit flex justify-center items-center">
-                <div>
-                  {dataConversation?.type === ConversationType.GROUP_CHAT && (
-                    <strong onClick={() => {}} className="text-xs cursor-pointer hover:underline">
-                      {getUsername(message?.user?.basicPersonalInfo)}
-                    </strong>
-                  )}
-                  <div
-                    className={classNames(
-                      'px-[16px] w-full  py-[12px] rounded-[10px] bg-[#F7F7F7]',
-                      dataConversation?.type === ConversationType.GROUP_CHAT ? 'mt-1' : ''
                     )}
                   >
                     <div
-                      className="text-sm break-words text-[#333333] break-all"
-                      dangerouslySetInnerHTML={{
-                        __html:
-                          message?.deletedAt || message?.isDeleted
-                            ? `<i>${message?.message}</i>`
-                            : convertLinksToAnchors(message?.message),
-                      }}
-                    ></div>
-                    {message?.createdAt && !message?.deletedAt && !message?.isDeleted && (
-                      <>
-                        {message?.additionalData && message?.type === MESSAGE_TYPE.PROFILE && (
-                          <Flex className="flex flex-col bg-[white] px-3 py-2">
-                            <Flex
-                              className={`w-[${isSM ? 40 : 15}vw] gap gap-2 py-2 flex justify-start items-center border-b-[1px]`}
-                            >
-                              {message.additionalData?.basicPersonalInfo?.profilePhoto ? (
-                                <Avatar
-                                  src={message.additionalData?.basicPersonalInfo?.profilePhoto || ''}
-                                  alt={t('avatar')}
-                                  className={styles.avatarUser}
-                                />
-                              ) : (
-                                <div className={styles.avatarUser}>
-                                  {getUsername(message?.user?.basicPersonalInfo, true)}
-                                </div>
-                              )}
-                              <div>
-                                <SmartTooltip
-                                  className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                                  text={`${message.additionalData?.basicPersonalInfo?.firstName} ${message.additionalData?.basicPersonalInfo?.lastName}`}
-                                />
-                              </div>
-                            </Flex>
-                            <Flex className="mt-2">
-                              <a
-                                target="_blank"
-                                href={`${process.env.NEXT_PUBLIC_DOMAIN}/public-page/personal/${message?.additionalData?._id}`}
-                                className="py-2 leading-6 cursor-pointer underline"
-                                rel="noreferrer"
-                              >
-                                {t('message.viewProfile')}
-                              </a>
-                            </Flex>
-                          </Flex>
-                        )}
-                        {message?.additionalData && message?.type === MESSAGE_TYPE.POST && (
-                          <Flex className="flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2">
-                            <Flex className="gap gap-3 py-2 flex  border-b-[1px]">
-                              {message.additionalData?.owner?.profilePhoto ? (
-                                <Avatar
-                                  src={message.additionalData?.owner?.profilePhoto || ''}
-                                  alt={t('avatar')}
-                                  className={styles.avatarUserSmall}
-                                />
-                              ) : (
-                                <div className={styles.avatarUserSmall}>
-                                  {getUsername(message?.additionalData?.owner, true)}
-                                </div>
-                              )}
-                              <div>
-                                <SmartTooltip
-                                  className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                                  text={`${message.additionalData?.owner?.firstName} ${message.additionalData?.owner?.lastName}`}
-                                />
-                                <a
-                                  href={`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData._id}`}
-                                  target="_blank"
-                                  className="text-sm not-italic font-normal leading-[24px] mt-[4px] text-base-blue-500 line-clamp-2"
-                                  rel="noreferrer"
-                                >
-                                  {' '}
-                                  {`${process.env.NEXT_PUBLIC_DOMAIN}/community/${message?.additionalData._id}`}{' '}
-                                </a>
-                              </div>
-                            </Flex>
-                          </Flex>
-                        )}
-                        {listMedia?.length > 0 && (
-                          <MediaMessage listMedia={listMedia} handleDownload={handleDownload} />
-                        )}
-                        {listMedia?.length < 1 && listDocs?.length > 0 && (
-                          <div className="flex justify-end">
-                            <div className={styles.btnAction} onClick={handleDownload}>
-                              <DocumentDownloadIcon />
-                            </div>
-                          </div>
-                        )}
-                        {listDocs?.length > 0 &&
-                          listDocs.map((doc: any, i: any) => (
-                            <div className={styles.documentFile} key={i}>
-                              <div className="flex gap-[9px] items-center">
-                                <div className="h-[26.67px]">
-                                  <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
-                                </div>
-                                <div className={classNames(styles.name)}>
-                                  <SmartTooltip className="max-w-[100%]" text={doc?.name} />
-                                </div>
-                              </div>
-                            </div>
-                          ))}
-                        {message?.createdAt && !message?.deletedAt && !message?.isDeleted && (
-                          <SendTime
-                            createdAt={message?.createdAt}
-                            isRead={message?.status === ConversationMessageStatus.READ || message?.isRead}
-                            isOwn={false}
-                            dataConversation={dataConversation}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
+                      className={classNames(
+                        'flex justify-center items-center w-[32px] h-[32px] mr-2 border-[1px] border-[#E8E9EE] rounded-[100px]',
+                        styles.iconDropdown
+                      )}
+                    >
+                      <DropDownIcon2 />
+                    </div>
+                  </Popover>
                 </div>
-                {!message?.owner && !message?.deletedAt && !message?.isDeleted && (
-                  <div className={classNames('relative cursor-pointer z-10 ml-2', styles.msgOption)}>
-                    <Popover
-                      showArrow={false}
-                      overlayClassName={styles.msgOptionPopover}
-                      content={() => (
+              )}
+            </div>
+          </Flex>
+        );
+        return (
+          <div
+            id={`message_${message?._id}`}
+            className={classNames(
+              `mt-4 flex ${isMessageSystem ? 'justify-center' : message?.owner ? 'justify-end' : 'justify-start'} items-center overflow-x-clip`,
+              styles.msg
+            )}
+          >
+            {message?.owner && !message?.deletedForAll && (
+              <div className={classNames('relative cursor-pointer z-10', styles.msgOption)}>
+                <Popover
+                  showArrow={false}
+                  overlayClassName={styles.msgOptionPopover}
+                  content={() => (
+                    <>
+                      <div
+                        className="p-4 hover:bg-[#F7F7F7]"
+                        onClick={() =>
+                          useConfirm({
+                            ...settingConfirm,
+                            onOk: () => handleDeleteMsg(messageDeleteType.onlyMe, message?._id),
+                          })
+                        }
+                      >
+                        <div className="cursor-pointer flex justify-start items-center">
+                          <DeleteTagIcon />
+                          <span className="ml-2 text-sm">{t('message.deleteForMe')}</span>
+                        </div>
+                      </div>
+                      {dayjs().diff(message?.createdAt, 'minute') < 60 && (
                         <div
                           className="p-4 hover:bg-[#F7F7F7]"
                           onClick={() =>
                             useConfirm({
                               ...settingConfirm,
-                              onOk: () => handleDeleteMsg(TYPE_DELETE_MESSAGE.ONLY_ME, message?._id),
+                              description: (
+                                <div>
+                                  <p className="text-[#636363]">{t('message.confirmDelete')}</p>
+                                  <p className="text-[#636363]">{t('message.confirmDeleteDes')}</p>
+                                </div>
+                              ),
+                              onOk: () => handleDeleteMsg(messageDeleteType.all, message?._id),
                             })
                           }
                         >
                           <div className="cursor-pointer flex justify-start items-center">
                             <DeleteTagIcon />
-                            <span className="ml-2 text-sm">{t('message.deleteForMe')}</span>
+                            <span className="ml-2 text-sm">{t('message.deleteForEveryone')}</span>
                           </div>
                         </div>
                       )}
-                    >
-                      <div
-                        className={classNames(
-                          'flex justify-center items-center w-[32px] h-[32px] mr-2 border-[1px] border-[#E8E9EE] rounded-[100px]',
-                          styles.iconDropdown
-                        )}
-                      >
-                        <DropDownIcon2 />
-                      </div>
-                    </Popover>
+                    </>
+                  )}
+                >
+                  <div
+                    className={classNames(
+                      'flex justify-center items-center w-[32px] h-[32px] mr-2 border-[1px] border-[#E8E9EE] rounded-[100px]',
+                      styles.iconDropdown
+                    )}
+                  >
+                    <DropDownIcon2 />
                   </div>
-                )}
+                </Popover>
               </div>
-            </Flex>
-          )}
-        </div>
-      );
+            )}
+            {isMessageSystem ? renderSystemMessage : message?.owner ? renderOwnerMessage() : renderNonOwnerMessage()}
+          </div>
+        );
+      };
       if (!!message?.isNextDate) {
         return (
           <>
@@ -798,7 +711,7 @@ const ChatMessage = (message: any) => {
                 <InfiniteScroll
                   dataLength={listDetailMessage?.length || 0}
                   next={onNextPage}
-                  hasMore={!!hasNextPage}
+                  hasMore={hasNextPage}
                   loader={
                     <div className="flex justify-center mt-[20px]">
                       <Spin />
@@ -807,7 +720,7 @@ const ChatMessage = (message: any) => {
                   inverse={true}
                   height={window.innerHeight - 300}
                   className={classNames(
-                    isSM ? '' : 'h-[350px]',
+                    isSM ? '' : 'h-[320px]',
                     'scroll-bar  py-4 px-[16px] mr-[5px] flex flex-col-reverse'
                   )}
                 >

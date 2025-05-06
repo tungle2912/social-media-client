@@ -25,3 +25,12 @@ export const useCreateMessageMutation = () => {
     onSuccess: () => {},
   });
 };
+export const useDeleteMessageMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => messageApi.deleteMessage(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['LIST_CONSERVATION'] });
+    },
+  });
+};

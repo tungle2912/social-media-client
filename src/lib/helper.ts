@@ -1,4 +1,4 @@
-import { PostMedia } from "~/definitions/interfaces/post.interface";
+import { PostMedia } from '~/definitions/interfaces/post.interface';
 
 export const regexYoutubeLink =
   /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/g;
@@ -33,11 +33,23 @@ export const parseMedia = (url: string): PostMedia => {
     id: undefined,
   };
 };
-export const parseFile = (file: any): PostMedia  => {
+export const parseFile = (file: any): PostMedia => {
   return {
     url: file.url,
     name: file.name,
     type: 'file',
     id: undefined,
   };
+};
+export const clearAllCookies = () => {
+  // Get all cookies in the document
+  const cookies = document.cookie.split(';');
+
+  // Iterate over each cookie and delete it by setting an expired date
+  cookies.forEach((cookie) => {
+    const cookieName = cookie.split('=')[0].trim();
+    document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  });
+
+  console.log('All cookies cleared!');
 };

@@ -10,27 +10,36 @@ import styles from './styles.module.scss';
 import { useTheme } from '~/theme/ThemeProvider';
 import classNames from 'classnames';
 import { useRouter } from 'next/navigation';
+import { useMediaQuery } from 'usehooks-ts';
+import { useEffect } from 'react';
 
 const { Sider } = Layout;
 
 export default function Sidebar() {
-  const { isSM } = useDimension();
+  const { isSM, windowWidth } = useDimension();
   const { collapsed, setCollapsed } = useSideBarStore();
   const { theme } = useTheme();
   const route = useRouter();
   const handleMenuClick: MenuProps['onClick'] = (e) => {
-    const selectedRoute = menuRoutes.find(route => route.key === e.key);
+    const selectedRoute = menuRoutes.find((route) => route.key === e.key);
     if (selectedRoute) {
       route.push(selectedRoute.url);
     }
   };
+  const isTablet = useMediaQuery('(max-width: 1024px)');
+
+  useEffect(() => {
+    if (isTablet) {
+      setCollapsed(true);
+    }
+  }, [isTablet]);
   return (
     <Sider
       trigger={null}
       className={classNames(styles.sideBar, 'dark:bg-gray-900')}
-      collapsible
+      collapsible={windowWidth >= 1400}
       theme={theme}
-      collapsed={collapsed}
+      collapsed={windowWidth >= 1400 ? collapsed : true}
     >
       <div className={styles.logo} onClick={() => route.push('/')}>
         {(!isSM || (isSM && !collapsed)) && (
@@ -52,7 +61,7 @@ export default function Sidebar() {
         )}
       </div>
 
-      <Menu mode="inline" defaultSelectedKeys={['1']} items={menuRoutes} />
+      <Menu mode="inline" defaultSelectedKeys={['1']} items={menuRoutes} onClick={handleMenuClick} />
     </Sider>
   );
 }

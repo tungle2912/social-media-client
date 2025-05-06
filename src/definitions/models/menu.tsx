@@ -12,7 +12,7 @@ export const menuRoutes: IRoute[] = [
   {
     key: "1",
     label: "Home",
-    url: "/home",
+    url: "/",
     icon: <HomeIcon />,
   },
   {

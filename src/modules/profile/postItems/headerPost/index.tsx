@@ -271,26 +271,29 @@ export default function HeaderPost({ post, isMyPost, refetch }: Props) {
           <Button shape="circle" icon={<EllipsisOutlined />} />
         </Popover>
       )}
-
-      <ModalConfirm
-        onOk={handleDeletePost}
-        visible={showConfirmDelete}
-        onCancel={() => setShowConfirmDelete(false)}
-        onClosed={() => setShowConfirmDelete(false)}
-        title="Message"
-        description="Are you sure you want to delete this post?"
-        textOk="Delete"
-        textCancel="Cancel"
-      />
-      <SelectPeopleCanViewAndComment
-        open={selectFriendsModalOpen}
-        attachedData={{ field: 'viewScope' }}
-        onClosed={() => setSelectFriendsModalOpen(false)}
-        selectedValues={selectedValues}
-        setSelectedValues={setSelectedValues}
-        onChangeValue={setSelectedValues}
-        onUpdateView={handleSelectFriends}
-      />
+      {showConfirmDelete && (
+        <ModalConfirm
+          onOk={handleDeletePost}
+          visible={showConfirmDelete}
+          onCancel={() => setShowConfirmDelete(false)}
+          onClosed={() => setShowConfirmDelete(false)}
+          title="Message"
+          description="Are you sure you want to delete this post?"
+          textOk="Delete"
+          textCancel="Cancel"
+        />
+      )}
+      {selectFriendsModalOpen && (
+        <SelectPeopleCanViewAndComment
+          open={selectFriendsModalOpen}
+          attachedData={{ field: 'viewScope' }}
+          onClosed={() => setSelectFriendsModalOpen(false)}
+          selectedValues={selectedValues}
+          setSelectedValues={setSelectedValues}
+          onChangeValue={setSelectedValues}
+          onUpdateView={handleSelectFriends}
+        />
+      )}
     </div>
   );
 }

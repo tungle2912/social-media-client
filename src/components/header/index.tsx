@@ -14,11 +14,12 @@ import { useAuthStore } from '~/stores/auth.store';
 import { useSideBarStore } from '~/stores/sidebar.store';
 import styles from './styles.module.scss';
 import { useTheme } from '~/theme/ThemeProvider';
+import { clearAllCookies } from '~/lib/helper';
 import { ETheme } from '~/theme/ThemeProvider';
 import classNames from 'classnames';
 export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
-  const { isSM: isMobile } = useDimension();
+  const { isSM: isMobile, windowWidth } = useDimension();
   const logoutMutation = useLogoutMutation();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -33,6 +34,8 @@ export default function Header() {
     logoutMutation.mutateAsync(undefined, {
       onSuccess: async () => {
         setIsLoading(false);
+        localStorage.clear();
+        clearAllCookies();
         await signOut({ redirect: false });
         router.push('/auth/login');
       },
@@ -101,7 +104,10 @@ export default function Header() {
   };
 
   return (
-    <div className={classNames(styles.header, 'dark:bg-gray-900')} style={{ marginLeft: collapsed ? (isMobile ? '0px' : '100px') : '260px' }}>
+    <div
+      className={classNames(styles.header, 'dark:bg-gray-900')}
+      style={{ marginLeft: collapsed ? (isMobile ? '0px' : '100px') : '260px' }}
+    >
       {isLoading && (
         <div className={styles.spinnerOverlay}>
           <Spin size="large" />
@@ -111,8 +117,15 @@ export default function Header() {
         <Button
           type="text"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-          onClick={() => setCollapsed && setCollapsed(!collapsed)}
-          className={classNames(styles.btnCollapse, 'ant-btn-variant-text dark:text-white dark:bg-gray-900 dark:rounded-none dark:hover:bg-gray-800')}
+          onClick={() => {
+            if (setCollapsed && windowWidth >= 1400) {
+              setCollapsed(!collapsed);
+            }
+          }}
+          className={classNames(
+            styles.btnCollapse,
+            'ant-btn-variant-text dark:text-white dark:bg-gray-900 dark:rounded-none dark:hover:bg-gray-800'
+          )}
         />
       )}
       <div className={classNames(styles.headerContainer, 'dark:bg-gray-900')}>

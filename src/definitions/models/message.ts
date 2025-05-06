@@ -27,8 +27,8 @@ export const MESSAGE_TYPE = {
   POST: 'POST',
 };
 
+export enum messageDeleteType {
+  onlyMe,
+  all,
+}
 
-export const TYPE_DELETE_MESSAGE = {
-  ONLY_ME: 'ONLY_ME',
-  ALL: 'ALL',
-};

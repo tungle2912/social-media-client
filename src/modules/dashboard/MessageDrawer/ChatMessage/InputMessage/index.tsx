@@ -356,7 +356,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
       <div className={styles.inputWrapper}>
         <div
           className={classNames(
-            'w-full h-auto relative rounded-[10px] px-[10px bg-[#F8F8FF] flex min-h-[40px] items-center gap-3',
+            'w-full h-auto relative rounded-[0] px-[10px bg-[#F8F8FF] flex min-h-[40px] items-center gap-3 py-2',
             loading ? 'opacity-[0.5]' : ''
           )}
         >

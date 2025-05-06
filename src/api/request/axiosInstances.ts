@@ -2,7 +2,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import Axios from 'axios';
 import { getSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { publicPost } from '~/api/request/base-axios-public-request';
 
 const cancelTokenSource = Axios.CancelToken.source();
@@ -68,15 +67,13 @@ protectedAxiosInstance.interceptors.response.use(
     if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshedTokens = await refreshTokenIfNeeded();
-      console.log('Refreshed tokens:', refreshedTokens);
       if (refreshedTokens) {
         originalRequest.headers.Authorization = `Bearer ${refreshedTokens.accessToken}`;
         return protectedAxiosInstance(originalRequest);
       } else {
-        console.log('Failed to refresh token, signing out:', error);
         await signOut({ redirect: false });
-        const route = useRouter();
-        await route.push('/auth/login');
+        window.location.href = '/auth/login'; 
+        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
@@ -111,4 +108,5 @@ publicAxiosInstance.interceptors.response.use(
   }
 );
 
-export { protectedAxiosInstance, publicAxiosInstance, cancelTokenSource };
+export { cancelTokenSource, protectedAxiosInstance, publicAxiosInstance };
+

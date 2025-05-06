@@ -341,7 +341,7 @@ const SelectPeopleCanViewAndComment: React.FC<Props> = ({
       }}
     >
       <div className="flex justify-between items-center">
-        <div className="text-xl text-base-black-200 font-bold">{t('communityLocale.selectPeople')}</div>
+        <div className="text-xl text-base-black-200 font-bold">{t('community.selectPeople')}</div>
         <div className="cursor-pointer" onClick={onCloseModal}>
           <CloseIcon />
         </div>
@@ -355,7 +355,7 @@ const SelectPeopleCanViewAndComment: React.FC<Props> = ({
       destroyOnClose={true}
       title={
         <div className="flex items-center justify-between">
-          <span className={styles.titleModal}>{t('communityLocale.selectPeople')}</span>
+          <span className={styles.titleModal}>{t('community.selectPeople')}</span>
           <div className="cursor-pointer" onClick={onCloseModal}>
             <CloseIcon />
           </div>

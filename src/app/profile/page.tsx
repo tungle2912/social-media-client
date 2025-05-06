@@ -19,8 +19,6 @@ export default function Profile() {
   const response = useGetProfileQuery();
   const { data: session } = useSession();
   const user = session?.user;
-  
-  console.log('User:', user);
   const [fileList] = useState<UploadFile[]>([]);
   const userProfile: UserType = response?.data?.result ?? ({} as UserType);
   const items = [

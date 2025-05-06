@@ -20,9 +20,26 @@
   width: 65%;
   margin-left: 100px;
 }
-.contact{
-  position:fixed;
+.contact {
+  position: fixed;
   top: 100px;
   right: 20px;
   bottom: 0;
+  width: 33%;
+  max-width: 354px;
+}
+@media (max-width: 1250px) {
+  .homeContent {
+    margin-left: 20px;
+  }
+  .contact {
+    right: 10px;
+  }
+}
+@media (max-width: 575px) {
+  .homeContent {
+    padding: 0;
+    width: 100%;
+    margin-left: 0;
+  }
 }

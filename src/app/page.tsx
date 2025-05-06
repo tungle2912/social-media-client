@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-async-client-component */
 'use client';
 import { Flex } from '~/theme';
 
@@ -16,7 +17,7 @@ export default async function HomePage() {
   // const tSample = await getTranslations('sample');
 
   return (
-    <Flex align="stretch" gap={20} className={mainStyles.homeWrapper}>
+    <Flex align="stretch" gap={isSM ? 0 : 20} className={mainStyles.homeWrapper}>
       <div className={mainStyles.homeContent}>
         <ListPost />
       </div>

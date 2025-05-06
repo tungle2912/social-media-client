@@ -1,19 +1,20 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Avatar, Skeleton } from 'antd';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import Button from '~/components/form/Button';
 import { SearchParams } from '~/definitions/interfaces/interface';
 import { QUERY_KEY } from '~/definitions/models';
 import { ConversationFilterType } from '~/definitions/models/message';
 import { useGetSuggestedFriendQuery } from '~/hooks/data/contact.data';
+import ChatBox from '~/modules/dashboard/chatBox';
 import ListContactItem from '~/modules/dashboard/listContact/listContactItem/item';
 import { messageApi } from '~/services/api/message.api';
 import useActivityAccountInfo from '~/stores/activityAccountInfo.store';
 import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
-import ChatBox from '~/modules/dashboard/chatBox';
+import { useDimension } from '~/hooks';
 const INIT_PARAMS = { pageIndex: 1, pageSize: 20 };
 export default function ListContact() {
   const { data: suggestedFriendResponse } = useGetSuggestedFriendQuery();
@@ -26,10 +27,15 @@ export default function ListContact() {
   const setActivityAccountType = useActivityAccountInfo((state) => state.setType);
   const [openChats, setOpenChats] = useState<string[]>([]);
   const t = useTranslations();
+  const { windowWidth } = useDimension();
   const [openMessageDrawer, setOpenMessageDrawer] = useState<boolean>(false);
   const handleOpenChat = (conversationId: string) => {
     if (!openChats.includes(conversationId)) {
-      setOpenChats([...openChats, conversationId]);
+      if (windowWidth >= 1440) {
+        setOpenChats([...openChats, conversationId]);
+      } else {
+        setOpenChats([conversationId]);
+      }
     }
   };
 
@@ -140,14 +146,13 @@ export default function ListContact() {
           suggestedFriendResponse.result.map((item: any) => (
             <div key={item.id} className={styles.suggestedItem}>
               <Avatar className="bg-[#fff0f6] w-[56px] h-[56px]" src={item?.avatar}></Avatar>
-              <div className="flex flex-col ">
+              <div className="flex flex-col w-[calc(100%-56px)]">
                 <p className={styles.suggestedName}>{item?.user_name}</p>
-                <div>
-                  <Button btnType="primary" className="text-[#ffffff]">
-                    {' '}
+                <div className="flex gap-2 max-lg:flex-col w-full">
+                  <Button btnType="primary" className="text-[#ffffff] w-[100%]">
                     Accept
                   </Button>
-                  <Button className="bg-[#d1d0d0]">Remove</Button>
+                  <Button className="bg-[#d1d0d0] w-[100%]">Remove</Button>
                 </div>
               </div>
             </div>
@@ -165,11 +170,10 @@ export default function ListContact() {
       <div
         style={{
           position: 'fixed',
-          bottom: '3px',
-          right: '400px',
+          bottom: '0',
+          right: windowWidth >= 1250 ? '400px' : '34%',
           display: 'flex',
           gap: '10px',
-          padding: '10px',
           zIndex: 1000,
         }}
       >

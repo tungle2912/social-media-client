@@ -70,7 +70,8 @@
     "pleaseCheckFileAgain": "Please check again before sending",
     "message": "Message",
     "exceededMaxFileSize": "Exceeded the maximum file size.",
-    "exceedNumberOfFiles": "Exceeded the maximum number of file uploads"
+    "exceedNumberOfFiles": "Exceeded the maximum number of file uploads",
+    "maxNumberOfDocument": "Maximum number of documents"
   },
   "message": {
     "deleteConfirmation": {
@@ -99,8 +100,15 @@
     "memberAdded": "Member added",
     "memberRemoved": "Member removed",
     "memberJoined": "Member joined",
-    "memberLeft": "Member left"
+    "memberLeft": "Member left",
+    "unknownAction": "Unknown action",
+    "messageHasBeenRecalled": "Message has been recalled",
+    "createAGroupChat": "Create a group chat"
   },
+  "community":{
+    "selectPeople": "Select people"
+  },
+  "accessDenied": "Access Denied",
   "modalConfirm": {
     "no": "No",
     "yes": "Yes",
