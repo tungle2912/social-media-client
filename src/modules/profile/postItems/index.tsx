@@ -38,8 +38,9 @@ interface PostItemProps {
     >
   >;
   openComment?: boolean;
+  isPreview?: boolean;
 }
-function PostItem({ post, refetch, openComment = false }: PostItemProps) {
+function PostItem({ post, refetch, openComment = false, isPreview = false }: PostItemProps) {
   const { user } = useAuthStore();
   const reactPostMutation = useReactPostMutation();
   const [localReaction, setLocalReaction] = useState(post.currentUserReaction || '');
@@ -176,7 +177,7 @@ function PostItem({ post, refetch, openComment = false }: PostItemProps) {
   );
   return (
     <div className={styles.postItem}>
-      <HeaderPost refetch={refetch} isMyPost={post?.author?._id === user?._id} post={post}></HeaderPost>
+      <HeaderPost refetch={refetch} isMyPost={post?.author?._id === user?._id && !isPreview} post={post}></HeaderPost>
       <ContentPost
         content={post.content}
         postMedias={[...(post.media?.map(parseMedia) || []), ...(post?.attachments?.map(parseFile) || [])]}
@@ -193,67 +194,71 @@ function PostItem({ post, refetch, openComment = false }: PostItemProps) {
           />
         </div>
       )}
-      <div className={styles.metaDataPost}>
-        <ReactCount reactions={post.reactions || []} />
-      </div>
-      <Divider />
-      <div className={styles.actions}>
-        <Popover
-          content={reactionPopoverContent}
-          trigger="hover"
-          placement="top"
-          open={popoverVisible}
-          onOpenChange={(visible) => setPopoverVisible(visible)}
-        >
-          <Button
-            type="text"
-            onClick={() => handleReactionClick(localReaction || 'like')}
-            icon={localReaction ? reactionIcons[localReaction] : <LikeIconButton />}
-            className={styles.actionButton}
-          >
-            {localReaction ? localReaction.charAt(0).toUpperCase() + localReaction.slice(1) : 'Like'}
-          </Button>
-        </Popover>
-        <Button
-          type="text"
-          icon={<CommentIcon />}
-          onClick={() => setShowComment((prev) => !prev)}
-          className={styles.actionButton}
-        >
-          Comment
-        </Button>
-        <Popover
-          open={shareVisible}
-          onOpenChange={(visible) => setShareVisible(visible)}
-          content={sharePopoverContent}
-          trigger="click"
-          placement="bottom"
-        >
-          <Button type="text" icon={<ShareIcon />} className={styles.actionButton}>
-            Share
-          </Button>
-        </Popover>
-        <Button type="text" icon={<MoreIcon />} className={styles.actionButton}>
-          More
-        </Button>
-      </div>
-      {showComment && <CommentComponent postId={post._id} />}
-      {showModalRepost && (
-        <ModalRePost
-          isOpenModal={showModalRepost}
-          refetch={refetch}
-          setIsOpenModal={setShowModalRepost}
-          embeddedPost={post._id}
-        />
-      )}
-      {openForward && (
-        <ModalForward
-          open={openForward}
-          onClose={() => setOpenForward(false)}
-          name={post?.author?.user_name}
-          avatar={post?.author?.avatar}
-          postId={post?._id}
-        />
+      {!isPreview && (
+        <>
+          <div className={styles.metaDataPost}>
+            <ReactCount reactions={post.reactions || []} />
+          </div>
+          <Divider />
+          <div className={styles.actions}>
+            <Popover
+              content={reactionPopoverContent}
+              trigger="hover"
+              placement="top"
+              open={popoverVisible}
+              onOpenChange={(visible) => setPopoverVisible(visible)}
+            >
+              <Button
+                type="text"
+                onClick={() => handleReactionClick(localReaction || 'like')}
+                icon={localReaction ? reactionIcons[localReaction] : <LikeIconButton />}
+                className={styles.actionButton}
+              >
+                {localReaction ? localReaction.charAt(0).toUpperCase() + localReaction.slice(1) : 'Like'}
+              </Button>
+            </Popover>
+            <Button
+              type="text"
+              icon={<CommentIcon />}
+              onClick={() => setShowComment((prev) => !prev)}
+              className={styles.actionButton}
+            >
+              Comment
+            </Button>
+            <Popover
+              open={shareVisible}
+              onOpenChange={(visible) => setShareVisible(visible)}
+              content={sharePopoverContent}
+              trigger="click"
+              placement="bottom"
+            >
+              <Button type="text" icon={<ShareIcon />} className={styles.actionButton}>
+                Share
+              </Button>
+            </Popover>
+            <Button type="text" icon={<MoreIcon />} className={styles.actionButton}>
+              More
+            </Button>
+          </div>
+          {showComment && <CommentComponent postId={post._id} />}
+          {showModalRepost && (
+            <ModalRePost
+              isOpenModal={showModalRepost}
+              refetch={refetch}
+              setIsOpenModal={setShowModalRepost}
+              embeddedPost={post._id}
+            />
+          )}
+          {openForward && (
+            <ModalForward
+              open={openForward}
+              onClose={() => setOpenForward(false)}
+              name={post?.author?.user_name}
+              avatar={post?.author?.avatar}
+              postId={post?._id}
+            />
+          )}
+        </>
       )}
     </div>
   );

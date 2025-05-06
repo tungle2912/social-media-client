@@ -2,12 +2,15 @@
 
 .modalStyle {
   :global {
-    .ant-modal-content {}
+    .ant-modal-content {
+    }
   }
 }
 
 .inputMessage {
   padding-right: 110px;
+  height: 100%;
+  border: 1px solid #e8e9ee;
 
   &::-webkit-scrollbar {
     height: 10px;
@@ -87,7 +90,6 @@
 .btnSend {
   height: 32px !important;
   margin-right: 4px;
-  border: 1px solid $black-color-5;
 }
 
 .customModalNotice {
@@ -99,5 +101,23 @@
       align-items: center;
       flex-direction: column;
     }
+  }
+}
+.status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #b5b5b5;
   }
 }

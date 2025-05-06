@@ -1,9 +1,9 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
 import { Avatar, Empty, Input, Spin } from 'antd';
 import classNames from 'classnames';
-import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 
+import { useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { CheckSuccessIcon } from '~/common/icon';
@@ -11,7 +11,6 @@ import InputSearch from '~/common/inputSearch';
 import SmartTooltip from '~/common/smartTooltip';
 import Button from '~/components/form/Button';
 import ModalBasic from '~/components/modal/modalBasic';
-import { UserType } from '~/definitions';
 import { messageType } from '~/definitions/enums/index.enum';
 import { SearchParams } from '~/definitions/interfaces/interface';
 import { QUERY_KEY } from '~/definitions/models';
@@ -20,7 +19,6 @@ import { useCreateMessageMutation } from '~/hooks/data/conservation.data';
 import { messageApi } from '~/services/api/message.api';
 import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
-import { useRouter } from 'next/navigation';
 
 interface IPropsModalForward {
   open: boolean;
@@ -78,20 +76,6 @@ const ModalForward = ({ open, onClose, name, avatar, postId }: IPropsModalForwar
     fetchNextPage();
   };
 
-  const handleSendMessage = async (item: any) => {
-    console.log('item', item);
-    const formData = new FormData();
-    formData.append('message', valueMsg);
-    formData.append('conversationId', item?._id);
-    formData.append('type', messageType.Post.toString());
-    formData.append('additionalData', `${postId}`);
-    await createMessageMutation.mutateAsync(formData, {
-      onSuccess: () => {
-        setOpenMessage(true);
-        setValueMsg('');
-      },
-    });
-  };
   const handleSearch = (e: any) => {
     setValueSearch(e.target.value);
     setParams({ ...params, search: e.target.value });
@@ -166,33 +150,40 @@ const ModalForward = ({ open, onClose, name, avatar, postId }: IPropsModalForwar
               return (
                 <div key={contact?.id} className={styles.userItem}>
                   <div className="flex gap-[12px] items-center">
-                    <div
-                      className={styles.avatarConnect}
-                      onClick={() => {
-                        if (contact?.type === ConversationType.GROUP_CHAT) {
-                          router.push(`/connect/message?roomId=${contact?._id}`);
+                    <div className="relative">
+                      <Avatar
+                        className="bg-[#fff0f6] w-[56px] h-[56px]"
+                        src={
+                          contact?.type === ConversationType.GROUP_CHAT
+                            ? contact?.avatar
+                            : contact.partner?.avatar || ''
                         }
-                      }}
-                    >
-                      {contact?.avatar ? (
-                        <Avatar shape="circle" size={72} src={contact?.avatar} />
-                      ) : (
-                        <Avatar shape="circle" size={72}>
-                          {contact?.title?.slice(0, 1)}
-                        </Avatar>
+                      >
+                        {(contact?.type !== ConversationType.GROUP_CHAT && !contact.partner?.avatar) ||
+                        (contact?.type === ConversationType.GROUP_CHAT && !contact?.avatar) ? (
+                          <span className="text-[#eb2f96] text-base font-bold">
+                            {contact?.type === ConversationType.GROUP_CHAT
+                              ? contact?.title?.charAt(0)
+                              : contact.partner?.title?.charAt(0)}
+                          </span>
+                        ) : null}
+                      </Avatar>
+
+                      {contact?.isOnline && (
+                        <div
+                          className={classNames(styles.status, styles.online, 'absolute right-[2px] bottom-0')}
+                        ></div>
+                      )}
+                      {!contact?.isOnline && contact?.type !== ConversationType.GROUP_CHAT && (
+                        <div className={classNames(styles.status, styles.offline, 'absolute right-[2px] bottom-0')} />
                       )}
                     </div>
-                    <div>
-                      <SmartTooltip
-                        onClick={() => {
-                          if (contact?.type === ConversationType.GROUP_CHAT) {
-                            router.push(`/message?roomId=${contact?._id}`);
-                          }
-                        }}
-                        text={contact?.title}
-                        className="text-sm not-italic font-bold text-[#3E3E3E] cursor-pointer hover:underline"
-                      />
-                    </div>
+                    <SmartTooltip
+                      className="text-[#3E3E3E] font-bold "
+                      text={
+                        contact?.type === ConversationType.DIRECT_MESSAGE ? contact?.partner?.user_name : contact?.title
+                      }
+                    />
                   </div>
                   <Button
                     onClick={async () => {

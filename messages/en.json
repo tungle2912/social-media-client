@@ -94,7 +94,12 @@
     "addAvatar": "Add an avatar",
     "groupName": "Group name",
     "allMembersList": "All members list",
-    "memberChosenList": "Member chosen list"
+    "memberChosenList": "Member chosen list",
+    "groupCreatedBy": "Group created",
+    "memberAdded": "Member added",
+    "memberRemoved": "Member removed",
+    "memberJoined": "Member joined",
+    "memberLeft": "Member left"
   },
   "modalConfirm": {
     "no": "No",

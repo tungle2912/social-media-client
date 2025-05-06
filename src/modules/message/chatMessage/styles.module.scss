@@ -35,7 +35,7 @@
   }
 
   &.offline {
-    background-color: #B5B5B5;
+    background-color: #b5b5b5;
   }
 }
 
@@ -135,7 +135,6 @@
       height: 16px;
     }
   }
-
 }
 
 .backButton {
@@ -143,7 +142,7 @@
   width: 24px;
   height: 24px;
   display: none;
-  
+
   @media screen and (max-width: 767px) {
     display: flex;
     align-items: center;
@@ -208,6 +207,11 @@
 }
 
 .btnEdit {
+  svg {
+    path {
+      fill: #3e3e3e;
+    }
+  }
   &:hover {
     svg {
       path {
@@ -224,7 +228,7 @@
     }
 
     .ant-dropdown-menu-title-content {
-      color: $black-color-1 ;
+      color: $black-color-1;
     }
 
     .ant-dropdown-menu-item:hover {
@@ -232,10 +236,8 @@
     }
 
     .ant-dropdown-menu-item-active {
-
       .ant-dropdown-menu-title-content {
         color: $primary-color !important;
-
       }
     }
   }

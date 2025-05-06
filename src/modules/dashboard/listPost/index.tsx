@@ -101,7 +101,7 @@ export default function ListPost() {
         className="rounded-[15px] p-0"
         bodyStyle={{ padding: 0 }}
       >
-        <p className="text-center text-lg font-semibold py-4 border-b border-gray-200">{t('postDetail')}</p>
+        <p className="text-center text-lg font-semibold py-4 border-b  border-gray-200">{t('postDetail')}</p>
         {errorMessage ? (
           <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
             <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
@@ -109,7 +109,7 @@ export default function ListPost() {
             <p className="text-gray-600 text-center">{errorMessage}</p>
           </div>
         ) : selectedPost ? (
-          <div className="max-h-[90vh] overflow-y-auto p-4">
+          <div className="max-h-[70vh]overflow-y-auto p-4">
             <PostItem openComment={true} post={selectedPost} refetch={refetch} />
           </div>
         ) : (

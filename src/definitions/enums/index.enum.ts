@@ -1,65 +1,65 @@
 export enum UserRole {
   Student, // Sinh viên
   Teacher, // Giảng viên
-  Admin // Quản trị viên
+  Admin, // Quản trị viên
 }
 
 export enum UserActivityStatus {
   Online,
-  Offline
+  Offline,
 }
 
 export enum GroupType {
   Study, // Nhóm học tập
   Teaching, // Nhóm giảng dạy
-  Social // Nhóm sở thích
+  Social, // Nhóm sở thích
 }
 
 export enum CourseRole {
   Student, // Sinh viên
-  Teacher // Giảng viên
+  Teacher, // Giảng viên
 }
 
 export enum NotificationType {
   NewComment, // Bình luận mới
   Mention, // Được nhắc đến
   NewMessage, // Tin nhắn mới
-  Like // Lượt thích
+  Like, // Lượt thích
 }
 
 export enum MessageStatus {
   Sent, // Đã gửi
-  Read // Đã đọc
+  Read, // Đã đọc
 }
 
 export enum UserVerifyStatus {
   Unverified, // Chưa xác thực email
   Verified, // Đã xác thực email
-  Banned // Bị khóa
+  Banned, // Bị khóa
 }
 
 export enum ForgotPasswordVerifyStatus {
   Unverified,
-  Verified
+  Verified,
 }
 
 export enum TokenType {
   AccessToken,
   RefreshToken,
   ForgotPasswordToken,
-  EmailVerifyToken
+  EmailVerifyToken,
 }
 
 export enum RoleType {
   Admin,
-  User
+  User,
 }
 
 export enum PostType {
   POST,
   RePost,
   Comment,
-  QuotePOST
+  QuotePOST,
 }
 
 export enum ViewScopeType {
@@ -68,18 +68,18 @@ export enum ViewScopeType {
   SomeOne,
   Private,
   Group,
-  Course
+  Course,
 }
 
 export enum CommentScopeType {
   Public,
   Friend,
-  Private
+  Private,
 }
 
 export enum ReactionTargetType {
   Post,
-  Comment
+  Comment,
 }
 
 export enum MediaType {
@@ -93,14 +93,14 @@ export enum ReactionType {
   Haha = 'haha',
   Wow = 'wow',
   Sad = 'sad',
-  Angry = 'angry'
+  Angry = 'angry',
 }
 export enum contactStatus {
   friend,
   follower,
   following,
   none,
-  noContact
+  noContact,
 }
 export enum messageType {
   Text,
@@ -111,5 +111,10 @@ export enum messageType {
   AddMember,
   JoinGroup,
   LeaveGroup,
-  CreateGroup
+  CreateGroup,
+}
+export enum conversationRole {
+  member,
+  manager,
+  admin,
 }

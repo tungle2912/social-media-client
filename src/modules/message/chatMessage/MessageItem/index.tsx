@@ -39,6 +39,13 @@ interface MessageItemProps {
   index: number;
   dataConversation: any;
 }
+const SYSTEM_MESSAGE_MAP: Record<string, string> = {
+  [messageType.CreateGroup]: 'message.groupCreatedBy',
+  [messageType.AddMember]: 'message.memberAdded',
+  [messageType.RemoveMember]: 'message.memberRemoved',
+  [messageType.JoinGroup]: 'message.memberJoined',
+  [messageType.LeaveGroup]: 'message.memberLeft',
+};
 
 const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dataConversation }: MessageItemProps) => {
   const t = useTranslations();
@@ -95,11 +102,24 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
   };
   const router = useRouter();
   const { isSM } = useDimension();
+  const isMessageSystem = message?.type && [
+    messageType.CreateGroup,
+    messageType.AddMember,
+    messageType.RemoveMember,
+    messageType.JoinGroup,
+    messageType.LeaveGroup,
+  ].includes(message.type);
 
+  const messageText = SYSTEM_MESSAGE_MAP[message.type]
+    ? t(SYSTEM_MESSAGE_MAP[message.type])
+    : t('message.unknownAction');
   return (
     <div
       id={`message_${message?._id}`}
-      className={classNames(`mt-4 flex ${message?.owner ? 'justify-end' : 'justify-start'} items-center`, styles.msg)}
+      className={classNames(
+        `mt-4 flex ${isMessageSystem ? 'justify-center' : message?.owner ? 'justify-end' : 'justify-start'} items-center`,
+        styles.msg
+      )}
     >
       {message?.owner && !message?.deletedAt && !message?.isDeleted && (
         <div className={classNames('relative cursor-pointer z-10', styles.msgOption)}>
@@ -158,7 +178,17 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
           </Popover>
         </div>
       )}
-      {message?.owner ? (
+      {isMessageSystem ? (
+        <div className="px-[16px] text-sm max-w-[100%] py-[6px] rounded-[10px] bg-[#F7F7F7] text-[#333333] flex gap-2 items-center">
+          {message.user?.avatar ? (
+            <Avatar src={message.user?.avatar || ''} alt={t('avatar')} className={styles.avatarUserIcon} />
+          ) : (
+            <div className={styles.avatarUserIcon}>{message.user.user_name}</div>
+          )}
+          <span className="text-xs font-medium">{message.user?.user_name}</span>
+          <span className="text-xs text-lg">{messageText}</span>
+        </div>
+      ) : message?.owner ? (
         <div className="w-fit max-w-[70%] px-[16px] py-[12px] rounded-[10px] bg-[#f7f0ff]">
           <div
             className="text-sm break-words text-[#333333]"
@@ -215,7 +245,7 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
                       </div>
                     ) : selectedPost ? (
                       <div className="max-h-[90vh] overflow-y-auto p-4">
-                        <PostItem openComment={true} post={selectedPost} refetch={refetch} />
+                        <PostItem openComment={true} post={selectedPost} isPreview refetch={refetch} />
                       </div>
                     ) : (
                       <div className="flex items-center justify-center min-h-[300px]">
@@ -340,17 +370,8 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
                               <p className="text-gray-600 text-center">{errorMessage}</p>
                             </div>
                           ) : selectedPost ? (
-                            <div ref={postRef} className="overflow-y-auto p-4">
-                              <div className={styles.wrapRepost}>
-                                <HeaderPost refetch={refetch} isMyPost={false} post={selectedPost} />
-                                <ContentPost
-                                  content={selectedPost.content}
-                                  postMedias={[
-                                    ...(selectedPost.media?.map(parseMedia) || []),
-                                    ...(selectedPost.attachments?.map(parseFile) || []),
-                                  ]}
-                                />
-                              </div>
+                            <div className="max-h-[90vh] overflow-y-auto p-4">
+                              <PostItem openComment={true} post={selectedPost} isPreview refetch={refetch} />
                             </div>
                           ) : (
                             <div className="flex items-center justify-center min-w-[200px] min-h-[300px]">

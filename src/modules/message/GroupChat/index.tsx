@@ -23,6 +23,7 @@ import { contactApi } from '~/services/api/contact.api';
 import styles from './styles.module.scss';
 import image from '@/static/image';
 import Image from 'next/image';
+import { conversationRole } from '~/definitions/enums/index.enum';
 
 const MAX_MEMBER_ADD_TO_GROUP = 50;
 const MAX_SIZE_AVATAR_GROUP_MB = 5;
@@ -262,7 +263,16 @@ const GroupChat: React.FC<Props> = ({ drawerCtrl, refetchListMessage }) => {
     }
     setIsLoadingSubmit(true);
     try {
-      const participants = [...listUserSelected.map((user) => user._id), ...[profile._id]];
+      const participants = [
+        ...listUserSelected.map((user) => ({
+          _id: user._id,
+          user_name: user.user_name,
+          avatar: user.avatar,
+          role: conversationRole.member,
+        })),
+        ...[{ _id: profile._id, user_name: profile.user_name, avatar: profile.avatar, role: conversationRole.admin }],
+      ];
+      console.log('participants', participants);
       const formData = new FormData();
       formData.append('title', groupName);
       formData.append('participants', JSON.stringify(participants));
@@ -270,7 +280,9 @@ const GroupChat: React.FC<Props> = ({ drawerCtrl, refetchListMessage }) => {
         formData.append('avatar', avatarFile);
       }
       await createGroup.mutateAsync(formData as any, {
-        onSuccess: () => {},
+        onSuccess: () => {
+          message.success(t('message.createGroupSuccess'));
+        },
       });
       onCloseDrawer();
       refetchListMessage?.();

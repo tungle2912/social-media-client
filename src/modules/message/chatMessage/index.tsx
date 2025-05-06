@@ -234,6 +234,9 @@ export default function ChatMessage() {
     if (!hasNextPage || isLoadingList) return;
     setParamsDetailMsg((prev) => ({ ...prev, pageIndex: prev.pageIndex + 1 }));
   };
+  useEffect(() => {
+    console.log('listDetailMessage', listDetailMessage);
+  }, [listDetailMessage]);
   const renderListMsg = () => {
     return listDetailMessage.map((message: any, index: any) => {
       const listMedia = message?.medias;
@@ -277,50 +280,16 @@ export default function ChatMessage() {
   };
   useEffect(() => {
     if (socket) {
-      socket.on('NEW_MESSAGE', async (message: any) => {
+      const handleNewMessage = (message: any) => {
         setDataMessageResponse((prev: any) => [message, ...prev]);
-      });
-      // socket.on(SOCKET_EVENT_KEY.FIRE_MESSAGE, (message: { conversationMessage: { isOnline: boolean } }) => {
-      //   message.conversationMessage.isOnline = true;
-      //   emitter.emit('NEW_MESSAGE');
-      //   setNewMsg(message);
-      // });
-      // socket.on(SOCKET_EVENT_KEY.DELETE_MESSAGE, (message: { conversationUuid: string | null; messageUuid: any }) => {
-      //   emitter.emit('NEW_MESSAGE');
-      //   if (message?.conversationUuid === roomId) {
-      //     setListDetailMessage((prev: any[]) =>
-      //       prev.map((msg: { uuid: any }) => {
-      //         if (msg?.uuid === message?.messageUuid)
-      //           return { ...msg, isDeleted: true, message: t('message.messageStatus') };
-      //         return msg;
-      //       })
-      //     );
-      //   }
-      // });
-      // socket.on(SOCKET_EVENT_KEY.MESSAGE_READ, (message: { conversationUuid: string | null; messageUuid: any }) => {
-      //   setNewMsgRead(message);
-      //   if (message?.conversationUuid === roomId) {
-      //     setListDetailMessage((prev: any[]) =>
-      //       prev.map((msg: { uuid: any }) => {
-      //         if (msg?.uuid === message?.messageUuid) return { ...msg, isRead: true };
-      //         return msg;
-      //       })
-      //     );
-      //   }
-      //   socket.on(SOCKET_EVENT_KEY.ADD_MEMBER, () => {
-      //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
-      //     emitter.emit('NEW_MESSAGE');
-      //   });
+      };
 
-      //   socket.on(SOCKET_EVENT_KEY.REMOVE_MEMBER, () => {
-      //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
-      //     emitter.emit('NEW_MESSAGE');
-      //   });
-      //   socket.on(SOCKET_EVENT_KEY.MEMBER_EXIT, () => {
-      //     queryClient.invalidateQueries({ queryKey: [QUERY_KEY.LIST_DETAIL_MESSAGE] });
-      //     emitter.emit('NEW_MESSAGE');
-      //   });
-      // });
+      socket.on('NEW_MESSAGE', handleNewMessage);
+
+      // Cleanup: Xóa listener khi component unmount hoặc khi roomId/socket thay đổi
+      return () => {
+        socket.off('NEW_MESSAGE', handleNewMessage);
+      };
     }
   }, [roomId, socket]);
   const sendMessage = async (text: string, files: any, documents: any) => {
@@ -344,21 +313,7 @@ export default function ChatMessage() {
       }
     }
     try {
-      const res: any = await messageApi.createConversationMessage(formData);
-      // if (!!res) {
-      //   setListDetailMessage((prev: any) => [
-      //     {
-      //       ...res.result,
-      //       isScroll: true,
-      //       owner: true,
-      //       createdAt: dayjs(),
-      //       isNextDate:
-      //         listDetailMessage?.length > 0 &&
-      //         dayjs(listDetailMessage[0]?.createdAt).format('YYYY-MM-DD') !== dayjs().format('YYYY-MM-DD'),
-      //     },
-      //     ...prev,
-      //   ]);
-      // }
+      await messageApi.createConversationMessage(formData);
     } catch (error) {}
   };
   return (
