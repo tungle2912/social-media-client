@@ -196,3 +196,21 @@
     width: 100%;
   }
 }
+.status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #b5b5b5;
+  }
+}

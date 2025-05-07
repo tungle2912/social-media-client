@@ -14,9 +14,10 @@ import { useGetPostByUserIdQuery } from '~/hooks/data/post.data';
 import { MediaType } from '~/definitions/enums/index.enum';
 interface iPostTab {
   userProfile: UserType;
+  isMe?: boolean;
 }
 
-export default function PostTab({ userProfile }: iPostTab) {
+export default function PostTab({ userProfile, isMe = true }: iPostTab) {
   const t = useTranslations();
   const { isSM } = useDimension();
   const { data: postData, refetch } = useGetPostByUserIdQuery(userProfile?._id ?? '');
@@ -35,7 +36,7 @@ export default function PostTab({ userProfile }: iPostTab) {
           <div className={styles.aboutSection}>
             <h3>{t('about')}</h3>
             <button className={styles.addButton}>{t('addBio')}</button>
-            <button className={styles.editButton}>{t('editDetails')}</button>
+            {isMe && <button className={styles.editButton}>{t('editDetails')}</button>}
           </div>
           <div className={styles.imagesSection}>
             <div className={styles.imagesSectionHeader}>
@@ -74,32 +75,34 @@ export default function PostTab({ userProfile }: iPostTab) {
         </div>
       )}
       <div className={styles.mainContent}>
-        <div className={styles.createPost}>
-          <div className={styles.inputCreatePost}>
-            <Avatar size={50} src={userProfile?.avatar || ''} className={styles.userAvatar} />
-            <InputCreatePost setIsOpenModal={setIsOpenModal} />
-          </div>
-          <div className={styles.attach}>
-            <div
-              className={styles.item}
-              onClick={() => {
-                handleClickAttach(MediaType.IMAGE);
-              }}
-            >
-              <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
-              <span>{t('photoVideo')}</span>
+        {isMe && (
+          <div className={styles.createPost}>
+            <div className={styles.inputCreatePost}>
+              <Avatar size={50} src={userProfile?.avatar || ''} className={styles.userAvatar} />
+              <InputCreatePost setIsOpenModal={setIsOpenModal} />
             </div>
-            <div
-              className={styles.item}
-              onClick={() => {
-                handleClickAttach(MediaType.FILE);
-              }}
-            >
-              <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
-              <span>{t('attachment')}</span>
+            <div className={styles.attach}>
+              <div
+                className={styles.item}
+                onClick={() => {
+                  handleClickAttach(MediaType.IMAGE);
+                }}
+              >
+                <Image src={image.videoAndImage} width={26.67} height={26.67} alt={t('photoVideo')} />
+                <span>{t('photoVideo')}</span>
+              </div>
+              <div
+                className={styles.item}
+                onClick={() => {
+                  handleClickAttach(MediaType.FILE);
+                }}
+              >
+                <Image src={image.attachment} width={26.67} height={26.67} alt={t('attachmentAlt')} />
+                <span>{t('attachment')}</span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
         <div className={styles.managePosts}>
           <Button className={styles.filterButton}>{t('filter')}</Button>
         </div>

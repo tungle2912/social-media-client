@@ -1,5 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { Avatar, Skeleton } from 'antd';
+import { Avatar, message, Skeleton } from 'antd';
 import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
@@ -7,7 +7,7 @@ import Button from '~/components/form/Button';
 import { SearchParams } from '~/definitions/interfaces/interface';
 import { QUERY_KEY } from '~/definitions/models';
 import { ConversationFilterType } from '~/definitions/models/message';
-import { useGetSuggestedFriendQuery } from '~/hooks/data/contact.data';
+import { useGetFollowerFriendQuery, useGetSuggestedFriendQuery } from '~/hooks/data/contact.data';
 import ChatBox from '~/modules/dashboard/chatBox';
 import ListContactItem from '~/modules/dashboard/listContact/listContactItem/item';
 import { messageApi } from '~/services/api/message.api';
@@ -15,9 +15,10 @@ import useActivityAccountInfo from '~/stores/activityAccountInfo.store';
 import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
 import { useDimension } from '~/hooks';
+import { useFollowMutation, useRejectFollowMutation } from '~/hooks/data/user.data';
 const INIT_PARAMS = { pageIndex: 1, pageSize: 20 };
 export default function ListConversation() {
-  const { data: suggestedFriendResponse } = useGetSuggestedFriendQuery();
+  const { data: suggestedFriendResponse, refetch } = useGetFollowerFriendQuery();
   const [params, setParams] = useState<SearchParams>(INIT_PARAMS);
   const listOnline = useListOnline((state) => state.listOnline);
   const [moveEnter_id, setMoveEnter_id] = useState<string>('');
@@ -26,6 +27,8 @@ export default function ListConversation() {
   const setActivityAccountInfo = useActivityAccountInfo((state) => state.setUserInfo);
   const setActivityAccountType = useActivityAccountInfo((state) => state.setType);
   const [openChats, setOpenChats] = useState<string[]>([]);
+  const rejectFollowMutation = useRejectFollowMutation();
+  const followMutation = useFollowMutation();
   const t = useTranslations();
   const { windowWidth } = useDimension();
   const [openMessageDrawer, setOpenMessageDrawer] = useState<boolean>(false);
@@ -104,6 +107,7 @@ export default function ListConversation() {
         //     setOpenMoreMessage(false);
       }
     };
+
     return (
       <InfiniteScroll
         dataLength={flatListMessages.length}
@@ -117,7 +121,7 @@ export default function ListConversation() {
           ) : null
         }
         height={`calc(100dvh - 314px)`}
-        className="scroll-bar pl-[10px] pr-[6px]pb-[5px]"
+        className="scroll-bar pl-[10px] w-auto pr-[6px]pb-[5px]"
       >
         <div></div>
         {flatListMessages.map((item: any, index: number) => (
@@ -142,26 +146,49 @@ export default function ListConversation() {
   return (
     <div className="flex flex-col gap-[12px]">
       <div className={styles.listSuggested}>
-        {suggestedFriendResponse?.result?.length > 0 ? (
-          suggestedFriendResponse.result.map((item: any) => (
-            <div key={item.id} className={styles.suggestedItem}>
-              <Avatar className="bg-[#fff0f6] w-[56px] h-[56px]" src={item?.avatar}></Avatar>
-              <div className="flex flex-col w-[calc(100%-56px)]">
-                <p className={styles.suggestedName}>{item?.user_name}</p>
-                <div className="flex gap-2 max-lg:flex-col w-full">
-                  <Button btnType="primary" className="text-[#ffffff] w-[100%]">
-                    Accept
-                  </Button>
-                  <Button className="bg-[#d1d0d0] w-[100%]">Remove</Button>
+        {suggestedFriendResponse?.result?.length > 0
+          ? suggestedFriendResponse.result.map((friend: any) => (
+              <div key={friend.id} className={styles.suggestedItem}>
+                <Avatar className="bg-[#fff0f6] w-[56px] h-[56px]" src={friend?.avatar}></Avatar>
+                <div className="flex flex-col w-[calc(100%-56px)]">
+                  <p className={styles.suggestedName}>{friend?.user_name}</p>
+                  <div className="flex gap-2 max-lg:flex-col w-full">
+                    <Button
+                      onClick={() => {
+                        if (friend?._id) {
+                          followMutation.mutateAsync(friend._id as string, {
+                            onSuccess: async () => {
+                              await refetch();
+                              message.success(t('contact.acceptFollowSuccess'));
+                            },
+                          });
+                        }
+                      }}
+                      btnType="primary"
+                      className="text-[#ffffff] w-[100%]"
+                    >
+                      Accept
+                    </Button>
+                    <Button
+                      className="bg-[#d1d0d0] w-[100%]"
+                      onClick={() => {
+                        if (friend?._id) {
+                          rejectFollowMutation.mutateAsync(friend._id as string, {
+                            onSuccess: async () => {
+                              await refetch();
+                              message.success(t('contact.rejectFollowSuccess'));
+                            },
+                          });
+                        }
+                      }}
+                    >
+                      Remove
+                    </Button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <div className={styles.noSuggested}>
-            <p>No suggested friends available</p>
-          </div>
-        )}
+            ))
+          : null}
       </div>
       <div className={styles.listMessage}>
         <p className="ml-2 text-[16px] ">Recent message</p>

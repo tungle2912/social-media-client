@@ -27,4 +27,10 @@ export const menuRoutes: IRoute[] = [
     url: '/contact',
     icon: <ComunityIcon />,
   },
+  {
+    key: '4',
+    label: 'Settings',
+    url: '/settings',
+    icon: <ComunityIcon />,
+  },
 ];
