@@ -36,6 +36,7 @@ import styles from './styles.module.scss';
 import { useGetPostByIdQuery } from '~/hooks/data/post.data';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import PostItem from '~/modules/profile/postItems';
+import { ProfileItem } from '~/modules/message/chatMessage/MessageItem/profileItem.tsx';
 const SYSTEM_MESSAGE_MAP: Record<string, string> = {
   [messageType.CreateGroup]: 'message.groupCreatedBy',
   [messageType.AddMember]: 'message.memberAdded',
@@ -450,27 +451,9 @@ const ChatMessage = (message: any) => {
                 className="text-sm break-words text-[#333333]"
                 dangerouslySetInnerHTML={{ __html: convertLinksToAnchors(message?.message) }}
               ></div>
-              {message?.additionalData && message?.type === MESSAGE_TYPE.PROFILE && (
+              {message?.additionalData && message?.type === messageType.Profile && (
                 <Flex className="flex flex-col bg-[white] px-3 py-2">
-                  <Flex
-                    className={`w-[${isSM ? 40 : 15}vw] gap gap-2 py-2 flex justify-start items-center border-b-[1px]`}
-                  >
-                    {message.additionalData?.basicPersonalInfo?.profilePhoto ? (
-                      <Avatar
-                        src={message.additionalData?.basicPersonalInfo?.profilePhoto || ''}
-                        alt={t('avatar')}
-                        className={styles.avatarUser}
-                      />
-                    ) : (
-                      <div className={styles.avatarUser}>{getUsername(message?.user?.basicPersonalInfo, true)}</div>
-                    )}
-                    <div>
-                      <SmartTooltip
-                        className="text-base-black-200 font-bold text-[16px] max-w-[35rem]"
-                        text={`${message.additionalData?.basicPersonalInfo?.firstName} ${message.additionalData?.basicPersonalInfo?.lastName}`}
-                      />
-                    </div>
-                  </Flex>
+                  <ProfileItem data={message?.additionalData} />
                   <Flex className="mt-2">
                     <a
                       target="_blank"

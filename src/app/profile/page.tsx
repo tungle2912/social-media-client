@@ -7,16 +7,15 @@ import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { UserType } from '~/definitions/types/index.type';
-import { useGetProfileQuery, useUpdateProfileMutation } from '~/hooks/data/user.data';
+import { useGetMeQuery, useUpdateProfileMutation } from '~/hooks/data/user.data';
 import InfoTab from '~/modules/profile/infoTab';
 import PostTab from '~/modules/profile/postTab';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './styles.module.scss';
 
-
 export default function Profile() {
   const t = useTranslations();
-  const response = useGetProfileQuery();
+  const response = useGetMeQuery();
   const { data: session } = useSession();
   const user = session?.user;
   const [fileList] = useState<UploadFile[]>([]);

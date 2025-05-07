@@ -1,19 +1,21 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
-import { Avatar, Button, Modal, Spin } from 'antd';
-import styles from './styles.module.scss';
-import InputCreatePost from '~/modules/profile/inputCreatePost';
-import { useSession } from 'next-auth/react';
-import { UserType } from '~/definitions';
-import { useEffect, useState } from 'react';
-import { MediaType } from '~/definitions/enums/index.enum';
-import Image from 'next/image';
 import image from '@/static/image';
-import { useGetNewFeedsQuery, useGetPostByIdQuery } from '~/hooks/data/post.data';
-import PostItem from '~/modules/profile/postItems';
-import { useTranslations } from 'next-intl';
-import { ModalCreatePost } from '~/modules/profile/modalCreatePost';
-import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { Avatar, Modal, Skeleton, Spin } from 'antd';
+import { useSession } from 'next-auth/react';
+import { useTranslations } from 'next-intl';
+import Image from 'next/image';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { memo, useEffect, useState } from 'react';
+import { UserType } from '~/definitions';
+import { MediaType } from '~/definitions/enums/index.enum';
+import { useGetNewFeedsQuery, useGetPostByIdQuery } from '~/hooks/data/post.data';
+import InputCreatePost from '~/modules/profile/inputCreatePost';
+import { ModalCreatePost } from '~/modules/profile/modalCreatePost';
+import PostItem from '~/modules/profile/postItems';
+import useListOnline from '~/stores/listOnline.data';
+import styles from './styles.module.scss';
+const MemoizedPostItem = memo(PostItem);
 export default function ListPost() {
   const { data: sessionData } = useSession();
   const t = useTranslations();
@@ -26,9 +28,22 @@ export default function ListPost() {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [typeModal, setTypeModal] = useState<MediaType>();
   const [showUpload, setShowUpload] = useState(false);
+  const listOnline = useListOnline((state) => state.listOnline);
   const [selectedPost, setSelectedPost] = useState<any>(null);
   const { data: postData, refetch } = useGetNewFeedsQuery();
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [listFriend, setListFriend] = useState<any>(null);
+  // const { data: listFriendResponse } = useGetFriendQuery({
+  //   search: '',
+  //   page: 1,
+  //   limit: 10,
+  // });
+  // useEffect(() => {
+  //   if (listFriendResponse) {
+  //     console.log('listFriendResponse', listFriendResponse);
+  //     setListFriend(listFriendResponse);
+  //   }
+  // }, [listFriendResponse]);
   const handleClickAttach = (type: MediaType) => {
     setTypeModal(type);
     setShowUpload(true);
@@ -58,7 +73,39 @@ export default function ListPost() {
   const handleCloseModal = () => {
     router.replace(pathname);
   };
+  const renderPostContent = () => {
+    if (errorMessage) {
+      return (
+        <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
+          <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">{t('accessDenied')}</h3>
+          <p className="text-gray-600 text-center">{errorMessage}</p>
+        </div>
+      );
+    }
 
+    if (selectedPost) {
+      return (
+        <div className="max-h-[90vh] overflow-y-auto p-4">
+          <MemoizedPostItem openComment={true} post={selectedPost} isPreview refetch={refetch} />
+        </div>
+      );
+    }
+
+    // Hiển thị skeleton thay vì chỉ spinner để cải thiện UX
+    return (
+      <div className="flex items-center justify-center min-h-[300px] p-4">
+        <Skeleton active paragraph={{ rows: 4 }} title={false} className="w-full max-w-[400px]" />
+      </div>
+    );
+  };
+  // const listFriendConvert = useMemo(() => {
+  //   console.log('listFriendConvert', listFriendResponse);
+  //   return listFriendResponse.result.users.map((item: any) => {
+  //     item.isOnline = Array.from(listOnline).includes(item?._id) || false;
+  //     return item;
+  //   });
+  // }, [listFriendResponse, listOnline]);
   return (
     <div className={styles.mainContent}>
       <div className={styles.createPost}>
@@ -87,9 +134,23 @@ export default function ListPost() {
           </div>
         </div>
       </div>
-      <div className={styles.managePosts}>
-        <Button className={styles.filterButton}>{t('filter')}</Button>
-      </div>
+      {/* <ScrollArea className="w-full whitespace-nowrap">
+        <div className="flex space-x-4 px-2">
+          {listFriendConvert?.result?.users.map((item: any, idx: any) => (
+            <div key={idx} className="flex flex-col items-center">
+              <div className="relative">
+                <Avatar className="bg-[#fff0f6] w-[56px] h-[56px]" src={item?.avatar}></Avatar>
+                {item?.isOnline && (
+                  <div className={classNames(styles.status, styles.online, 'absolute right-[2px] bottom-0')}></div>
+                )}
+                {!item?.isOnline && (
+                  <div className={classNames(styles.status, styles.offline, 'absolute right-[2px] bottom-0')} />
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </ScrollArea> */}
       <div className={styles.postsList}>
         {postData?.result?.map((post: any) => <PostItem refetch={refetch} key={post._id} post={post} />)}
       </div>
@@ -102,21 +163,7 @@ export default function ListPost() {
         bodyStyle={{ padding: 0 }}
       >
         <p className="text-center text-lg font-semibold py-4 border-b  border-gray-200">{t('postDetail')}</p>
-        {errorMessage ? (
-          <div className="flex flex-col items-center justify-center min-h-[300px] p-8">
-            <ExclamationCircleOutlined className="text-red-500 text-4xl mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
-            <p className="text-gray-600 text-center">{errorMessage}</p>
-          </div>
-        ) : selectedPost ? (
-          <div className="max-h-[70vh]overflow-y-auto p-4">
-            <PostItem openComment={true} post={selectedPost} refetch={refetch} />
-          </div>
-        ) : (
-          <div className="flex items-center justify-center min-h-[300px]">
-            <Spin />
-          </div>
-        )}
+        {renderPostContent()}
       </Modal>
       <ModalCreatePost
         type={typeModal}

@@ -122,7 +122,9 @@
     "allRecommend": "All recommendations",
     "myContact": "My contacts",
     "myInvitation": "My invitations",
-    "beingInvited": "Being invited"
+    "beingInvited": "Being invited",
+    "acceptFollowSuccess": "Accept follow success",
+    "rejectFollowSuccess": "Reject follow success"
   },
   "accessDenied": "Access Denied",
   "modalConfirm": {

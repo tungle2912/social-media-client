@@ -1,6 +1,7 @@
 import { message } from 'antd';
+import clsx, { ClassValue } from 'clsx';
 import dayjs from 'dayjs';
-
+import { twMerge } from 'tailwind-merge'
 export const handleError = (error: any) => {
   if (error?.response?.data?.message) {
     return message.error(error.response.data.message);
@@ -43,4 +44,7 @@ export const convertTimeStampToStringDate = (timestamp: number) => {
 };
 export function convertTimestampToString(timestamp: number) {
   return `${dayjs(timestamp).format('MMMM DD, YYYY')} at ${dayjs(timestamp).format('HH:mm A')}`;
+}
+export const cn = (...inputs: ClassValue[]) => {
+  return twMerge(clsx(inputs))
 }

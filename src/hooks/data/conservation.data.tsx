@@ -1,5 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { messageApi } from '~/services/api/message.api';
+import { userApi } from '~/services/api/user.api';
 
 export const useDeleteConservationMutation = () => {
   const queryClient = useQueryClient();
@@ -34,3 +35,12 @@ export const useDeleteMessageMutation = () => {
     },
   });
 };
+export const useGetProfileByIdQuery = (id?: string) => {
+  return useQuery({
+    queryKey: ['PROFILE', id],
+    queryFn: () => {
+      return userApi.getProfileById(id);
+    },
+    enabled: !!id,
+  });
+}

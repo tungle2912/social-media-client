@@ -3,6 +3,7 @@
 .wrap {
   background-color: #fff;
   border-radius: 15px;
+  width: 100%;
 
   @include breakpoint(sm, 'max') {
     background-color: #f7f7f7;
@@ -25,7 +26,7 @@
 }
 
 .tabs {
-  height: 100%;
+  height: fit-content;
 
   @include breakpoint(sm, 'max') {
     position: sticky;

@@ -51,12 +51,12 @@ export default function HeaderPost({ post, isMyPost, refetch }: Props) {
   const [showConfirmDelete, setShowConfirmDelete] = useState(false);
   const updatePostMutation = useUpdatePostMutation();
   const deletePostMutation = useDeletePostMutation();
-  const followMutation = useFollowMutation(post?.author?._id || '');
-  const handleClickAvatar = (id: string) => {
+  const followMutation = useFollowMutation();
+  const handleClickProfile = (id: string) => {
     router.push(`/profile/${id}`);
   };
   const handleFollow = async () => {
-    await followMutation.mutateAsync(undefined, {
+    await followMutation.mutateAsync(post?.author?._id, {
       onSuccess: async () => {
         await refetch();
         message.success('Follow successfully', 3);
@@ -245,12 +245,15 @@ export default function HeaderPost({ post, isMyPost, refetch }: Props) {
   return (
     <div className={styles.header}>
       <div className={styles.wrapInfo}>
-        <div onClick={() => handleClickAvatar} className={styles.avatar}>
+        <div onClick={() => handleClickProfile(post?.author?._id ?? '')} className={styles.avatar}>
           <Avatar shape="circle" size={56} src={post.author?.avatar}></Avatar>
         </div>
         <div className={styles.details}>
           <div className={styles.wrapName}>
-            <SmartTooltip onClick={() => handleClickAvatar} text={post.author?.user_name ?? ''} />
+            <SmartTooltip
+              onClick={() => handleClickProfile(post?.author?._id ?? '')}
+              text={post.author?.user_name ?? ''}
+            />
             <div className={styles.contactStatus}>
               {post.author?.contactStatus === contactStatus.friend ||
               post.author?.contactStatus === contactStatus.none ? null : post.author?.contactStatus ===
