@@ -23,12 +23,10 @@ import styles from './styles.module.scss';
 interface IPropsModalForward {
   open: boolean;
   onClose: () => void;
-  name?: string;
-  avatar?: string;
-  postId: string;
+  userId: string;
 }
 
-const ModalForward = ({ open, onClose, name, avatar, postId }: IPropsModalForward) => {
+const ModalForwardProfile = ({ open, onClose, userId }: IPropsModalForward) => {
   const t = useTranslations();
   const [valueMsg, setValueMsg] = useState<string>('');
   const [valueSearch, setValueSearch] = useState<string>('');
@@ -90,26 +88,6 @@ const ModalForward = ({ open, onClose, name, avatar, postId }: IPropsModalForwar
         closeIcon={false}
         className={styles.modalStyle}
       >
-        <div className="flex items-start gap-[12px] rounded-[10px] bg-[#E8E9EE] py-[8px] px-[20px] my-[24px]">
-          <div className={styles.avatar}>
-            {avatar ? (
-              <Avatar shape="circle" size={40} src={avatar} />
-            ) : (
-              <Avatar shape="circle" size={40}>
-                {name?.slice(0, 1)}
-              </Avatar>
-            )}
-          </div>
-          <div>
-            <SmartTooltip text={name || ''} className="text-sm not-italic font-bold text-[#3E3E3E]" />
-            <a
-              href={`${process.env.NEXT_PUBLIC_DOMAIN}?postId=${postId}`}
-              target="_blank"
-              className=" text-sm max-xs:text-xs not-italic font-normal leading-[24px] mt-[4px] line-clamp-2"
-              rel="noreferrer"
-            >{`${process.env.NEXT_PUBLIC_DOMAIN}?postId=${postId}`}</a>
-          </div>
-        </div>
         <div className="w-full min-h-[48px] relative rounded-[10px] py-[10px] bg-[#F8F8FF]">
           <Input.TextArea
             maxLength={300}
@@ -189,8 +167,8 @@ const ModalForward = ({ open, onClose, name, avatar, postId }: IPropsModalForwar
                       const formData = new FormData();
                       formData.append('message', valueMsg);
                       formData.append('conversationId', contact?._id);
-                      formData.append('type', messageType.Post.toString());
-                      formData.append('additionalData', `${postId}`);
+                      formData.append('type', messageType.Profile.toString());
+                      formData.append('additionalData', `${userId}`);
                       await createMessageMutation.mutateAsync(formData, {
                         onSuccess: () => {
                           setOpenMessage(true);
@@ -231,4 +209,4 @@ const ModalForward = ({ open, onClose, name, avatar, postId }: IPropsModalForwar
   );
 };
 
-export default ModalForward;
+export default ModalForwardProfile;

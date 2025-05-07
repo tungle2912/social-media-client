@@ -10,5 +10,8 @@ export const userApi = {
   },
   follow: (id: string) => {
     return sendPost(`/api/users/${id}/follow`);
+  },
+  unfollow: (id: string) => {
+    return sendPost(`/api/users/${id}/un-follow`);
   }
 };

@@ -6,18 +6,18 @@ import { useTranslations } from 'next-intl';
 import { useMemo, useState } from 'react';
 
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { CloseIcon, FollowIcon, ForwardIcon, ThreeDotBorderIcon } from '~/common/icon';
+import InputSearch from '~/common/inputSearch';
 import SmartTooltip from '~/common/smartTooltip';
 import Button from '~/components/form/Button';
 import { QUERY_KEY } from '~/definitions/models';
 import { useDimension } from '~/hooks';
-import { handleError } from '~/lib/utils';
+import useDebounce from '~/hooks/useDebounce';
+import ModalForwardProfile from '~/modules/contact/modalForwardProfile';
 import { contactApi } from '~/services/api/contact.api';
 import styles from './styles.module.scss';
-import { useRouter } from 'next/navigation';
-import InputSearch from '~/common/inputSearch';
-import useDebounce from '~/hooks/useDebounce';
 
 interface IPropsMyContact {}
 
@@ -272,6 +272,13 @@ const MyContact = ({}: IPropsMyContact) => {
           </Spin>
         </div>
       </div>
+      {openModalForward && (
+        <ModalForwardProfile
+          open={openModalForward}
+          onClose={() => setOpenModalForward(false)}
+          userId={valueForward}
+        />
+      )}
     </>
   );
 };

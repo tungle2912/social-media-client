@@ -1,0 +1,123 @@
+@import '~/theme/styles/_variables.scss';
+
+.modalStyle {
+  :global {
+    .ant-modal-content {
+    }
+  }
+}
+
+.inputMessage {
+  padding-right: 110px;
+  height: 100%;
+  border: 1px solid #e8e9ee;
+
+  &::-webkit-scrollbar {
+    height: 10px;
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 5px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #c7c6c6;
+  }
+
+  background-color: #f8f8ff;
+  font-size: 14px;
+  border: none !important;
+}
+
+.inputMessage:active,
+.inputMessage:focus {
+  border: none !important;
+  box-shadow: unset !important;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+
+  :global {
+    .ant-avatar {
+      background-color: #fff0f6;
+      color: #eb2f96;
+
+      .ant-avatar-string {
+        font-weight: 700;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.avatarConnect {
+  // flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  cursor: pointer;
+
+  :global {
+    .ant-avatar {
+      background-color: #fff0f6;
+      color: #eb2f96;
+
+      .ant-avatar-string {
+        font-weight: 700;
+        font-size: 16px;
+      }
+    }
+  }
+}
+
+.userItem {
+  padding-top: 8px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e9ee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btnSend {
+  height: 32px !important;
+  margin-right: 4px;
+}
+
+.customModalNotice {
+  :global {
+    .ant-modal-content {
+      height: 352px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+  }
+}
+.status {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  object-fit: contain;
+
+  &.messageYet {
+    background-color: $primary-color;
+  }
+
+  &.online {
+    background-color: #06c270;
+  }
+
+  &.offline {
+    background-color: #b5b5b5;
+  }
+}
