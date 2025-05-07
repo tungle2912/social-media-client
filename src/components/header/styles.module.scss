@@ -120,6 +120,10 @@
   //align-items: center;
   z-index: 1000;
 }
+.headerSearch {
+  max-width: 500px;
+  border-radius: 10px;
+}
 @media (max-width: 576px) {
   .header {
     justify-content: flex-end;
@@ -127,5 +131,29 @@
   }
   .headerContainer {
     padding: 12px 0 10px 24px;
+  }
+}
+.searchPopover {
+  width: 300px;
+  max-height: 400px;
+  overflow-y: auto;
+
+  .recentSearchesHeader {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 16px;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .ant-list-item {
+    cursor: pointer;
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    &:hover {
+      background-color: #f5f5f5;
+    }
   }
 }

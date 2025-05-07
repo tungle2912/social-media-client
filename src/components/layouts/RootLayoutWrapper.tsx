@@ -57,7 +57,9 @@ export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
   return (
     <AntdRegistry>
       <ThemeProvider>
-        {status === 'loading' ? (
+        {isAuthPage ? (
+          <AuthLayout>{children}</AuthLayout>
+        ) : status === 'loading' ? (
           <Content
             style={{
               padding: '48px',
@@ -70,8 +72,6 @@ export default function RootLayoutWrapper({ locale, children }: ILayoutProps) {
           >
             <Skeleton loading active />
           </Content>
-        ) : isAuthPage ? (
-          <AuthLayout>{children}</AuthLayout>
         ) : (
           <Layout className={styles.layoutContainer}>
             {isLoading && (

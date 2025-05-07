@@ -100,13 +100,14 @@ export default function ChatMessage() {
       const messageType = dataConversation.type;
       //filter data for add key isNextDate
       let listNewMsgConvert: any = [];
-      if (data?.length > 1) {
+      if (data?.length > 0) {
         for (let i = 0; i < data.length; i++) {
           const message = {
             ...data[i],
             isOnline: messageType === ConversationType.GROUP_CHAT ? onlineUsers.has(data[i]?.user?._id) : false,
-            owner: data[i].user?._id === (sessionData?.user as any)?._id,
+            owner: data[i].user?._id === currentUserId,
           };
+
           if (i < data.length) {
             if (
               dayjs(data[i + 1]?.createdAt).format('YYYY-MM-DD') !== dayjs(message?.createdAt).format('YYYY-MM-DD') ||

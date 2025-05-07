@@ -12,5 +12,14 @@ export const contactApi = {
   },
   getSuggestedFriend : async (data: any) => {
     return sendGet(`/api/contacts/suggested_friends`, data);
+  },
+  getFollowings: async (data: any) => {
+    return sendGet(`/api/contacts/followings`, data);
+  },
+  getFollowers: async (data: any) => {
+    return sendGet(`/api/contacts/followers`, data);
+  },
+  getRecommended: async (data: any) => {
+    return sendGet(`/api/contacts/recommended`, data);
   }
 };

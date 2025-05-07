@@ -1,0 +1,78 @@
+@import '~/theme/styles/_mixins.scss';
+
+.wrap {
+  background-color: #fff;
+  border-radius: 15px;
+
+  @include breakpoint(sm, 'max') {
+    background-color: #f7f7f7;
+  }
+}
+
+.tabsBar {
+  display: none;
+
+  @media screen and (max-width: 1150px) {
+    display: block;
+    position: absolute;
+    z-index: 11;
+    width: 56px;
+    height: 59px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.tabs {
+  height: 100%;
+
+  @include breakpoint(sm, 'max') {
+    position: sticky;
+    top: 0;
+    background: #f7f7f7;
+    z-index: 9;
+  }
+
+  :global {
+    .ant-tabs-nav {
+      height: 60px;
+
+      .ant-tabs-nav-list {
+        border-bottom: 1px solid #e8e9ee;
+      }
+
+
+      @include breakpoint(sm, 'max') {
+        border: 1px solid #e8e9ee;
+      }
+    }
+
+    .ant-tabs-content {
+      height: 100%;
+
+      .ant-tabs-tabpane-active {
+        height: 100%;
+      }
+    }
+
+    .ant-tabs-tab {
+      padding: 12px 8px;
+
+      .ant-tabs-tab-btn {
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 24px;
+        color: #3e3e3e;
+      }
+
+      &.ant-tabs-tab-active {
+
+        .ant-tabs-tab-btn {
+          font-weight: 500;
+        }
+      }
+    }
+  }
+}

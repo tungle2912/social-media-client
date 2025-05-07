@@ -17,6 +17,7 @@ import { useTheme } from '~/theme/ThemeProvider';
 import { clearAllCookies } from '~/lib/helper';
 import { ETheme } from '~/theme/ThemeProvider';
 import classNames from 'classnames';
+import Search from '~/components/header/search';
 export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
   const { isSM: isMobile, windowWidth } = useDimension();
@@ -129,7 +130,7 @@ export default function Header() {
         />
       )}
       <div className={classNames(styles.headerContainer, 'dark:bg-gray-900')}>
-        <InputSearch className={styles.headerSearch} />
+        <Search />
         <div className={styles.headerContent}>
           <Badge count={5} className={styles.badge}>
             <NotificationIcon />

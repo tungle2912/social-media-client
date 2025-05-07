@@ -108,6 +108,22 @@
   "community":{
     "selectPeople": "Select people"
   },
+  "contact":{
+    "new": "New",
+    "following": "Following",
+    "followers": "Followers",
+    "follow": "Follow",
+    "message": "Message",
+    "selectAll": "Select all",
+    "forward": "Forward",
+    "disconnect": "Disconnect",
+    "noListAvailable": "No list available",
+    "connectFriends": "Connect friends",
+    "allRecommend": "All recommendations",
+    "myContact": "My contacts",
+    "myInvitation": "My invitations",
+    "beingInvited": "Being invited"
+  },
   "accessDenied": "Access Denied",
   "modalConfirm": {
     "no": "No",

@@ -16,7 +16,7 @@ import useListOnline from '~/stores/listOnline.data';
 import styles from './styles.module.scss';
 import { useDimension } from '~/hooks';
 const INIT_PARAMS = { pageIndex: 1, pageSize: 20 };
-export default function ListContact() {
+export default function ListConversation() {
   const { data: suggestedFriendResponse } = useGetSuggestedFriendQuery();
   const [params, setParams] = useState<SearchParams>(INIT_PARAMS);
   const listOnline = useListOnline((state) => state.listOnline);
