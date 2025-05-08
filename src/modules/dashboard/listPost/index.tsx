@@ -160,6 +160,7 @@ export default function ListPost() {
         onCancel={handleCloseModal}
         footer={null}
         width={800}
+        height={1000}
         className="rounded-[15px] p-0"
         bodyStyle={{ padding: 0 }}
       >

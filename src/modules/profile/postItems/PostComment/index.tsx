@@ -47,7 +47,10 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
   } = useInfiniteQuery({
     queryKey: ['comments', postId],
     queryFn: ({ pageParam }) => commentApi.getComments(postId, pageParam, 10).then((res) => res.data),
-    getNextPageParam: (lastPage: any) => lastPage.nextPage,
+    getNextPageParam: (lastPage) => {
+      const { currentPage, totalPages } = lastPage.pagination;
+      return currentPage < totalPages ? currentPage + 1 : undefined;
+    },
     initialData: initialComments.length > 0 ? { pages: [{ comments: initialComments }], pageParams: [1] } : undefined,
     initialPageParam: 1,
   });

@@ -1,11 +1,15 @@
-import { Tabs, Tooltip } from 'antd';
+import { Avatar, Tabs, Tooltip } from 'antd';
 import { useState } from 'react';
 import { AngryIcon, HahaIcon, LikeIcon, LoveIcon, SadIcon, WowIcon } from '~/common/icon';
 import ModalBasic from '~/components/modal/modalBasic';
 import styles from './styles.module.scss';
+import Button from '~/components/form/Button';
+import { useRouter } from 'next/navigation';
 interface User {
   _id: string;
+  userId: string;
   user_name: string;
+  avatar?: string;
 }
 
 interface Reaction extends User {
@@ -14,6 +18,7 @@ interface Reaction extends User {
 
 interface Props {
   reactions: Reaction[];
+  comments?: any[];
 }
 
 const reactionIcons: Record<string, React.ReactNode> = {
@@ -25,18 +30,29 @@ const reactionIcons: Record<string, React.ReactNode> = {
   angry: <AngryIcon fontSize={18} />,
 };
 const reactionOrder = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
-export default function ReactCount({ reactions }: Props) {
+
+export default function ReactCount({ reactions, comments }: Props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const router = useRouter();
+  const handleViewProfile = (userId: string) => {
+    router.push(`/profile/${userId}`);
+  };
 
   const reactionGroups = reactions.reduce(
     (acc, reaction) => {
       if (!acc[reaction.reactionType]) {
         acc[reaction.reactionType] = [];
       }
-      acc[reaction.reactionType].push({ _id: reaction._id, user_name: reaction.user_name });
+      acc[reaction.reactionType].push({
+        _id: reaction._id,
+        user_name: reaction.user_name,
+        avatar: reaction.avatar,
+        userId: reaction.userId,
+        reactionType: reaction.reactionType,
+      });
       return acc;
     },
-    {} as Record<string, User[]>
+    {} as Record<string, Reaction[]>
   );
 
   const sortedReactionTypes = reactionOrder.filter((type) => reactionGroups[type]);
@@ -87,43 +103,58 @@ export default function ReactCount({ reactions }: Props) {
         </span>
       </Tooltip>
     );
-
+  const renderUserList = (users: Reaction[]) => (
+    <div className="flex flex-col gap-4 min-h-[300px]">
+      {users.map((user, index) => (
+        <div key={index} className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <div className="flex flex-col items-center relative">
+              <Avatar size={45} src={user.avatar} className={styles.avatar} />
+              <div className="mt-1 absolute bottom-0 right-0">{reactionIcons[user.reactionType]}</div>
+            </div>
+            <div>{user.user_name}</div>
+          </div>
+          <Button className="rounded-[50px]" onClick={() => handleViewProfile(user.userId)}>
+            View profile
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
   // Hiển thị nội dung modal với các tab
   const renderModalContent = () => (
     <Tabs defaultActiveKey="all">
-      <Tabs.TabPane tab="Tất cả" key="all">
-        <div>
-          {reactions.map((reaction) => (
-            <div key={reaction._id}>{reaction.user_name}</div>
-          ))}
-        </div>
+      <Tabs.TabPane tab={<span>Tất cả</span>} key="all">
+        {renderUserList(reactions)}
       </Tabs.TabPane>
       {sortedReactionTypes.map((type) => (
-        <Tabs.TabPane tab={type} key={type}>
-          <div>
-            {reactionGroups[type].map((user) => (
-              <div key={user._id}>{user.user_name}</div>
-            ))}
-          </div>
+        <Tabs.TabPane tab={<span>{reactionIcons[type]}</span>} key={type}>
+          {renderUserList(reactionGroups[type])}
         </Tabs.TabPane>
       ))}
     </Tabs>
   );
 
   return (
-    <div>
+    <div className="flex items-center justify-between gap-2">
       <div className={styles.reactionCount}>
         {renderReactionIcons()}
         {renderTotalCount()}
       </div>
+      {comments && (
+        <div className={styles.commentCount}>
+          <span onClick={openModal} style={{ cursor: 'pointer' }}>
+            {comments.length} bình luận
+          </span>
+        </div>
+      )}
+
       <ModalBasic
         title="Chi tiết lượt thả cảm xúc"
         visible={isModalVisible}
         onClosed={closeModal}
         onCancel={closeModal}
         footer={null}
-        width={600}
-        height={400}
       >
         {renderModalContent()}
       </ModalBasic>

@@ -27,6 +27,7 @@ export interface IPost {
   attachments?: any[];
   createdAt: number;
   updatedAt: number;
+  comments?: any[];
   viewScope: ViewScopeType;
   commentScope: CommentScopeType;
   groupId?: string;
@@ -36,6 +37,8 @@ export interface IPost {
   reactions?: {
     _id: string;
     user_name: string;
+    userId: string;
+    avatar: string;
     reactionType: string;
   }[];
   specificFriends?: string[];

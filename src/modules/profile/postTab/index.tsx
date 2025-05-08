@@ -2,7 +2,7 @@
 import { Avatar, Button } from 'antd';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { UserType } from '~/definitions';
 import { useDimension } from '~/hooks';
 import InputCreatePost from '~/modules/profile/inputCreatePost';
@@ -13,14 +13,20 @@ import { ModalCreatePost } from '~/modules/profile/modalCreatePost';
 import { useGetPostByUserIdQuery } from '~/hooks/data/post.data';
 import { MediaType } from '~/definitions/enums/index.enum';
 import { useGetMediaByIdQuery } from '~/hooks/data/user.data';
+import { PhotoProvider, PhotoView } from 'react-photo-view';
+import { useRouter } from 'next/navigation';
+import { VideoButtonIcon } from '~/common/icon';
 interface iPostTab {
   userProfile: UserType;
   isMe?: boolean;
+  setActiveTab?: (tab: string) => void;
 }
 
-export default function PostTab({ userProfile, isMe = true }: iPostTab) {
+export default function PostTab({ userProfile, isMe = true, setActiveTab }: iPostTab) {
   const t = useTranslations();
   const { isSM } = useDimension();
+  const refVideo: any = useRef(null);
+  const router = useRouter();
   const { data: postData, refetch } = useGetPostByUserIdQuery(userProfile?._id ?? '');
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [typeModal, setTypeModal] = useState<MediaType>();
@@ -49,21 +55,59 @@ export default function PostTab({ userProfile, isMe = true }: iPostTab) {
           <div className={styles.imagesSection}>
             <div className={styles.imagesSectionHeader}>
               <h3>{t('photos')}</h3>
-              <a href="#" className={styles.viewAllImage}>
+              <a onClick={()=>setActiveTab?.('6')} className={styles.viewAllImage}>
                 {t('viewAllPhotos')}
               </a>
             </div>
             <div className={styles.imageContainer}>
-              {listMedia?.result?.map((item: any) => (
-                <Image
-                  key={item._id}
-                  width={100}
-                  height={100}
-                  alt={t('imageAlt')}
-                  src={item.url}
-                  className={styles.imageAvatar}
-                />
-              ))}
+              <PhotoProvider>
+                {listMedia?.result?.slice(0, 9).map((item: any) => (
+                  <div key={item._id} className={styles.mediaItem}>
+                    <PhotoView
+                      src={item.type === 'image' ? item.url : undefined}
+                      render={(props) => (
+                        <div {...props.attrs} className={styles.videoContainer}>
+                          <video
+                            ref={refVideo}
+                            src={item.url}
+                            controls
+                            disablePictureInPicture
+                            className={styles.videoPlayer}
+                          />
+                          {refVideo?.current?.paused && (
+                            <div className={styles.videoPlayButton} onClick={() => refVideo.current?.play()}>
+                              <VideoButtonIcon />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    >
+                      <div className={styles.mediaContent}>
+                        {item.type === 'image' ? (
+                          <Image fill alt={t('imageAlt')} src={item.url} className={styles.mediaImage} />
+                        ) : (
+                          <div className={styles.videoWrapper}>
+                            <video src={item.url} muted className={styles.videoElement} />
+                            <div className={styles.videoOverlay}>
+                              <VideoButtonIcon />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </PhotoView>
+
+                    <button
+                      className={styles.viewPostButton}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/?postId=${item._idPost}`);
+                      }}
+                    >
+                      {t('viewPost')}
+                    </button>
+                  </div>
+                ))}
+              </PhotoProvider>
             </div>
           </div>
           <div className={styles.friendsSection}>

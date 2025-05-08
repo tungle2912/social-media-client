@@ -19,12 +19,13 @@ export default function Profile() {
   const { data: session } = useSession();
   const user = session?.user;
   const [fileList] = useState<UploadFile[]>([]);
+  const [activeTab, setActiveTab] = useState('1');
   const userProfile: UserType = response?.data?.result ?? ({} as UserType);
   const items = [
     {
       key: '1',
       label: t('posts'),
-      children: <PostTab userProfile={userProfile} />,
+      children: <PostTab userProfile={userProfile} setActiveTab={setActiveTab} />,
     },
     {
       key: '2',
@@ -187,7 +188,7 @@ export default function Profile() {
           <Button icon={<EditOutlined />}>{t('editProfile')}</Button>
         </div>
       </div>
-      <Tabs defaultActiveKey="1" items={items} />
+      <Tabs activeKey={activeTab} onChange={setActiveTab} defaultActiveKey="1" items={items} />
     </div>
   );
 }

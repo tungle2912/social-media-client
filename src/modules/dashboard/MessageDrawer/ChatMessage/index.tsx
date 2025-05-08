@@ -130,24 +130,27 @@ const ChatMessage = (message: any) => {
   useEffect(() => {
     if (socket && roomActive === roomId) {
       const handleNewMessage = (message: any) => {
-        setDataMessageResponse((prev: any) => [message, ...prev]);
+        if (message.conversationId === roomId) {
+          setDataMessageResponse((prev: any) => [message, ...prev]);
+        }
       };
       const handleNewDeleteMessage = (updatedMessage: any) => {
-        setDataMessageResponse((prev: any) =>
-          prev.map((msg: any) => (msg._id === updatedMessage._id ? updatedMessage : msg))
-        );
+        if (updatedMessage.conversationId === roomId) {
+          setDataMessageResponse((prev: any) =>
+            prev.map((msg: any) => (msg._id === updatedMessage._id ? updatedMessage : msg))
+          );
+        }
       };
 
       socket.on(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
       socket.on(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
 
-      // Cleanup: Xóa listener khi component unmount hoặc khi roomId/socket thay đổi
       return () => {
         socket.off(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
         socket.off(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
       };
     }
-  }, [roomId, socket]);
+  }, [roomId, socket, roomActive]);
   const {
     data: dataResponse,
     isLoading: isLoadingList,
@@ -684,7 +687,7 @@ const ChatMessage = (message: any) => {
   };
 
   return (
-    <div className="relative h-full">
+    <div id={`message-${roomId}`} className="relative h-full">
       <div className={styles.contentMessage}>
         {loading ? (
           <div className="w-full h-[60vh] flex justify-center items-center">
@@ -705,10 +708,7 @@ const ChatMessage = (message: any) => {
                   }
                   inverse={true}
                   height={window.innerHeight - 300}
-                  className={classNames(
-                    isSM ? '' : 'h-[320px]',
-                    'scroll-bar  py-4 px-[16px] mr-[5px] flex flex-col-reverse'
-                  )}
+                  className={classNames(isSM ? '' : 'h-[371px]', 'scroll-bar  py-4 px-[16px] flex flex-col-reverse')}
                 >
                   <div ref={lastMsgRef} />
                   {renderListMsg()}

@@ -20,13 +20,14 @@ import {
 import { useDimension } from '~/hooks';
 import { useGetPostByIdQuery } from '~/hooks/data/post.data';
 import useConfirm from '~/hooks/useConfirm';
-import { convertLinksToAnchors } from '~/lib/helper';
+import { convertLinksToAnchors, regexVideoMultipeSocial } from '~/lib/helper';
 import MediaMessage from '~/modules/message/MediaMessage';
 import SendTime from '~/modules/message/chatMessage/SendTime';
 import PostItem from '~/modules/profile/postItems';
 import { getUsername } from '~/services/helpers';
 import styles from './styles.module.scss';
 import { ProfileItem } from '~/modules/message/chatMessage/MessageItem/profileItem.tsx';
+import IframeVideo from '~/common/IframeVideo';
 
 interface MessageItemProps {
   message: any;
@@ -51,6 +52,13 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
   const [errorMessage, setErrorMessage] = useState<string>('');
   const postRef = useRef<any>(null);
   const { isSM } = useDimension();
+  const [linkVideo, setLinkVideo] = useState('');
+  useEffect(() => {
+    if (message.message) {
+      const matchedLinks = message.message.match(regexVideoMultipeSocial) || [];
+      setLinkVideo(matchedLinks?.[matchedLinks?.length - 1]);
+    }
+  }, [message.message]);
   const { data: postDetail, refetch, error: postError, status: postStatus } = useGetPostByIdQuery(postId);
   useEffect(() => {
     if (postError) {
@@ -164,7 +172,10 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
           className="text-sm break-words text-[#333333]"
           dangerouslySetInnerHTML={{ __html: convertLinksToAnchors(message?.message) }}
         ></div>
-        {message?.additionalData && message?.type === messageType.Profile&& (
+        {linkVideo && (
+          <IframeVideo linkVideo={linkVideo} className={styles.videoIframe} width="100%" height="385" />
+        )}
+        {message?.additionalData && message?.type === messageType.Profile && (
           <Flex className="flex flex-col bg-[white] px-3 py-2">
             <ProfileItem data={message?.additionalData} />
             <Flex className="mt-2">

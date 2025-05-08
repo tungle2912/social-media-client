@@ -14,6 +14,9 @@ export const useGetMediaByIdQuery = (id: string) => {
     queryKey: ['MEDIA', id],
     queryFn: () => userApi.getMediaById(id),
     enabled: !!id,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    refetchInterval: 1000 * 60 * 5,
   });
 };
 export const useUpdateProfileMutation = () => {

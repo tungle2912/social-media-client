@@ -46,12 +46,19 @@ export default function ChatBox({ conversation, onClose }: any) {
     } else if (conversation?.type === ConversationType.GROUP_CHAT) {
       return (
         <>
-          <div>
+          <div className="relative cursor-pointer mr-3">
             {conversation?.avatar ? (
               <Avatar src={conversation?.avatar || ''} alt={'avatar'} className={styles.avatarUser} />
             ) : (
               <div className={styles.avatarUser}>{conversation?.title ? conversation.title.charAt(0) : ''}</div>
             )}
+          </div>
+          <div className="w-full">
+            <SmartTooltip
+              className="text-base-black-200 font-bold text-[16px] max-w-[35rem] cursor-pointer hover:underline"
+              onClick={() => {}}
+              text={ conversation?.title}
+            />
           </div>
         </>
       );
@@ -97,7 +104,7 @@ export default function ChatBox({ conversation, onClose }: any) {
         </div>
       </div>
       {!isMinimized && (
-        <div style={{ height: '400px' }}>
+        <div style={{ height: '433px' }}>
           <ChatMessage _id={conversation._id} />
         </div>
       )}
