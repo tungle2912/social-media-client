@@ -2,8 +2,8 @@
 import { DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Avatar, Badge, Button, List, Menu, Popover, Spin, Switch } from 'antd';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
+import { use, useEffect, useState } from 'react';
+import { IconNotification, LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
 import InputSearch from '~/common/inputSearch';
 import { useDimension } from '~/hooks';
 import { useLogoutMutation } from '~/hooks/data/auth.data';
@@ -18,16 +18,28 @@ import { clearAllCookies } from '~/lib/helper';
 import { ETheme } from '~/theme/ThemeProvider';
 import classNames from 'classnames';
 import Search from '~/components/header/search';
+import { useGetCountNotificationCountQuery } from '~/hooks/data/notification.data';
+import NotificationPopover from '~/components/header/notification';
+import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
+import { useSocket } from '~/provider/socketProvider';
 export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
   const { isSM: isMobile, windowWidth } = useDimension();
   const logoutMutation = useLogoutMutation();
+  const socket = useSocket();
   const router = useRouter();
+  const [bellRing, setBellRing] = useState<boolean>(false);
+  const { data: getCountNoti, refetch } = useGetCountNotificationCountQuery();
   const [isLoading, setIsLoading] = useState(false);
   const { theme, toggleTheme } = useTheme();
   useEffect(() => {
     document.body.setAttribute('prefers-color-scheme', theme);
   }, [theme]);
+  useEffect(() => {
+    if (getCountNoti?.result == 0) {
+      setBellRing(false);
+    }
+  }, [getCountNoti]);
 
   const { user } = useAuthStore();
   const handleLogout = () => {
@@ -45,7 +57,14 @@ export default function Header() {
       },
     });
   };
-
+  useEffect(() => {
+    if (socket) {
+      socket.on(SOCKET_EVENT_KEY.NOTIFICATION, async () => {
+        setBellRing(true);
+        await refetch();
+      });
+    }
+  }, [socket]);
   const handleMenuClick = (value: any) => {
     switchLocale(value);
   };
@@ -132,9 +151,15 @@ export default function Header() {
       <div className={classNames(styles.headerContainer, 'dark:bg-gray-900')}>
         <Search />
         <div className={styles.headerContent}>
-          <Badge count={5} className={styles.badge}>
-            <NotificationIcon />
-          </Badge>
+          <Popover placement="bottomRight" trigger={'click'} content={<NotificationPopover />}>
+            <div className={`${styles.notify} flex hover:cursor-click-white`}>
+              <Badge count={getCountNoti?.result || 0} overflowCount={99}>
+                <span className={bellRing ? styles.bellRing : styles.bell}>
+                  <NotificationIcon />
+                </span>
+              </Badge>
+            </div>
+          </Popover>
           <Popover placement="bottomRight" trigger={'click'} content={renderPopover}>
             <div className={styles.userProfile}>
               <Avatar

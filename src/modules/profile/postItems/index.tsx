@@ -43,8 +43,9 @@ interface PostItemProps {
   >;
   openComment?: boolean;
   isPreview?: boolean;
+  commentId?: string;
 }
-function PostItem({ post, refetch, openComment = false, isPreview = false }: PostItemProps) {
+function PostItem({ post, refetch, openComment = false, isPreview = false, commentId }: PostItemProps) {
   const { user } = useAuthStore();
   const reactPostMutation = useReactPostMutation();
   const [localReaction, setLocalReaction] = useState(post.currentUserReaction || '');
@@ -241,7 +242,7 @@ function PostItem({ post, refetch, openComment = false, isPreview = false }: Pos
               More
             </Button>
           </div>
-          {showComment && <CommentComponent postId={post._id} />}
+          {showComment && <CommentComponent focusCommentId={commentId} postId={post._id} />}
           {showModalRepost && (
             <ModalRePost
               isOpenModal={showModalRepost}

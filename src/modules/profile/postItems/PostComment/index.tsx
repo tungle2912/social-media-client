@@ -191,7 +191,48 @@ export default function CommentComponent({ postId, initialComments = [], focusCo
       );
     });
   };
+  const findParentIds = (pages: any[], targetId: string): string[] => {
+    let path: string[] = [];
 
+    const search = (comments: any[], targetId: string, currentPath: string[]): boolean => {
+      for (const comment of comments) {
+        const newPath = [...currentPath, comment._id];
+        if (comment._id === targetId) {
+          path = newPath;
+          return true;
+        }
+        if (comment.comments?.length > 0) {
+          const found = search(comment.comments, targetId, newPath);
+          if (found) return true;
+        }
+      }
+      return false;
+    };
+
+    for (const page of pages) {
+      if (search(page.comments, targetId, [])) break;
+    }
+    return path.slice(0, -1); // Loại bỏ ID của chính comment đích
+  };
+  useEffect(() => {
+    if (focusCommentId && commentsData?.pages) {
+      const parentIds = findParentIds(commentsData.pages, focusCommentId);
+      setExpandedComments((prev) => ({
+        ...prev,
+        ...parentIds.reduce((acc, id) => ({ ...acc, [id]: true }), {}),
+      }));
+    }
+  }, [focusCommentId, commentsData]);
+  useEffect(() => {
+    if (focusCommentId && !isFetchingNextPage) {
+      const element = document.getElementById(`comment-${focusCommentId}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.style.backgroundColor = '#f0f2ff';
+        setTimeout(() => (element.style.backgroundColor = ''), 2000);
+      }
+    }
+  }, [focusCommentId, isFetchingNextPage, commentsData]);
   return (
     <div className="comment-section bg-white p-4 rounded-lg">
       {commentsData?.pages?.map((page, i) => <div key={i}>{renderComments(page.comments, 0, true)}</div>)}
@@ -294,7 +335,7 @@ const CommentItem = ({
   );
 
   return (
-    <div ref={ref} className="p-3 bg-white" style={{ marginLeft: `${level * 40}px` }}>
+    <div id={`comment-${comment._id}`} ref={ref} className="p-3 bg-white" style={{ marginLeft: `${level * 40}px` }}>
       <div className="flex items-start gap-3">
         <Avatar
           src={comment.author.avatar}

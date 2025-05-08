@@ -18,6 +18,8 @@ import useDebounce from '~/hooks/useDebounce';
 import ModalForwardProfile from '~/modules/contact/modalForwardProfile';
 import { contactApi } from '~/services/api/contact.api';
 import styles from './styles.module.scss';
+import { useUnFollowMutation } from '~/hooks/data/user.data';
+import ModalDisconnect from '~/components/modal/modalDisconect';
 
 interface IPropsMyContact {}
 
@@ -34,6 +36,7 @@ const MyContact = ({}: IPropsMyContact) => {
     pageSize: 10,
     keyword: '',
   });
+  const unfollowMutation = useUnFollowMutation();
   const [searchKeyword, setSearchKeyword] = useState('');
   const [openShareInvite, setOpenShareInvite] = useState<boolean>(false);
   const [uuidSelected, setUuiSelected] = useState<string>('');
@@ -56,6 +59,7 @@ const MyContact = ({}: IPropsMyContact) => {
     isLoading: isLoadingList,
     hasNextPage,
     fetchNextPage,
+    refetch,
   } = useInfiniteQuery({
     queryKey: [QUERY_KEY.MY_CONTACT, params],
     queryFn: ({ pageParam = 1 }) =>
@@ -79,7 +83,7 @@ const MyContact = ({}: IPropsMyContact) => {
   }, [dataResponse]);
 
   const allValueId = useMemo(() => {
-    return dataContact?.map((it) => it?.id);
+    return dataContact?.map((it) => it?._id);
   }, [dataContact]);
 
   const handleFollowing = async (item: any) => {};
@@ -93,18 +97,21 @@ const MyContact = ({}: IPropsMyContact) => {
   };
 
   const onConfirmDisconnectMulti = () => {
-    const userUuids: string[] = [];
-    dataContact?.forEach((contact) => {
-      if (checkedList.includes(contact.id)) {
-        userUuids.push(contact.user.uuid);
-      }
-    });
+    const userUuids =
+      dataContact?.filter((contact) => checkedList.includes(contact._id))?.map((contact) => contact._id) || [];
     setUuidsSelected(userUuids);
     setOpenDisconnect({ isOpen: true, multiple: true });
   };
-
-  const onDisconnectMultiple = () => {};
-
+  const onDisconnectMultiple = () => {
+    unfollowMutation.mutateAsync(uuidsSelected, {
+      onSuccess: async () => {
+        await refetch();
+        setOpenDisconnect({ isOpen: false, multiple: false });
+        setUuidsSelected([]);
+        setCheckedList([]);
+      },
+    });
+  };
   const renderListContact = () => {
     return dataContact?.map((item) => {
       const checkShowNew = dayjs().diff(dayjs(item?.createdAt), 'hour') <= 72;
@@ -118,7 +125,7 @@ const MyContact = ({}: IPropsMyContact) => {
               [styles.active]: checkedList?.includes(item?.id),
             })}
           >
-            <Checkbox value={item?.id} />
+            <Checkbox value={item?._id} />
             <div className={styles.wrapInfo}>
               <div className={styles.avatar} onClick={() => {}}>
                 {item?.avatar ? (
@@ -157,11 +164,11 @@ const MyContact = ({}: IPropsMyContact) => {
             <DropDownOption
               isMobile={isMobile}
               onOpenDisconnect={() => {
-                setUuiSelected(item?.user?.uuid);
-                setOpenDisconnect({ isOpen: true });
+                setUuidsSelected([item._id]);
+                setOpenDisconnect({ isOpen: true, multiple: false });
               }}
               setUserSelected={(param: any) => setUserSelected(param)}
-              contactId={item?.id}
+              contactId={item?._id}
               onOpenUnFollow={() => {
                 setOpenModalFollow(true);
                 setDataFollow(item);
@@ -196,7 +203,7 @@ const MyContact = ({}: IPropsMyContact) => {
           <Spin spinning={isLoadingList}>
             {dataContact?.length > 0 ? (
               <>
-                <div className="max-sm:bg-[#F7F7F7] max-sm:h-[40px] flex items-center gap-[40px] max-xs:gap-[4px] max-xs:pr-4">
+                <div className="max-sm:bg-[#F7F7F7] max-sm:h-[40px] flex items-center gap-[40px] max-xs:gap-[4px] max-xs:pr-4 pt-10">
                   <Checkbox
                     className={classNames(styles.checkboxAll, 'w-fit')}
                     indeterminate={checkedList?.length > 0 && checkedList?.length < allValueId.length}
@@ -224,7 +231,7 @@ const MyContact = ({}: IPropsMyContact) => {
                         </p>
                       </div>
 
-                      <div className={styles.btnActionAll} onClick={() => onConfirmDisconnectMulti()}>
+                      <div className={styles.btnActionAll} onClick={onConfirmDisconnectMulti}>
                         <CloseIcon />
                         <p className="text-sm not-italic font-normal leading-[24px] text-[#3E3E3E]">
                           {' '}
@@ -234,7 +241,7 @@ const MyContact = ({}: IPropsMyContact) => {
                     </>
                   )}
                 </div>
-                <div className="flex flex-col pt-[8px]">
+                <div className="flex flex-col">
                   <Checkbox.Group value={checkedList} onChange={onChangeCheckBox}>
                     <InfiniteScroll
                       dataLength={dataContact?.length || 0}
@@ -245,7 +252,7 @@ const MyContact = ({}: IPropsMyContact) => {
                           <Spin />
                         </div>
                       }
-                      className="scroll-bar py-10 px-[16px] mr-[5px] flex flex-col-reverse"
+                      className="scroll-bar pt-0 pb-10 px-[16px] mr-[5px] flex flex-col-reverse"
                     >
                       {renderListContact()}
                     </InfiniteScroll>
@@ -255,7 +262,7 @@ const MyContact = ({}: IPropsMyContact) => {
             ) : (
               !isLoadingList && (
                 <Empty
-                  className="mt-[145px]"
+                  className="mt-[45px]"
                   description={
                     <div>
                       <p className="text-sm not-italic font-normal leading-[24px] text-[#3E3E3E]">
@@ -273,10 +280,15 @@ const MyContact = ({}: IPropsMyContact) => {
         </div>
       </div>
       {openModalForward && (
-        <ModalForwardProfile
-          open={openModalForward}
-          onClose={() => setOpenModalForward(false)}
-          userId={valueForward}
+        <ModalForwardProfile open={openModalForward} onClose={() => setOpenModalForward(false)} userId={valueForward} />
+      )}{' '}
+      {openDisconnect.isOpen && (
+        <ModalDisconnect
+          open={openDisconnect.isOpen}
+          isMultiple={openDisconnect.multiple}
+          isLoading={unfollowMutation.isPending}
+          onOk={onDisconnectMultiple}
+          onClose={() => setOpenDisconnect({ isOpen: false, multiple: false })}
         />
       )}
     </>

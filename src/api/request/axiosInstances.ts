@@ -26,8 +26,9 @@ async function refreshTokenIfNeeded() {
         refreshToken: response.data.result.refresh_token,
       };
     } catch (error) {
-      console.error('Failed to refresh token:', error);
-      return null;
+      await signOut({ redirect: false });
+      window.location.href = '/auth/login';
+      return Promise.reject(error);
     }
   }
   return null;
@@ -70,10 +71,6 @@ protectedAxiosInstance.interceptors.response.use(
       if (refreshedTokens) {
         originalRequest.headers.Authorization = `Bearer ${refreshedTokens.accessToken}`;
         return protectedAxiosInstance(originalRequest);
-      } else {
-        await signOut({ redirect: false });
-        window.location.href = '/auth/login'; 
-        return Promise.reject(error);
       }
     }
     return Promise.reject(error);
@@ -109,4 +106,3 @@ publicAxiosInstance.interceptors.response.use(
 );
 
 export { cancelTokenSource, protectedAxiosInstance, publicAxiosInstance };
-

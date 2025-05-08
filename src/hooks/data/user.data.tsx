@@ -44,10 +44,10 @@ export const useFollowMutation = () => {
     },
   });
 };
-export const useUnFollowMutation = (id: string) => {
+export const useUnFollowMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: () => userApi.unfollow(id),
+    mutationFn: (id: string[]) => userApi.unfollow(id),
     onSuccess: async () => {
       queryClient.invalidateQueries({
         queryKey: ['PROFILE'],
@@ -59,6 +59,17 @@ export const useRejectFollowMutation = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => userApi.rejectFollow(id),
+    onSuccess: async () => {
+      queryClient.invalidateQueries({
+        queryKey: ['PROFILE'],
+      });
+    },
+  });
+};
+export const useCloseFollowMutation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => userApi.closeFollow(id),
     onSuccess: async () => {
       queryClient.invalidateQueries({
         queryKey: ['PROFILE'],

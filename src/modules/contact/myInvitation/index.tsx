@@ -1,4 +1,4 @@
-import { Avatar, Dropdown, Empty, message, Spin } from 'antd';
+import { Avatar, Dropdown, Empty, message, Spin, Tag } from 'antd';
 import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
 
@@ -13,12 +13,12 @@ import SmartTooltip from '~/common/smartTooltip';
 import Button from '~/components/form/Button';
 import { QUERY_KEY } from '~/definitions/models';
 import { useDimension } from '~/hooks';
-import { useFollowMutation } from '~/hooks/data/user.data';
+import { useCloseFollowMutation, useFollowMutation, useUnFollowMutation } from '~/hooks/data/user.data';
 import useDebounce from '~/hooks/useDebounce';
 import { contactApi } from '~/services/api/contact.api';
 import styles from './styles.module.scss';
 
-const AllRecommend = () => {
+const MyInvitation = () => {
   const t = useTranslations();
   const { isSM: isMobile } = useDimension();
   const [params, setParams] = useState({
@@ -39,9 +39,9 @@ const AllRecommend = () => {
     fetchNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [QUERY_KEY.All_RECOMMEND, params],
+    queryKey: [QUERY_KEY.MY_INVITATION, params],
     queryFn: ({ pageParam = 1 }) =>
-      contactApi.getRecommended({
+      contactApi.getFollowings({
         search: params.keyword,
         page: pageParam,
         limit: params.pageSize,
@@ -53,6 +53,7 @@ const AllRecommend = () => {
     },
     initialPageParam: 1,
   });
+  const closeFollowMutation = useCloseFollowMutation();
   const onSearch = useDebounce((event) => {
     setParams({ ...params, keyword: event?.target.value });
   }, 500);
@@ -61,6 +62,17 @@ const AllRecommend = () => {
   }, [dataResponse]);
 
   const renderListContact = () => {
+    const handleCloseFollow = (id: string) => {
+      closeFollowMutation.mutateAsync(id, {
+        onSuccess: async () => {
+          await refetch();
+          message.success(t('contact.closeFollowSuccess'));
+        },
+        onError: () => {
+          message.error(t('contact.closeFollowError'));
+        },
+      });
+    };
     return dataContact?.map((item) => {
       return (
         <div
@@ -75,9 +87,9 @@ const AllRecommend = () => {
             <div className={styles.wrapInfo}>
               <div className={styles.avatar} onClick={() => {}}>
                 {item?.avatar ? (
-                  <Avatar shape="circle" size={92} src={item?.avatar} />
+                  <Avatar shape="circle" size={72} src={item?.avatar} />
                 ) : (
-                  <Avatar shape="circle" size={92}>
+                  <Avatar shape="circle" size={72}>
                     {item?.user_name?.slice(0, 1)}
                   </Avatar>
                 )}
@@ -90,51 +102,16 @@ const AllRecommend = () => {
                     onClick={() => {}}
                     className="text-base not-italic font-bold text-[#3E3E3E] mr-[24px] max-w-[250px] max-sm:max-w-[150px] cursor-pointer hover:underline"
                   />{' '}
-                  <p
-                    onClick={async () => {
-                      await followMutation.mutateAsync(item?._id, {
-                        onSuccess: async () => {
-                          await refetch();
-                          message.success('Follow successfully', 3);
-                        },
-                      });
-                    }}
-                    className="rounded-[5px] bg-[#FFF8E5] flex px-[8px] py-[4px] items-center gap-[4px] w-[43px] text-xs not-italic font-bold text-[#E57A00] mr-[8px]"
-                  >
-                    {t('contact.follow')}
-                  </p>
                 </div>
               </div>
 
-              <Button
-                rounded="large"
-                className="w-[120px] max-sm:hidden"
-                onClick={() => router.push(`/profile/${item?._id}`)}
-              >
-                {t('contact.viewProfile')}
-              </Button>
+              <Tag className={classNames(styles.tag, styles.pending)}>
+                <span className={styles.dot}></span>
+                <p>Waiting</p>
+              </Tag>
             </div>
 
-            {/* <DropDownOption
-              isMobile={isMobile}
-              onOpenDisconnect={() => {
-                setUuidsSelected([item._id]);
-                setOpenDisconnect({ isOpen: true, multiple: false });
-              }}
-              setUserSelected={(param: any) => setUserSelected(param)}
-              contactId={item?._id}
-              onOpenUnFollow={() => {
-                setOpenModalFollow(true);
-                setDataFollow(item);
-              }}
-              dataItem={item}
-              handleFollowing={handleFollowing}
-              onOpenForward={() => {
-                setOpenModalForward(true);
-                setValueForward([item?._id]);
-              }}
-              checkedList={checkedList}
-            /> */}
+            <DropDownOption contactId={item?._id} handleCloseFollow={handleCloseFollow} checkedList={checkedList} />
           </div>
         </div>
       );
@@ -198,65 +175,24 @@ const AllRecommend = () => {
 };
 
 const DropDownOption = ({
-  onOpenDisconnect,
   contactId,
-  isMobile,
-  onOpenUnFollow,
-  dataItem,
-  handleFollowing,
-  onOpenForward,
+  handleCloseFollow,
   checkedList,
-  setUserSelected,
 }: {
-  onOpenDisconnect: () => void;
-  contactId: any;
-  isMobile: boolean;
-  onOpenUnFollow: () => void;
-  dataItem: any;
-  handleFollowing: (item: any) => void;
-  onOpenForward: () => void;
-  checkedList: any[];
-  setUserSelected: (param: any) => void;
+  contactId: string;
+  handleCloseFollow: any;
+  checkedList: any;
 }) => {
   const t = useTranslations();
 
-  const defaultItem = [
+  const items = [
     {
-      key: '2',
-      label: <p className="text-sm not-italic font-normal leading-[24px] text-[#3E3E3E]">{t('contact.disconnect')}</p>,
+      key: '1',
+      label: <p className="text-sm not-italic font-normal leading-[24px] text-[#3E3E3E]">{t('contact.closeFollow')}</p>,
       icon: <CloseIcon />,
-      onClick: () => {
-        onOpenDisconnect();
-      },
-    },
-    {
-      key: '3',
-      label: <p className="text-sm not-italic font-normal leading-[24px] text-[#3E3E3E]">{t('contact.forward')}</p>,
-      icon: <ForwardIcon />,
-      onClick: () => {
-        onOpenForward();
-        setUserSelected(dataItem?._id);
-      },
+      onClick: () => handleCloseFollow(contactId),
     },
   ];
-
-  const items = isMobile
-    ? [
-        {
-          key: '5',
-          label: (
-            <p className="text-sm not-italic font-normal leading-[24px] text-[#3E3E3E]">
-              {dataItem?.following ? t('contactLocale.following') : t('contactLocale.follow')}
-            </p>
-          ),
-          icon: <FollowIcon />,
-          onClick: () => {
-            dataItem?.following ? onOpenUnFollow() : handleFollowing(dataItem);
-          },
-        },
-        ...defaultItem,
-      ]
-    : [...defaultItem];
 
   return (
     <div>
@@ -266,14 +202,12 @@ const DropDownOption = ({
         }}
         placement="bottomRight"
         trigger={['click']}
-        getPopupContainer={(element: HTMLElement) => {
-          return element;
-        }}
+        getPopupContainer={(element) => element}
         rootClassName={styles.dropdownOptions}
         disabled={checkedList?.length >= 2}
         className={checkedList?.length >= 2 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
       >
-        <div className=" bg-transparent rounded-[5px]">
+        <div className="bg-transparent rounded-[5px]">
           <ThreeDotBorderIcon />
         </div>
       </Dropdown>
@@ -281,4 +215,4 @@ const DropDownOption = ({
   );
 };
 
-export default AllRecommend;
+export default MyInvitation;
