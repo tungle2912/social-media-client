@@ -10,13 +10,19 @@ export const userApi = {
   follow: (id: string) => {
     return sendPost(`/api/users/${id}/follow`);
   },
-  unfollow: (id: string) => {
-    return sendPost(`/api/users/${id}/un-follow`);
+  unfollow: (ids: string[]) => {
+    return sendPost(`/api/users/un-follow`, { ids });
   },
   rejectFollow: (id: string) => {
     return sendDelete(`/api/users/${id}/reject-follow`);
   },
+  closeFollow: (id: string) => {
+    return sendDelete(`/api/users/${id}/close-follow`);
+  },
   getProfileById: (id?: string) => {
     return sendGet(`/api/users/${id}`);
   },
+  getMediaById: (id?: string) => {
+    return sendGet(`/api/users/${id}/media`);
+  }
 };

@@ -2,7 +2,7 @@
 import { Avatar, Button } from 'antd';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UserType } from '~/definitions';
 import { useDimension } from '~/hooks';
 import InputCreatePost from '~/modules/profile/inputCreatePost';
@@ -12,6 +12,7 @@ import styles from './styles.module.scss';
 import { ModalCreatePost } from '~/modules/profile/modalCreatePost';
 import { useGetPostByUserIdQuery } from '~/hooks/data/post.data';
 import { MediaType } from '~/definitions/enums/index.enum';
+import { useGetMediaByIdQuery } from '~/hooks/data/user.data';
 interface iPostTab {
   userProfile: UserType;
   isMe?: boolean;
@@ -24,6 +25,13 @@ export default function PostTab({ userProfile, isMe = true }: iPostTab) {
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [typeModal, setTypeModal] = useState<MediaType>();
   const [showUpload, setShowUpload] = useState(false);
+  const { data: listMediaResponse } = useGetMediaByIdQuery(userProfile?._id ?? '');
+  const [listMedia, setListMedia] = useState<any>(null);
+  useEffect(() => {
+    if (listMediaResponse) {
+      setListMedia(listMediaResponse);
+    }
+  }, [listMediaResponse]);
   const handleClickAttach = (type: MediaType) => {
     setTypeModal(type);
     setShowUpload(true);
@@ -46,13 +54,16 @@ export default function PostTab({ userProfile, isMe = true }: iPostTab) {
               </a>
             </div>
             <div className={styles.imageContainer}>
-              <Image
-                width={100}
-                height={100}
-                alt={t('imageAlt')}
-                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1745508584/jrqdhn9f8rqwwb2h9xr7.jpg"
-                className={styles.imageAvatar}
-              />
+              {listMedia?.result?.map((item: any) => (
+                <Image
+                  key={item._id}
+                  width={100}
+                  height={100}
+                  alt={t('imageAlt')}
+                  src={item.url}
+                  className={styles.imageAvatar}
+                />
+              ))}
             </div>
           </div>
           <div className={styles.friendsSection}>

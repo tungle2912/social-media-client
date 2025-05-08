@@ -70,6 +70,7 @@ const ChatMessage = (message: any) => {
   const [openDrawerEditMember, setOpenDrawerEditMember] = useState<boolean>(false);
   const [isNewMsg, setIsNewMsg] = useState<boolean>(true);
   const { data: sessionData } = useSession();
+  const [roomActive, setRoomActive] = useState<any>(null);
   const profile = sessionData?.user;
   const { data: postDetail, refetch: refetchPost, error: postError, status: postStatus } = useGetPostByIdQuery(postId);
   useEffect(() => {
@@ -123,9 +124,11 @@ const ChatMessage = (message: any) => {
       setIsNewMsg(false);
     }
   }, [message]);
-
+  const changeRoomActive = () => {
+    setRoomActive(roomId);
+  };
   useEffect(() => {
-    if (socket) {
+    if (socket && roomActive === roomId) {
       const handleNewMessage = (message: any) => {
         setDataMessageResponse((prev: any) => [message, ...prev]);
       };
@@ -713,7 +716,7 @@ const ChatMessage = (message: any) => {
               ) : null}
             </div>
             <div className=" h-auto w-full absolute bottom-0 border-t-[1px] border-color-[#fffaaa] z-10 rounded-b-[15px] rounded-tl-none rounded-tr-none">
-              <InputMessage defaultValue={''} handleSendMsg={sendMessage} />
+              <InputMessage defaultValue={''} handleSendMsg={sendMessage} setRoomActive={changeRoomActive} />
             </div>
           </>
         )}

@@ -51,7 +51,7 @@ export default function Sidebar() {
             alt="logo"
           />
         )}
-        {isSM && !collapsed && (
+        {windowWidth >= 1400 && !collapsed && (
           <Button
             type="text"
             icon={<MenuUnfoldOutlined />}

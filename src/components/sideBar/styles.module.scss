@@ -1,4 +1,4 @@
-@import "~/theme/styles/variables.scss";
+@import '~/theme/styles/variables.scss';
 .sideBar {
   background-color: #fff !important;
   padding-top: 12px;
@@ -8,6 +8,13 @@
   bottom: 0;
   z-index: 1000;
   :global {
+    .ant-menu-inline-collapsed {
+      .ant-menu-item {
+        .ant-menu-title-content {
+          opacity: 0;
+        }
+      }
+    }
     .ant-menu .ant-menu-item {
       height: 56px;
       border-radius: 0 !important;
@@ -24,7 +31,7 @@
     }
     .ant-menu-item-selected {
       &::before {
-        content: "";
+        content: '';
         position: absolute;
         left: 0;
         top: 0;

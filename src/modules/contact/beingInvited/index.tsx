@@ -13,12 +13,12 @@ import SmartTooltip from '~/common/smartTooltip';
 import Button from '~/components/form/Button';
 import { QUERY_KEY } from '~/definitions/models';
 import { useDimension } from '~/hooks';
-import { useFollowMutation } from '~/hooks/data/user.data';
+import { useFollowMutation, useRejectFollowMutation } from '~/hooks/data/user.data';
 import useDebounce from '~/hooks/useDebounce';
 import { contactApi } from '~/services/api/contact.api';
 import styles from './styles.module.scss';
 
-const AllRecommend = () => {
+const BeingInvited = () => {
   const t = useTranslations();
   const { isSM: isMobile } = useDimension();
   const [params, setParams] = useState({
@@ -29,9 +29,8 @@ const AllRecommend = () => {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [checkedList, setCheckedList] = useState<any>([]);
   const router = useRouter();
-
+  const rejectFollowMutation = useRejectFollowMutation();
   const followMutation = useFollowMutation();
-
   const {
     data: dataResponse,
     isLoading: isLoadingList,
@@ -39,9 +38,9 @@ const AllRecommend = () => {
     fetchNextPage,
     refetch,
   } = useInfiniteQuery({
-    queryKey: [QUERY_KEY.All_RECOMMEND, params],
+    queryKey: [QUERY_KEY.BEING_INVITED, params],
     queryFn: ({ pageParam = 1 }) =>
-      contactApi.getRecommended({
+      contactApi.getFollowers({
         search: params.keyword,
         page: pageParam,
         limit: params.pageSize,
@@ -108,10 +107,36 @@ const AllRecommend = () => {
 
               <Button
                 rounded="large"
+                btnType="primary"
                 className="w-[120px] max-sm:hidden"
-                onClick={() => router.push(`/profile/${item?._id}`)}
+                onClick={() => {
+                  if (item?._id) {
+                    followMutation.mutateAsync(item._id as string, {
+                      onSuccess: async () => {
+                        await refetch();
+                        message.success(t('contact.acceptFollowSuccess'));
+                      },
+                    });
+                  }
+                }}
               >
-                {t('contact.viewProfile')}
+                {t('contact.Accept')}
+              </Button>
+              <Button
+                rounded="large"
+                className="w-[120px] max-sm:hidden"
+                onClick={() => {
+                  if (item?._id) {
+                    rejectFollowMutation.mutateAsync(item._id as string, {
+                      onSuccess: async () => {
+                        await refetch();
+                        message.success(t('contact.rejectFollowSuccess'));
+                      },
+                    });
+                  }
+                }}
+              >
+                {t('contact.Remove')}
               </Button>
             </div>
 
@@ -281,4 +306,4 @@ const DropDownOption = ({
   );
 };
 
-export default AllRecommend;
+export default BeingInvited;

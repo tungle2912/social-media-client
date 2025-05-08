@@ -23,6 +23,7 @@ export default function ListPost() {
   const searchParam = useSearchParams();
   const pathname = usePathname();
   const postId = searchParam.get('postId') || undefined;
+  const commentId = searchParam.get('commentId') || undefined;
   const { data: postDetail, error: postError, status: postStatus } = useGetPostByIdQuery(postId);
   const userProfile = sessionData?.user as UserType;
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -87,7 +88,7 @@ export default function ListPost() {
     if (selectedPost) {
       return (
         <div className="max-h-[90vh] overflow-y-auto p-4">
-          <MemoizedPostItem openComment={true} post={selectedPost} isPreview refetch={refetch} />
+          <MemoizedPostItem openComment={true} commentId={commentId} post={selectedPost} refetch={refetch} />
         </div>
       );
     }

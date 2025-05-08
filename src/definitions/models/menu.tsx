@@ -1,4 +1,4 @@
-import { ComunityIcon, HomeIcon, MessageIcon } from '~/common/icon';
+import { ComunityIcon, HomeIcon, MessageIcon, ProfileIcon, SettingIcon } from '~/common/icon';
 
 export interface IRoute {
   key: string;
@@ -29,8 +29,14 @@ export const menuRoutes: IRoute[] = [
   },
   {
     key: '4',
+    label: 'Profile',
+    url: '/profile',
+    icon: <ProfileIcon />,
+  },
+  {
+    key: '5',
     label: 'Settings',
     url: '/settings',
-    icon: <ComunityIcon />,
+    icon: <SettingIcon />,
   },
 ];

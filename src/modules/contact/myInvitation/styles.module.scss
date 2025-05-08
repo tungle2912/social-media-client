@@ -46,7 +46,6 @@
   }
 }
 
-
 .checkboxAll {
   margin-left: 64px;
 
@@ -115,7 +114,6 @@
     }
   }
 }
-
 
 .wrapInfo {
   display: flex;
@@ -281,4 +279,55 @@
       }
     }
   }
+}
+
+.tag {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border: unset !important;
+  border-radius: 5px;
+  height: 36px;
+  margin-inline-end: unset;
+  p {
+    font-weight: 700;
+    font-size: 14px;
+  }
+  svg {
+    width: 16px !important;
+    height: 16px !important;
+  }
+  &.pending {
+    background-color: #fff8e5;
+    p {
+      color: #e57a00;
+    }
+  }
+  &.accepted {
+    background-color: #e3fff1;
+    p {
+      color: #05a660;
+    }
+  }
+  &.rejected {
+    background-color: #ffe5e5;
+    p {
+      color: #e53535;
+    }
+  }
+
+  @include breakpoint(sm, 'max') {
+    height: 24px;
+    padding: 4px 8px;
+    p {
+      font-size: 12px;
+    }
+  }
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  background-color: #e57a00;
+  border-radius: 50%;
 }

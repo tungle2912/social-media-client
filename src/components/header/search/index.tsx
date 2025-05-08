@@ -18,7 +18,6 @@ export default function Search() {
       setSearchResults([]);
       return;
     }
-
     // Gọi API search
     const results = await fetch(`/api/search?q=${value}`).then((res) => res.json());
     setSearchResults(results);

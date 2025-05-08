@@ -105,10 +105,16 @@
     "messageHasBeenRecalled": "Message has been recalled",
     "createAGroupChat": "Create a group chat"
   },
-  "community":{
+  "notification": {
+    "title": "Notifications",
+    "markAsRead": "Mark as read",
+    "JOIN_GROUP": "{creatorName} added you to group {groupName}",
+    "NEW_COMMENT": "{senderName} commented on your post: {contentPreview}"
+  },
+  "community": {
     "selectPeople": "Select people"
   },
-  "contact":{
+  "contact": {
     "new": "New",
     "following": "Following",
     "followers": "Followers",

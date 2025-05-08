@@ -1,0 +1,51 @@
+@import '~/theme/styles/_keyframes.scss';
+.bell {
+  display: block;
+}
+
+.bellRing {
+  @extend .bell;
+  -webkit-animation: ring 4s 0.9s ease-in-out infinite !important;
+  -webkit-transform-origin: 50% 4px !important;
+  -moz-animation: ring 4s 0.9s ease-in-out infinite !important;
+  -moz-transform-origin: 50% 4px !important;
+  animation: ring 4s 0.9s ease-in-out infinite !important;
+  transform-origin: 50% 4px !important;
+}
+.filter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 20px;
+}
+.buttonFiler {
+  text-align: center;
+  width: 50px;
+  border-radius: 20px;
+}
+.buttonFiler.active {
+  background-color: #575a5d;
+  color: #1890ff;
+}
+.popoverContent {
+  width: 340px;
+  min-height: 400px;
+}
+.list {
+  :global {
+    .ant-list-item-action {
+      margin-inline-start: 0 !important;
+    }
+    .ant-list-item-meta {
+      align-items: center !important;
+    }
+  }
+}
+.listItem {
+  padding: 6px 0px !important;
+  border-radius: 8px;
+  cursor: pointer;
+  &.unread {
+    background-color: #f5f5f5;
+  }
+}

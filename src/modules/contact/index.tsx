@@ -3,8 +3,10 @@ import styles from './styles.module.scss';
 import { TabsProps } from 'antd/lib';
 import { useTranslations } from 'next-intl';
 import { useSearchParams } from 'next/navigation';
-import { AllRecommend } from '~/modules/contact/allRecommend';
 import MyContact from '~/modules/contact/myContact';
+import AllRecommend from '~/modules/contact/allRecommend';
+import MyInvitation from '~/modules/contact/myInvitation';
+import BeingInvited from '~/modules/contact/beingInvited';
 export default function ListContact() {
   const t = useTranslations();
   const searchParam = useSearchParams();
@@ -46,10 +48,10 @@ export default function ListContact() {
           }
         }
       />
-      {dataParams.tab === 'all' && <AllRecommend />}
-      {(dataParams.tab === 'contact' || !dataParams.tab) && <MyContact />}
-      {/* {dataParams.tab === 'invitation' && <MyInvitation />}
-      {dataParams.tab === 'beingInvited' && <BeingInvited />} */}
+      {(dataParams.tab === 'all' || !dataParams.tab) && <AllRecommend />}
+      {dataParams.tab === 'contact' && <MyContact />}
+      {dataParams.tab === 'invitation' && <MyInvitation />}
+      {dataParams.tab === 'beingInvited' && <BeingInvited />}
     </div>
   );
 }
