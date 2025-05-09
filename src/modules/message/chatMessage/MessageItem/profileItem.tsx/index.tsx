@@ -1,4 +1,3 @@
-
 interface Props {
   data: any;
 }
@@ -10,10 +9,10 @@ export function ProfileItem({ data: profile }: Props) {
 
   return (
     <div
-      className="relative w-[300px] h-[150px] bg-cover bg-center rounded-lg shadow-lg"
+      className="relative w-[300px] h-[150px] bg-cover bg-center rounded-lg shadow-lg mediaImg"
       style={{ backgroundImage: `url(${profile.cover_photo})` }}
     >
-      <div className="absolute bottom-[-25px] left-4 flex items-center">
+      <div className="absolute bottom-[-30px] left-4 flex items-end">
         <img
           src={profile.avatar}
           alt="Avatar"

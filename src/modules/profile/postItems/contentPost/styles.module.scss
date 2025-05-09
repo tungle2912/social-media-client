@@ -74,6 +74,9 @@
   height: 385px;
   gap: 8px;
   margin-bottom: 12px;
+  &.mediaContainerForward {
+    height: 150px;
+  }
 }
 
 .mediaItem {
@@ -254,10 +257,11 @@
 }
 
 .videoIframe {
-  width: 100%;
-  height: 385px;
+  width: 100% !important;
+  height: 385px !important;
   margin-bottom: 12px;
   border: none;
+  background-color: #cfcaca;
 }
 .videoContainer {
   display: flex;
@@ -270,7 +274,7 @@
 
 .videoPlayer {
   max-width: 90vw;
-  max-height: 100vh
+  max-height: 100vh;
 }
 
 .videoPlayButton {

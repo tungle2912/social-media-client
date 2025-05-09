@@ -4,7 +4,7 @@ import image from '@/static/image';
 import classNames from 'classnames';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import 'react-photo-view/dist/react-photo-view.css';
@@ -27,6 +27,11 @@ const EXT_IMAGE = ['gif', 'png', 'jpeg', 'jpg'];
 
 const ContentPost = ({ content, postMedias, onShowDetail, isDetail }: IPropsContentPost) => {
   const t = useTranslations();
+  const searchParams = useSearchParams();
+  const roomId = searchParams.get('roomId');
+  const isForward = useMemo(() => {
+    return !!roomId;
+  }, [roomId]);
   // const { profile } = useProfile(true);
 
   const [linkVideo, setLinkVideo] = useState('');
@@ -110,7 +115,7 @@ const ContentPost = ({ content, postMedias, onShowDetail, isDetail }: IPropsCont
       )} */}
 
       {linkVideo && !listPostMedia?.length && !listAttachment?.length && (
-        <IframeVideo linkVideo={linkVideo} className={styles.videoIframe} width="100%" height="385" />
+        <IframeVideo linkVideo={linkVideo} className={styles.videoIframe} width="100%" height="385"/>
       )}
 
       {listPostMedia?.length > 0 && (
@@ -121,7 +126,11 @@ const ContentPost = ({ content, postMedias, onShowDetail, isDetail }: IPropsCont
           photoWrapClassName={styles.photoWrap}
           photoClassName={styles.photo}
         >
-          <div className={styles.mediaContainer}>
+          <div
+            className={classNames('mediaContainer', styles.mediaContainer, {
+              [styles.mediaContainerForward]: isForward,
+            })}
+          >
             {firstMedia?.url && (
               <PhotoView
                 src={checkFirstImage ? firstMedia.url : undefined}

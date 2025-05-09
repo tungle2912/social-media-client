@@ -203,7 +203,7 @@ const MyContact = ({}: IPropsMyContact) => {
           <Spin spinning={isLoadingList}>
             {dataContact?.length > 0 ? (
               <>
-                <div className="max-sm:bg-[#F7F7F7] max-sm:h-[40px] flex items-center gap-[40px] max-xs:gap-[4px] max-xs:pr-4 pt-10">
+                <div className="max-sm:bg-[#F7F7F7] max-sm:h-[40px] flex items-center gap-[40px] max-xs:gap-[4px] max-xs:pr-4 pt-4 ml-[20px]">
                   <Checkbox
                     className={classNames(styles.checkboxAll, 'w-fit')}
                     indeterminate={checkedList?.length > 0 && checkedList?.length < allValueId.length}
@@ -214,7 +214,7 @@ const MyContact = ({}: IPropsMyContact) => {
                   </Checkbox>
                   {checkedList?.length > 0 && (
                     <>
-                      <div
+                      {/* <div
                         className={styles.btnActionAll}
                         onClick={() => {
                           setOpenModalForward(true);
@@ -229,7 +229,7 @@ const MyContact = ({}: IPropsMyContact) => {
                           {' '}
                           {t('contact.forward')}
                         </p>
-                      </div>
+                      </div> */}
 
                       <div className={styles.btnActionAll} onClick={onConfirmDisconnectMulti}>
                         <CloseIcon />

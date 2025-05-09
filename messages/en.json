@@ -130,7 +130,8 @@
     "myInvitation": "My invitations",
     "beingInvited": "Being invited",
     "acceptFollowSuccess": "Accept follow success",
-    "rejectFollowSuccess": "Reject follow success"
+    "rejectFollowSuccess": "Reject follow success",
+    "viewProfile": "View profile"
   },
   "accessDenied": "Access Denied",
   "modalConfirm": {

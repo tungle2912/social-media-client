@@ -25,6 +25,7 @@ import styles from './styles.module.scss';
 import image from '@/static/image';
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
 import Image from 'next/image';
+import { usePathname } from 'next/navigation';
 
 interface IProps {
   defaultValue: string;
@@ -59,6 +60,8 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg, setR
   const [files, setFiles] = useState<any>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const pathname = usePathname();
+  const isMessagePage = pathname.includes('message');
   const [openNoticeFile, setOpenNoticeFile] = useState<{
     isOpen: boolean;
     message1: string;
@@ -302,8 +305,12 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg, setR
   };
 
   return (
-    <div className={styles.inputMsgContainer}>
-      <div className="mb-2">
+    <div className={classNames(styles.inputMsgContainer, !isMessagePage && styles.inputContainerHomePage)}>
+      <div
+        className={classNames({
+          'mb-2': isMessagePage,
+        })}
+      >
         {files && (
           <div className="flex flex-row justify-start items-center">
             {files?.map((file: any, index: any) => {
@@ -355,8 +362,10 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg, setR
       </div>
       <div
         className={classNames(
-          'w-full h-auto relative rounded-[10px] px-[10px bg-[#F8F8FF] flex min-h-[80px] items-center gap-3',
-          loading ? 'opacity-[0.5]' : ''
+          'w-full h-auto relative rounded-[10px] px-[10px bg-[#F8F8FF] flex items-center gap-3',
+          loading ? 'opacity-[0.5]' : '',
+          isMessagePage ? 'min-h-[80px]' : 'min-h-[50px]',
+          !isMessagePage && 'py-2'
         )}
       >
         <Tooltip title={<span className="text-xs">{t('common.uploadImage')}</span>}>

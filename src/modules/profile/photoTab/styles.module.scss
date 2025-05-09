@@ -1,0 +1,126 @@
+.imageContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
+  width: 100%;
+}
+.section {
+  width: 100%;
+  padding: 20px;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border-radius: 15px;
+}
+.mediaGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.sectionTitle {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+.videoOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.mediaItem {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.02);
+
+    .viewPostButton {
+      opacity: 1;
+    }
+  }
+}
+.videoContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+.videoPlayer {
+  max-width: 90vw;
+  max-height: 100vh;
+}
+
+.videoPlayButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  /* Các kiểu khác nếu cần, như kích thước hoặc màu sắc của nút play */
+}
+.mediaContent {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.mediaImage {
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.videoWrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #000;
+
+  .videoElement {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+  }
+}
+
+.videoOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.viewPostButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s;
+  backdrop-filter: blur(2px);
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+  }
+}

@@ -3,7 +3,7 @@ import { Avatar, Flex, message, Spin } from 'antd';
 import classNames from 'classnames';
 import dayjs from 'dayjs';
 import { useTranslations } from 'next-intl';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { BackIcon, IconPenEdit } from '~/common/icon';
@@ -54,6 +54,8 @@ export default function ChatMessage({ conversationId, isPopup = false }: Props) 
   const [roomActive, setRoomActive] = useState<any>(null);
   const [newMsg, setNewMsg] = useState<any>();
   const deleteMessageMutation = useDeleteMessageMutation();
+  const pathname = usePathname();
+  const isMessagePage = pathname.includes('message');
   const changeRoomActive = () => {
     setRoomActive(roomId);
   };
@@ -402,7 +404,7 @@ export default function ChatMessage({ conversationId, isPopup = false }: Props) 
                   }
                   inverse={true}
                   key={roomId}
-                  height={`calc(100dvh - 300px)`}
+                  height={isMessagePage ? `calc(100dvh - 300px)` : `380px`}
                   className="scroll-bar py-10 px-[16px] mr-[5px] flex flex-col-reverse"
                 >
                   <div ref={lastMsgRef} />

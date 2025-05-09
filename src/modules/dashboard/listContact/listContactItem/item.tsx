@@ -36,7 +36,7 @@ export default function ListMessageItem({
   moveEnter_id,
   setActivityAccountInfo,
   setActivityAccountType,
-  onOpenChat
+  onOpenChat,
 }: itemProps) {
   const t = useTranslations();
   const router = useRouter();
@@ -77,7 +77,7 @@ export default function ListMessageItem({
             )}
           </div>
           <div className="flex justify-between items-center gap-[8px] w-full">
-            <div className="w-full">
+            <div className="w-full max-w-[200px]">
               <div className="flex justify-between items-center gap-[20px]">
                 <SmartTooltip
                   className="text-[#3E3E3E] font-bold max-w-[60%] sm:max-w-[50%]"

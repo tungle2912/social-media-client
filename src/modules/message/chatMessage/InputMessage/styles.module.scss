@@ -61,6 +61,9 @@
   .cursorNotAllow {
     cursor: not-allowed !important;
   }
+  &.inputContainerHomePage {
+    padding: 0;
+  }
 }
 .documentFile {
   border: 1px solid rgba(232, 233, 238, 1);

@@ -10,7 +10,7 @@ export const contactApi = {
   getFriends: async (data: any) => {
     return sendGet(`/api/contacts/friends`, data);
   },
-  getSuggestedFriend : async (data: any) => {
+  getSuggestedFriend: async (data: any) => {
     return sendGet(`/api/contacts/suggested_friends`, data);
   },
   getFollowings: async (data: any) => {
@@ -21,5 +21,8 @@ export const contactApi = {
   },
   getRecommended: async (data: any) => {
     return sendGet(`/api/contacts/recommended`, data);
-  }
+  },
+  getFriendById: async (id: string, data: any) => {
+    return sendGet(`/api/contacts/friends/${id}`, data);
+  },
 };

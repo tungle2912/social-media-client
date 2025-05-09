@@ -12,6 +12,7 @@ import InfoTab from '~/modules/profile/infoTab';
 import PostTab from '~/modules/profile/postTab';
 import useLoadingStore from '~/stores/loading.store';
 import styles from './styles.module.scss';
+import PhotoTab from '~/modules/profile/photoTab';
 
 export default function Profile() {
   const t = useTranslations();
@@ -58,11 +59,7 @@ export default function Profile() {
     {
       key: '6',
       label: t('photos'),
-      children: (
-        <div className={styles.photosTab}>
-          <p>{t('yourPhotos')}</p>
-        </div>
-      ),
+      children: <PhotoTab userId={userProfile?._id ?? ''} />,
     },
     {
       key: '7',
@@ -169,7 +166,7 @@ export default function Profile() {
       </div>
       <div className={styles.profileInfo}>
         <div className={styles.profileInfoContent}>
-          <h2>{userProfile?.user_name || t('notUpdated')}</h2>
+          <h2 className='font-semibold ml-2'>{userProfile?.user_name || t('notUpdated')}</h2>
           <div className={styles.friendList}>
             <Avatar
               size={40}

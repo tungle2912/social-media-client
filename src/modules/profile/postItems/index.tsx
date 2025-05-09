@@ -178,7 +178,7 @@ function PostItem({ post, refetch, openComment = false, isPreview = false, comme
       </button>
     </div>
   ) : (
-    <div className={classNames(styles.postItem, isForward && styles.postItemForward)}>
+    <div className={classNames(styles.postItem, 'postItem', isForward && styles.postItemForward)}>
       <HeaderPost refetch={refetch} isMyPost={post?.author?._id === user?._id && !isPreview} post={post}></HeaderPost>
       <ContentPost
         content={post.content}

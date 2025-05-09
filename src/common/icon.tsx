@@ -444,9 +444,9 @@ export const DownloadFileIcon: React.FC<IConProps> = () => {
     </svg>
   );
 };
-export const VideoButtonIcon = () => {
+export const VideoButtonIcon = ({ size = 88 }) => {
   return (
-    <svg width="88" height="88" viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width={size} height={size} viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g filter="url(#filter0_b_6021_129177)">
         <circle cx="44" cy="44" r="44" fill="#FEFEFF" />
       </g>

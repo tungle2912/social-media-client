@@ -101,7 +101,7 @@ const GroupChat: React.FC<Props> = ({ drawerCtrl, refetchListMessage }) => {
 
   useEffect(() => {
     if (listFriendsResponse) {
-      const friends = listFriendsResponse.pages[0].result;
+      const friends = listFriendsResponse.pages[0].result.users;
       const filteredFriends = friends.filter(
         (friend: any) => !listUserSelected.some((selected) => selected._id === friend._id)
       );

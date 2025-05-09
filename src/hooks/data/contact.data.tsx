@@ -1,10 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { contactApi } from '~/services/api/contact.api';
 
-export const useGetFriendQuery = (params: any) => {
+export const useGetFriendByIdQuery = (id: string) => {
   return useQuery({
-    queryKey: ['FRIENDS'],
-    queryFn: () => contactApi.getFriends(params),
+    queryKey: ['FRIENDS', id],
+    queryFn: () => contactApi.getFriendById(id, { page: 1, limit: 9 }),
     enabled: true,
   });
 };

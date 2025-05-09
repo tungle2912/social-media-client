@@ -14,6 +14,8 @@
     position: sticky;
     top: 20px;
     margin-right: 50px;
+    height: 100vh;
+    z-index: 10;
   }
 
   .createPost {
@@ -158,7 +160,6 @@
 .friendAvatar {
   border-radius: 8px;
   flex: 1 1 calc(25% - 10px);
-  max-width: calc(25% - 10px);
 }
 .btnAddEmoji,
 .btnAddTag {

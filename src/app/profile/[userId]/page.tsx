@@ -4,25 +4,27 @@ import { Avatar, Button, Image, Tabs } from 'antd';
 
 import { useSession } from 'next-auth/react';
 import { useTranslations } from 'next-intl';
-import { use } from 'react';
+import { use, useState } from 'react';
 import { UserType } from '~/definitions/types/index.type';
 import { useGetProfileByIdQuery } from '~/hooks/data/conservation.data';
 import InfoTab from '~/modules/profile/infoTab';
 import PostTab from '~/modules/profile/postTab';
 import styles from '../styles.module.scss';
 import { useParams } from 'next/navigation';
+import PhotoTab from '~/modules/profile/photoTab';
 export default function Profile() {
   const t = useTranslations();
   const { userId } = useParams();
   const response = useGetProfileByIdQuery(userId as string);
   const { data: session } = useSession();
   const user = session?.user;
+  const [activeTab, setActiveTab] = useState('1');
   const userProfile: UserType = response?.data?.result ?? ({} as UserType);
   const items = [
     {
       key: '1',
       label: t('posts'),
-      children: <PostTab isMe={false} userProfile={userProfile} />,
+      children: <PostTab isMe={false} userProfile={userProfile} setActiveTab={setActiveTab} />,
     },
     {
       key: '2',
@@ -55,11 +57,7 @@ export default function Profile() {
     {
       key: '6',
       label: t('photos'),
-      children: (
-        <div className={styles.photosTab}>
-          <p>{t('yourPhotos')}</p>
-        </div>
-      ),
+      children: <PhotoTab userId={userId as string} />,
     },
     {
       key: '7',
@@ -100,7 +98,7 @@ export default function Profile() {
       </div>
       <div className={styles.profileInfo}>
         <div className={styles.profileInfoContent}>
-          <h2>{userProfile?.user_name || t('notUpdated')}</h2>
+          <h2 className='font-bold ml-6'>{userProfile?.user_name || t('notUpdated')}</h2>
           <div className={styles.friendList}>
             <Avatar
               size={40}
@@ -115,7 +113,7 @@ export default function Profile() {
           </div>
         </div>
       </div>
-      <Tabs defaultActiveKey="1" items={items} />
+      <Tabs defaultActiveKey="1" activeKey={activeTab} onChange={setActiveTab} items={items} />
     </div>
   );
 }

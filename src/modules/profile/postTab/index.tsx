@@ -2,7 +2,7 @@
 import { Avatar, Button } from 'antd';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { UserType } from '~/definitions';
 import { useDimension } from '~/hooks';
 import InputCreatePost from '~/modules/profile/inputCreatePost';
@@ -16,6 +16,7 @@ import { useGetMediaByIdQuery } from '~/hooks/data/user.data';
 import { PhotoProvider, PhotoView } from 'react-photo-view';
 import { useRouter } from 'next/navigation';
 import { VideoButtonIcon } from '~/common/icon';
+import { useGetFriendByIdQuery } from '~/hooks/data/contact.data';
 interface iPostTab {
   userProfile: UserType;
   isMe?: boolean;
@@ -32,12 +33,19 @@ export default function PostTab({ userProfile, isMe = true, setActiveTab }: iPos
   const [typeModal, setTypeModal] = useState<MediaType>();
   const [showUpload, setShowUpload] = useState(false);
   const { data: listMediaResponse } = useGetMediaByIdQuery(userProfile?._id ?? '');
+  const { data: listFriendResponse } = useGetFriendByIdQuery(userProfile?._id ?? '');
   const [listMedia, setListMedia] = useState<any>(null);
   useEffect(() => {
     if (listMediaResponse) {
       setListMedia(listMediaResponse);
     }
   }, [listMediaResponse]);
+  const listFriend = useMemo(() => {
+    if (listFriendResponse?.result?.users) {
+      return listFriendResponse.result.users;
+    }
+    return [];
+  }, [listFriendResponse]);
   const handleClickAttach = (type: MediaType) => {
     setTypeModal(type);
     setShowUpload(true);
@@ -55,7 +63,7 @@ export default function PostTab({ userProfile, isMe = true, setActiveTab }: iPos
           <div className={styles.imagesSection}>
             <div className={styles.imagesSectionHeader}>
               <h3>{t('photos')}</h3>
-              <a onClick={()=>setActiveTab?.('6')} className={styles.viewAllImage}>
+              <a onClick={() => setActiveTab?.('6')} className={styles.viewAllImage}>
                 {t('viewAllPhotos')}
               </a>
             </div>
@@ -89,7 +97,7 @@ export default function PostTab({ userProfile, isMe = true, setActiveTab }: iPos
                           <div className={styles.videoWrapper}>
                             <video src={item.url} muted className={styles.videoElement} />
                             <div className={styles.videoOverlay}>
-                              <VideoButtonIcon />
+                              <VideoButtonIcon size={48} />
                             </div>
                           </div>
                         )}
@@ -113,18 +121,29 @@ export default function PostTab({ userProfile, isMe = true, setActiveTab }: iPos
           <div className={styles.friendsSection}>
             <div className={styles.friendsSectionHeader}>
               <h3>{t('friends')}</h3>
-              <a href="#" className={styles.viewAllFriendsLink}>
+              <a onClick={() => setActiveTab?.('3')} className={styles.viewAllFriendsLink}>
                 {t('viewAllFriends')}
               </a>
             </div>
             <div className={styles.friendContainer}>
-              <Image
-                width={100}
-                height={100}
-                alt={t('friendAvatarAlt')}
-                src="https://res.cloudinary.com/dflvvu32c/image/upload/v1745508584/f8fskez0fk3dcax6xmek.jpg"
-                className={styles.friendAvatar}
-              />
+              {listFriend.map((friend: any) => (
+                <div
+                  onClick={() => {
+                    router.push(`/profile/${friend._id}`);
+                  }}
+                  key={friend._id}
+                  className="flex flex-col gap-1 cursor-pointer"
+                >
+                  <Image
+                    width={95}
+                    height={95}
+                    alt={t('friendAvatarAlt')}
+                    src={friend.avatar}
+                    className={styles.friendAvatar}
+                  />
+                  <p className="font-semibold">{friend.user_name}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -76,7 +76,7 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-screen-lg mx-auto py-8 px-4">
+    <div className="w-full h-full py-8 px-4">
       <div className="bg-white p-6 rounded-lg shadow-lg">
         <Tabs
           activeKey={activeTab}

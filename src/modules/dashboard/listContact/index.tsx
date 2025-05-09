@@ -123,7 +123,6 @@ export default function ListConversation() {
         height={`calc(100dvh - 314px)`}
         className="scroll-bar pl-[10px] w-auto pr-[6px]pb-[5px]"
       >
-        <div></div>
         {flatListMessages.map((item: any, index: number) => (
           <ListContactItem
             activeRoom={activeRoom}
@@ -145,51 +144,53 @@ export default function ListConversation() {
   };
   return (
     <div className="flex flex-col gap-[12px]">
-      <div className={styles.listSuggested}>
-        {suggestedFriendResponse?.result?.length > 0
-          ? suggestedFriendResponse.result.map((friend: any) => (
-              <div key={friend.id} className={styles.suggestedItem}>
-                <Avatar className="bg-[#fff0f6] w-[56px] h-[56px]" src={friend?.avatar}></Avatar>
-                <div className="flex flex-col w-[calc(100%-56px)]">
-                  <p className={styles.suggestedName}>{friend?.user_name}</p>
-                  <div className="flex gap-2 max-lg:flex-col w-full">
-                    <Button
-                      onClick={() => {
-                        if (friend?._id) {
-                          followMutation.mutateAsync(friend._id as string, {
-                            onSuccess: async () => {
-                              await refetch();
-                              message.success(t('contact.acceptFollowSuccess'));
-                            },
-                          });
-                        }
-                      }}
-                      btnType="primary"
-                      className="text-[#ffffff] w-[100%]"
-                    >
-                      Accept
-                    </Button>
-                    <Button
-                      className="bg-[#d1d0d0] w-[100%]"
-                      onClick={() => {
-                        if (friend?._id) {
-                          rejectFollowMutation.mutateAsync(friend._id as string, {
-                            onSuccess: async () => {
-                              await refetch();
-                              message.success(t('contact.rejectFollowSuccess'));
-                            },
-                          });
-                        }
-                      }}
-                    >
-                      Remove
-                    </Button>
-                  </div>
+      {suggestedFriendResponse?.result?.length > 0 ? (
+        <div className={styles.listSuggested}>
+          {' '}
+          {suggestedFriendResponse.result.map((friend: any) => (
+            <div key={friend.id} className={styles.suggestedItem}>
+              <Avatar className="bg-[#fff0f6] w-[56px] h-[56px]" src={friend?.avatar}></Avatar>
+              <div className="flex flex-col w-[calc(100%-56px)]">
+                <p className={styles.suggestedName}>{friend?.user_name}</p>
+                <div className="flex gap-2 max-lg:flex-col w-full">
+                  <Button
+                    onClick={() => {
+                      if (friend?._id) {
+                        followMutation.mutateAsync(friend._id as string, {
+                          onSuccess: async () => {
+                            await refetch();
+                            message.success(t('contact.acceptFollowSuccess'));
+                          },
+                        });
+                      }
+                    }}
+                    btnType="primary"
+                    className="text-[#ffffff] w-[100%]"
+                  >
+                    Accept
+                  </Button>
+                  <Button
+                    className="bg-[#d1d0d0] w-[100%]"
+                    onClick={() => {
+                      if (friend?._id) {
+                        rejectFollowMutation.mutateAsync(friend._id as string, {
+                          onSuccess: async () => {
+                            await refetch();
+                            message.success(t('contact.rejectFollowSuccess'));
+                          },
+                        });
+                      }
+                    }}
+                  >
+                    Remove
+                  </Button>
                 </div>
               </div>
-            ))
-          : null}
-      </div>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       <div className={styles.listMessage}>
         <p className="ml-2 text-[16px] ">Recent message</p>
         {renderListMessage()}

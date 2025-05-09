@@ -7,27 +7,22 @@ import classNames from 'classnames';
 import { saveAs } from 'file-saver';
 import { useTranslations } from 'next-intl';
 import Image from 'next/image';
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import IframeVideo from '~/common/IframeVideo';
 import { DeleteTagIcon, DocumentDownloadIcon, DropDownIcon2 } from '~/common/icon';
 import SmartTooltip from '~/common/smartTooltip';
 import { messageType } from '~/definitions/enums/index.enum';
-import {
-  ConversationMessageStatus,
-  ConversationType,
-  MESSAGE_TYPE,
-  messageDeleteType,
-} from '~/definitions/models/message';
+import { ConversationMessageStatus, ConversationType, messageDeleteType } from '~/definitions/models/message';
 import { useDimension } from '~/hooks';
 import { useGetPostByIdQuery } from '~/hooks/data/post.data';
 import useConfirm from '~/hooks/useConfirm';
 import { convertLinksToAnchors, regexVideoMultipeSocial } from '~/lib/helper';
 import MediaMessage from '~/modules/message/MediaMessage';
+import { ProfileItem } from '~/modules/message/chatMessage/MessageItem/profileItem.tsx';
 import SendTime from '~/modules/message/chatMessage/SendTime';
 import PostItem from '~/modules/profile/postItems';
-import { getUsername } from '~/services/helpers';
 import styles from './styles.module.scss';
-import { ProfileItem } from '~/modules/message/chatMessage/MessageItem/profileItem.tsx';
-import IframeVideo from '~/common/IframeVideo';
+import { useSearchParams } from 'next/navigation';
 
 interface MessageItemProps {
   message: any;
@@ -52,6 +47,11 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
   const [errorMessage, setErrorMessage] = useState<string>('');
   const postRef = useRef<any>(null);
   const { isSM } = useDimension();
+  const searchParams = useSearchParams();
+  const roomId = searchParams.get('roomId');
+  const isForward = useMemo(() => {
+    return !!roomId;
+  }, [roomId]);
   const [linkVideo, setLinkVideo] = useState('');
   useEffect(() => {
     if (message.message) {
@@ -89,7 +89,7 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
 
     if (selectedPost) {
       return (
-        <div className="max-h-[90vh] overflow-y-auto p-4">
+        <div className={classNames('overPostItem max-h-[90vh] overflow-y-auto p-4', { 'px-0': isForward })}>
           <MemoizedPostItem openComment={true} post={selectedPost} isPreview refetch={refetch} />
         </div>
       );
@@ -172,13 +172,11 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
           className="text-sm break-words text-[#333333]"
           dangerouslySetInnerHTML={{ __html: convertLinksToAnchors(message?.message) }}
         ></div>
-        {linkVideo && (
-          <IframeVideo linkVideo={linkVideo} className={styles.videoIframe} width="100%" height="385" />
-        )}
+        {linkVideo && <IframeVideo linkVideo={linkVideo} className={styles.videoIframe} width="100%" height="385px" />}
         {message?.additionalData && message?.type === messageType.Profile && (
           <Flex className="flex flex-col bg-[white] px-3 py-2">
             <ProfileItem data={message?.additionalData} />
-            <Flex className="mt-2">
+            <Flex className="mt-6">
               <a
                 target="_blank"
                 href={`${process.env.NEXT_PUBLIC_DOMAIN}/public-page/personal/${message?.additionalData?._id}`}
@@ -191,7 +189,12 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
           </Flex>
         )}
         {message?.additionalData && message?.type === messageType.Post && (
-          <Flex className="flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2">
+          <Flex
+            className={classNames(
+              'containerPostItem flex flex-col bg-base-black-600 rounded-[10px] mt-[4px] px-3 py-2',
+              { 'px-0': isForward }
+            )}
+          >
             <Flex className="gap gap-3 py-2 flex border-b-[1px]">{renderPostContent()}</Flex>
           </Flex>
         )}
@@ -220,7 +223,7 @@ const MessageItem = ({ message, handleDeleteMsg, listDocs, listMedia, index, dat
     );
   };
   const renderOwnerMessage = () => (
-    <div className="w-fit max-w-[70%] px-[16px] py-[12px] rounded-[10px] bg-[#f7f0ff]">
+    <div className="w-fit max-w-[80%] px-[16px] py-[12px] rounded-[10px] bg-[#f7f0ff]">
       {renderMessageContent()}
       {message?.createdAt && !message?.deletedAt && !message?.isDeleted && (
         <SendTime

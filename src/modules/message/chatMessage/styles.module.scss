@@ -18,6 +18,24 @@
   }
 
   @include customScrollBar();
+  :global {
+    .mediaContainer {
+      height: 150px !important;
+    }
+    .postItem {
+      padding: 20px !important;
+    }
+    .overPostItem {
+      padding: 0 !important;
+    }
+    .containerPostItem {
+      padding: 0 !important;
+    }
+    .mediaImg {
+      width: 150px !important;
+      height: 100px !important;
+    }
+  }
 }
 
 .status {
@@ -242,7 +260,7 @@
     }
   }
 }
-.contentMessage{
+.contentMessage {
   height: 100%;
   display: flex;
   flex-direction: column;

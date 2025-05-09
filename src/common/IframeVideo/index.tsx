@@ -54,18 +54,31 @@ const IframeVideo = ({ linkVideo, width, height, className, enableJSAPI, autopla
       ></iframe>
     );
   } else if (linkVideo.includes('facebook.com')) {
+    // Giá trị cố định cho URL src của Facebook
+    const fbWidth = 560; // Giá trị pixel cố định cho plugin
+    const fbHeight = 315; // Tỷ lệ 16:9 với width=560
+
     return (
-      <iframe
-        src={`https://www.facebook.com/plugins/video.php?height=${height}&href=${encodeURIComponent(linkVideo)}&show_text=false&width=${width}&t=0`}
-        width={width}
-        height={height}
-        style={{ border: 'none', overflow: 'hidden' }}
-        scrolling="no"
-        frameBorder="0"
-        allowFullScreen
-        allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+      <div
         className={className}
-      ></iframe>
+        style={{ position: 'relative', paddingBottom: '56.25%', height: 0, overflow: 'hidden' }}
+      >
+        <iframe
+          src={`https://www.facebook.com/plugins/video.php?height=${fbHeight}&href=${encodeURIComponent(linkVideo)}&show_text=false&width=${fbWidth}&t=0`}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            border: 'none',
+          }}
+          scrolling="no"
+          frameBorder="0"
+          allowFullScreen
+          allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"
+        ></iframe>
+      </div>
     );
   } else if (linkVideo.includes('instagram.com')) {
     return (
