@@ -30,6 +30,7 @@ interface IProps {
   defaultValue: string;
   defaultFile?: any;
   handleSendMsg: (msgValue: any, file: any, documents: any) => void;
+  setRoomActive: () => void;
 }
 interface UploadFile {
   uid: string;
@@ -48,7 +49,7 @@ interface UploadErrorProps {
   limit: number;
 }
 
-const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IProps) => {
+const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg, setRoomActive }: IProps) => {
   // const me: any = getMe();
   const t = useTranslations();
   const [maxLengthTextArea, setMaxLengthTextArea] = useState<number>(500);
@@ -371,6 +372,7 @@ const InputMessage = ({ defaultValue = '', defaultFile = [], handleSendMsg }: IP
             maxLength={maxLengthTextArea}
             value={value || ''}
             onKeyDown={(e: any) => {
+              setRoomActive();
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 return handleSubmit();

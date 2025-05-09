@@ -3,10 +3,10 @@ import classNames from 'classnames';
 import { useCallback, useEffect, useState } from 'react';
 import SmartTooltip from '~/common/smartTooltip';
 import { ConversationType } from '~/definitions/models/message';
-import ChatMessage from '~/modules/dashboard/MessageDrawer/ChatMessage';
 import styles from './styles.module.scss';
 import { CloseIcon, MinimizeIcon } from '~/common/icon';
 import { useSocket } from '~/provider/socketProvider';
+import ChatMessage from '~/modules/message/chatMessage';
 export default function ChatBox({ conversation, onClose }: any) {
   const [isMinimized, setIsMinimized] = useState(false);
   const socket: any = useSocket();
@@ -105,7 +105,7 @@ export default function ChatBox({ conversation, onClose }: any) {
       </div>
       {!isMinimized && (
         <div style={{ height: '433px' }}>
-          <ChatMessage _id={conversation._id} />
+          <ChatMessage conversationId={conversation._id} isPopup />
         </div>
       )}
     </div>

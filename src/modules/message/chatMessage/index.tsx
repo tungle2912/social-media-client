@@ -25,11 +25,16 @@ import { messageApi } from '~/services/api/message.api';
 import { useDeleteMessageMutation } from '~/hooks/data/conservation.data';
 import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
 
-export default function ChatMessage() {
+interface Props {
+  isPopup?: boolean;
+  conversationId?: any;
+}
+
+export default function ChatMessage({ conversationId, isPopup = false }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const socket: any = useSocket();
-  const roomId = searchParams?.get('roomId');
+  const roomId = conversationId ?? searchParams?.get('roomId');
   const queryClient = useQueryClient();
   const { data: sessionData } = useSession();
   const [isNewMsg, setIsNewMsg] = useState<boolean>(false);
@@ -46,9 +51,12 @@ export default function ChatMessage() {
   const [openDrawerMember, setOpenDrawerMember] = useState<boolean>(false);
   const [msgMetaData, setMsgMetaData] = useState<any>();
   const [newMsgRead, setNewMsgRead] = useState<any>();
+  const [roomActive, setRoomActive] = useState<any>(null);
   const [newMsg, setNewMsg] = useState<any>();
   const deleteMessageMutation = useDeleteMessageMutation();
-
+  const changeRoomActive = () => {
+    setRoomActive(roomId);
+  };
   const {
     data: dataResponse,
     isLoading: isLoadingList,
@@ -139,14 +147,18 @@ export default function ChatMessage() {
       }, 1000);
   }, [dataMessageResponse]);
   useEffect(() => {
-    if (socket) {
+    if (socket && roomActive === roomId) {
       const handleNewMessage = (message: any) => {
-        setDataMessageResponse((prev: any) => [message, ...prev]);
+        if (message.conversationId === roomId) {
+          setDataMessageResponse((prev: any) => [message, ...prev]);
+        }
       };
       const handleNewDeleteMessage = (updatedMessage: any) => {
-        setDataMessageResponse((prev: any) =>
-          prev.map((msg: any) => (msg._id === updatedMessage._id ? updatedMessage : msg))
-        );
+        if (updatedMessage.conversationId === roomId) {
+          setDataMessageResponse((prev: any) =>
+            prev.map((msg: any) => (msg._id === updatedMessage._id ? updatedMessage : msg))
+          );
+        }
       };
 
       socket.on(SOCKET_EVENT_KEY.NEW_MESSAGE, handleNewMessage);
@@ -158,7 +170,7 @@ export default function ChatMessage() {
         socket.off(SOCKET_EVENT_KEY.DELETE_MESSAGE, handleNewDeleteMessage);
       };
     }
-  }, [roomId, socket]);
+  }, [roomId, socket, roomActive]);
   useEffect(() => {
     if (!!roomId) {
       setLoading(true);
@@ -344,20 +356,20 @@ export default function ChatMessage() {
     } catch (error) {}
   };
   return (
-    <>
-      <div className="relative h-full">
-        {!roomId && !activityAccountType ? (
-          <div className="w-full h-full flex justify-center items-center">
-            <IconNoMessage />
-          </div>
-        ) : (
-          <div className={styles.contentMessage}>
-            {loading ? (
-              <div className="w-full h-[60vh] flex justify-center items-center">
-                <Spin />
-              </div>
-            ) : (
-              <>
+    <div id={`message-${roomId}`} className="relative h-full">
+      {!roomId && !activityAccountType ? (
+        <div className="w-full h-full flex justify-center items-center">
+          <IconNoMessage />
+        </div>
+      ) : (
+        <div className="h-full">
+          {loading ? (
+            <div className="w-full h-[60vh] flex justify-center items-center">
+              <Spin />
+            </div>
+          ) : (
+            <div className={styles.contentMessage}>
+              {!isPopup && (
                 <div className="absolute w-full top-0 bg-white z-1 flex items-center justify-center border-b-[1px] border-color-[#E8E9EE]">
                   <div className="flex justify-between items-center gap-[12px] px-[32px] max-xs:px-[16px] py-[24px] w-full">
                     <div
@@ -372,65 +384,38 @@ export default function ChatMessage() {
                     {/* <div className="flex items-center gap-[16px]">{renderActionRoom()}</div> */}
                   </div>
                 </div>
-                <div className={classNames('w-full absolute top-[115px] pb-[12px] bg-white', styles.customScrollBar)}>
-                  <InfiniteScroll
-                    dataLength={listDetailMessage?.length || 0}
-                    next={onNextPage}
-                    hasMore={hasNextPage}
-                    loader={
-                      <div className="flex justify-center mt-[20px]">
-                        <Spin />
-                      </div>
-                    }
-                    inverse={true}
-                    key={roomId}
-                    height={`calc(100dvh - 300px)`}
-                    className="scroll-bar py-10 px-[16px] mr-[5px] flex flex-col-reverse"
-                  >
-                    <div ref={lastMsgRef} />
-                    {renderListMsg()}
-                  </InfiniteScroll>
-                </div>
-                <div className="absolute bottom-0 h-auto w-full border-t-[1px] border-color-[#fffaaa] z-10">
-                  <InputMessage defaultValue={''} handleSendMsg={sendMessage} />
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-      {/* <DrawerEditMember
-        open={openDrawerEditMember}
-        onClose={() => {
-          setOpenDrawerEditMember(false);
-        }}
-        dataConversation={dataConversation}
-      />
-      <DrawerMember
-        open={openDrawerMember}
-        onClose={() => {
-          setOpenDrawerMember(false);
-        }}
-        dataConversation={dataConversation}
-      />
-      <DrawerEditGroup
-        open={openDrawerEditGroup}
-        onClose={() => {
-          setOpenDrawerEditGroup(false);
-        }}
-        _id={dataConversation?._id}
-        groupName={dataConversation?.title}
-        key={dataConversation?.title}
-        refetch={refetch}
-      />
-      <ModalExitGroup
-        open={openExitGroup}
-        onClose={() => {
-          setOpenExitGroup(false);
-        }}
-        conversation_id={dataConversation?._id}
-      />
-      <GroupChat drawerCtrl={groupChatCtrl} /> */}
-    </>
+              )}
+              <div
+                className={classNames(
+                  `w-full absolute ${!isPopup && 'top-[115px]'} pb-[12px] bg-white`,
+                  styles.customScrollBar
+                )}
+              >
+                <InfiniteScroll
+                  dataLength={listDetailMessage?.length || 0}
+                  next={onNextPage}
+                  hasMore={hasNextPage}
+                  loader={
+                    <div className="flex justify-center mt-[20px]">
+                      <Spin />
+                    </div>
+                  }
+                  inverse={true}
+                  key={roomId}
+                  height={`calc(100dvh - 300px)`}
+                  className="scroll-bar py-10 px-[16px] mr-[5px] flex flex-col-reverse"
+                >
+                  <div ref={lastMsgRef} />
+                  {renderListMsg()}
+                </InfiniteScroll>
+              </div>
+              <div className="absolute bottom-0 h-auto w-full border-t-[1px] border-color-[#fffaaa] z-10">
+                <InputMessage defaultValue={''} handleSendMsg={sendMessage} setRoomActive={changeRoomActive} />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
