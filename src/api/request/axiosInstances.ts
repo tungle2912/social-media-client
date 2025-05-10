@@ -38,7 +38,7 @@ async function refreshTokenIfNeeded() {
  */
 const protectedAxiosInstance = Axios.create({
   timeout: 60 * 1000,
-  baseURL: 'http://localhost:5000',
+  baseURL: process.env.NEXT_PUBLIC_API_HOST,
 });
 
 /**
@@ -82,7 +82,7 @@ protectedAxiosInstance.interceptors.response.use(
  */
 const publicAxiosInstance = Axios.create({
   timeout: 60 * 1000,
-  baseURL: 'http://localhost:5000',
+  baseURL: process.env.NEXT_PUBLIC_API_HOST,
   withCredentials: true,
 });
 

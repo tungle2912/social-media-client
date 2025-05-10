@@ -8,7 +8,7 @@ const plugins = [];
 const isProd = process.env.NODE_ENV === 'production';
 
 const nextConfig = {
-  reactStrictMode: isProd,
+  reactStrictMode: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -19,6 +19,9 @@ const nextConfig = {
   // experimental: {
   //   appDir: true, // Nếu bạn đang sử dụng App Directory trong Next.js 14
   // },
+  sassOptions: {
+    includePaths: ['./src', './styles'],
+  },
   images: {
     // Learn more NextJS's remotePatterns: https://nextjs.org/docs/app/api-reference/components/image#remotepatterns
     remotePatterns: [

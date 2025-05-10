@@ -22,7 +22,7 @@ export const rules: Record<
     },
     {
       pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{6,50}$/,
-      message: 'Password must be minimum 8 characters, at least one letter and one number!',
+      message: 'Password must be minimum 8 characters, at least one letter!',
     },
   ],
   confirm_password: [
