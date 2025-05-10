@@ -19,6 +19,7 @@ interface Reaction extends User {
 interface Props {
   reactions: Reaction[];
   comments?: any[];
+  setShowComment?: (show: boolean) => void;
 }
 
 const reactionIcons: Record<string, React.ReactNode> = {
@@ -31,7 +32,7 @@ const reactionIcons: Record<string, React.ReactNode> = {
 };
 const reactionOrder = ['like', 'love', 'haha', 'wow', 'sad', 'angry'];
 
-export default function ReactCount({ reactions, comments }: Props) {
+export default function ReactCount({ reactions, comments, setShowComment }: Props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const router = useRouter();
   const handleViewProfile = (userId: string) => {
@@ -143,7 +144,7 @@ export default function ReactCount({ reactions, comments }: Props) {
       </div>
       {comments && (
         <div className={styles.commentCount}>
-          <span onClick={openModal} style={{ cursor: 'pointer' }}>
+          <span onClick={() => setShowComment?.(true)} style={{ cursor: 'pointer' }}>
             {comments.length} bình luận
           </span>
         </div>

@@ -45,20 +45,20 @@ export default function Sidebar() {
         {(!isSM || (isSM && !collapsed)) && (
           <Image
             src={image.logo}
-            width={collapsed ? 100 : 150}
+            width={collapsed ? 50 : 80}
             height={collapsed ? 50 : 80}
-            style={{ marginBottom: collapsed ? '30px' : '' }}
+            style={{ margin: collapsed ? '10px 0 24px 0' : '0' }}
             alt="logo"
           />
         )}
-        {windowWidth >= 1400 && !collapsed && (
+        {/* {windowWidth >= 1400 && !collapsed && (
           <Button
             type="text"
             icon={<MenuUnfoldOutlined />}
             onClick={() => setCollapsed && setCollapsed(!collapsed)}
             className={styles.btnCollapse}
           />
-        )}
+        )} */}
       </div>
 
       <Menu mode="inline" defaultSelectedKeys={['1']} items={menuRoutes} onClick={handleMenuClick} />

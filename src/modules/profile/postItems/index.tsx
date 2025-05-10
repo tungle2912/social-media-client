@@ -199,7 +199,7 @@ function PostItem({ post, refetch, openComment = false, isPreview = false, comme
       {!isPreview && (
         <>
           <div className={styles.metaDataPost}>
-            <ReactCount reactions={post.reactions || []} comments={post.comments} />
+            <ReactCount reactions={post.reactions || []} comments={post.comments} setShowComment={setShowComment} />
           </div>
           <Divider />
           <div className={styles.actions}>

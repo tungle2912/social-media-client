@@ -58,7 +58,10 @@
   }
 }
 .logo {
+  cursor: pointer;
   margin-bottom: 32px;
+  display: flex;
+  justify-self: center;
 }
 @media (max-width: 576px) {
   .sideBar {

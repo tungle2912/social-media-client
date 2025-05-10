@@ -99,7 +99,7 @@ const AllRecommend = () => {
                         },
                       });
                     }}
-                    className="rounded-[5px] bg-[#FFF8E5] flex px-[8px] py-[4px] items-center gap-[4px] w-[43px] text-xs not-italic font-bold text-[#E57A00] mr-[8px]"
+                    className="rounded-[5px] cursor-pointer bg-[#FFF8E5] flex px-[8px] py-[4px] items-center gap-[4px] w-[43px] text-xs not-italic font-bold text-[#E57A00] mr-[8px]"
                   >
                     {t('contact.follow')}
                   </p>

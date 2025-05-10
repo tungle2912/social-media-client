@@ -100,7 +100,7 @@ const SelectPeopleCanViewAndComment: React.FC<Props> = ({
   useEffect(() => {
     if (dataResponse?.pages) {
       const newListConnections = dataResponse.pages.reduce((acc, page) => {
-        return [...acc, ...(page?.result || [])];
+        return [...acc, ...(page?.result.users || [])];
       }, []);
       setListConnections(newListConnections);
     }

@@ -107,7 +107,8 @@
   },
   "notification": {
     "title": "Notifications",
-    "markAsRead": "Mark as read",
+    "markAsRead": "Mark as read", 
+     "NEW_FOLLOW": "{followerName} started following you",
     "JOIN_GROUP": "{creatorName} added you to group {groupName}",
     "NEW_COMMENT": "{senderName} commented on your post: {contentPreview}"
   },
