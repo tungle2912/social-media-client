@@ -16,7 +16,6 @@ export * from '~/definitions/constants/routes.constant';
 /**
  * Interfaces
  */
-export * from '~/definitions/interfaces/sample.interface';
 
 /**
  * Enums

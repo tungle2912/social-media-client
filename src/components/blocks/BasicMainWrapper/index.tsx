@@ -2,7 +2,6 @@
 
 import React from 'react';
 
-import BasicBreadcrumb from '~/components/blocks/BasicBreadcrumb';
 import ThrowError from '~/components/blocks/Errors/ThrowError';
 import ErrorBoundary from '~/components/boundaries/ErrorBoundary';
 import { theme, Layout } from '~/theme';
@@ -29,7 +28,6 @@ export default function BasicMainWrapper({ children }: IProps) {
         gap: 20,
       }}
     >
-      <BasicBreadcrumb />
       <div
         style={{
           flexGrow: '1',

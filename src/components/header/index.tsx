@@ -2,26 +2,24 @@
 import { DownOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Avatar, Badge, Button, List, Menu, Popover, Spin, Switch } from 'antd';
 import { useRouter } from 'next/navigation';
-import { use, useEffect, useState } from 'react';
-import { IconNotification, LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
-import InputSearch from '~/common/inputSearch';
+import { useEffect, useState } from 'react';
+import { LanguageIcon, LogoutIcon, NotificationIcon } from '~/common/icon';
 import { useDimension } from '~/hooks';
 import { useLogoutMutation } from '~/hooks/data/auth.data';
 
+import classNames from 'classnames';
 import { signOut } from 'next-auth/react';
+import NotificationPopover from '~/components/header/notification';
+import Search from '~/components/header/search';
+import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
+import { useGetCountNotificationCountQuery } from '~/hooks/data/notification.data';
+import { clearAllCookies } from '~/lib/helper';
+import { useSocket } from '~/provider/socketProvider';
 import { switchLocale } from '~/services/modules';
 import { useAuthStore } from '~/stores/auth.store';
 import { useSideBarStore } from '~/stores/sidebar.store';
+import { ETheme, useTheme } from '~/theme/ThemeProvider';
 import styles from './styles.module.scss';
-import { useTheme } from '~/theme/ThemeProvider';
-import { clearAllCookies } from '~/lib/helper';
-import { ETheme } from '~/theme/ThemeProvider';
-import classNames from 'classnames';
-import Search from '~/components/header/search';
-import { useGetCountNotificationCountQuery } from '~/hooks/data/notification.data';
-import NotificationPopover from '~/components/header/notification';
-import { SOCKET_EVENT_KEY } from '~/definitions/constants/index.constant';
-import { useSocket } from '~/provider/socketProvider';
 export default function Header() {
   const { collapsed, setCollapsed } = useSideBarStore();
   const { isSM: isMobile, windowWidth } = useDimension();

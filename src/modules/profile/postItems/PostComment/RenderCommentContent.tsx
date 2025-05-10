@@ -1,9 +1,6 @@
 import { useTranslations } from 'next-intl';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { convertLinksToAnchors, convertSwitchDecIcons } from '~/models/community';
-import { handleClickMyPage } from '~/utils/helper';
-
 const RenderCommentContent = ({ styles, comment, subComment }: any) => {
   const [isDetail, setIsDetail] = useState<boolean>(false);
   const router = useRouter();
@@ -19,12 +16,7 @@ const RenderCommentContent = ({ styles, comment, subComment }: any) => {
 
     const handleClick = () => {
       if (mentionName) {
-        handleClickMyPage(
-          subComment?.mentions[0]?.representationObject,
-          subComment?.mentions[0]?.uuid,
-          subComment?.mentions[0]?.representationId,
-          router,
-        );
+      
       }
     };
 
@@ -38,12 +30,7 @@ const RenderCommentContent = ({ styles, comment, subComment }: any) => {
     <div>
       <div
         className={styles.content}
-        dangerouslySetInnerHTML={{
-          __html:
-            commentShow?.length > 500 && !isDetail
-              ? convertLinksToAnchors(convertSwitchDecIcons(commentShow)?.slice(0, 500) + '... ')
-              : convertLinksToAnchors(convertSwitchDecIcons(commentShow)),
-        }}
+       
       ></div>
       {commentShow?.length > 500 && !isDetail && (
         <span

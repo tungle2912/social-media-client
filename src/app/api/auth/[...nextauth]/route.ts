@@ -21,7 +21,7 @@ async function refreshAccessToken(refreshToken: string) {
   }
 }
 
-export const nextAuthOptions: AuthOptions = {
+const nextAuthOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       name: 'Credentials',
